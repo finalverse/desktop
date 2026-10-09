@@ -70,11 +70,24 @@ class LaunchSafety(unittest.TestCase):
             with self.assertRaises(ValueError): self.run_preflight()
         (self.root/'new-evidence').mkdir()
         with self.assertRaises(ValueError): self.run_preflight()
+    def test_reject_other_test_package_before_launchservices_can_reuse_it(self):
+        with patch('launch_harbor_benchmark.subprocess.check_output',return_value='/other/Previous.app/Contents/MacOS/Finalverse Test'):
+            with self.assertRaises(ValueError): self.run_preflight()
     def test_reject_wrong_region_and_linked_session(self):
         self.fixture['region_id']='00000000-0000-0000-0000-000000000000';self.write(self.spec,self.fixture)
         with self.assertRaises(ValueError): self.run_preflight()
         self.fixture['region_id']=REGION_ID;self.write(self.spec,self.fixture)
         other=self.root/'other.xml';self.session.rename(other);self.session.symlink_to(other)
         with self.assertRaises(ValueError): self.run_preflight()
+    def test_queue_is_opt_in_private_and_cannot_replace_pending_work(self):
+        queue=self.root/'queue';queue.mkdir(mode=0o700)
+        args=preflight(self.app,self.profile,self.session,self.spec,self.digest,queue)
+        self.assertIn('FinalverseQuickVisualDirectory',args)
+        queue.chmod(0o755)
+        with self.assertRaises(ValueError): preflight(self.app,self.profile,self.session,self.spec,self.digest,queue)
+        queue.chmod(0o700);(queue/'request.xml').write_text('pending')
+        with self.assertRaises(ValueError): preflight(self.app,self.profile,self.session,self.spec,self.digest,queue)
+        (queue/'request.xml').unlink();linked=self.root/'linked';linked.symlink_to(queue,target_is_directory=True)
+        with self.assertRaises(ValueError): preflight(self.app,self.profile,self.session,self.spec,self.digest,linked)
 
 if __name__=='__main__': unittest.main()

@@ -37,7 +37,7 @@ def document(path, private=False):
     require(0 < info.st_size <= 1024 * 1024, 'Fixture file size is invalid.')
     return decode(ET.parse(path).getroot()[0])
 
-def preflight(app, profile, session, spec, expected_hash):
+def preflight(app, profile, session, spec, expected_hash, quick_directory=None):
     require(sys.platform == 'darwin', 'This launcher is for the macOS test fixture.')
     require(profile.is_dir() and profile.resolve() != Path.home().resolve(), 'An existing isolated profile is required.')
     info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
@@ -46,7 +46,10 @@ def preflight(app, profile, session, spec, expected_hash):
     executable = app / 'Contents/MacOS/Finalverse Test'
     require(hashlib.sha256(executable.read_bytes()).hexdigest() == expected_hash, 'Test executable hash does not match the selected milestone.')
     procs = subprocess.check_output(['ps', '-axo', 'comm='], text=True).splitlines()
-    require(str(executable.resolve()) not in [p.strip() for p in procs], 'Quit the existing test viewer before launching a new session.')
+    # LaunchServices can reuse a different checkout with the same bundle ID and
+    # discard its new arguments. Do not open another test package concurrently.
+    require(not any(p.strip().endswith('/Contents/MacOS/Finalverse Test') for p in procs),
+            'Quit the existing Finalverse test viewer before launching a new session.')
     grids = document(profile / 'Library/Application Support/Finalverse/user_settings/grids.xml')
     require(isinstance(grids, dict) and grids.get(GRID_KEY, {}).get('login_uri') == [GRID_URI], 'Isolated profile must map the explicit fixture grid to loopback only.')
     settings = document(session, private=True)
@@ -69,19 +72,29 @@ def preflight(app, profile, session, spec, expected_hash):
     require(output.is_absolute() and not output.exists() and not output.is_symlink() and output.parent.is_dir(), 'Choose a new absolute evidence directory with an existing parent.')
     # No startup URLs or additional options are accepted. Credentials remain in
     # the owned session file, never argv or preflight output.
-    return ['open', '--env', 'CFFIXED_USER_HOME=' + str(profile.resolve()), str(app.resolve()),
+    command = ['open', '--env', 'CFFIXED_USER_HOME=' + str(profile.resolve()), str(app.resolve()),
             '--args', '--grid', GRID_KEY, '--sessionsettings', str(session.resolve()),
             '--set', 'FinalverseVisualBenchmarkFile', str(spec.resolve()),
             '--set', 'AutoLogin', 'false', '--set', 'RememberPassword', 'false', '--set', 'RememberUser', 'false']
+    if quick_directory is not None:
+        info = quick_directory.lstat()
+        require(quick_directory.is_absolute() and stat.S_ISDIR(info.st_mode) and
+                info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == 0o700,
+                'Quick-check directory must be owned, absolute, mode 0700 and not a symlink.')
+        require(not any((quick_directory / n).exists() or (quick_directory / n).is_symlink()
+                        for n in ['request.xml', 'active.xml']), 'Quick-check directory contains a pending request.')
+        command += ['--set', 'FinalverseQuickVisualDirectory', str(quick_directory)]
+    return command
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for flag in ['app', 'profile', 'session', 'spec']: parser.add_argument('--' + flag, type=Path, required=True)
     parser.add_argument('--binary-sha256', required=True)
     parser.add_argument('--check-only', action='store_true')
+    parser.add_argument('--quick-directory', type=Path, help='Private directory for later captures in this same session')
     args = parser.parse_args()
     try:
-        command = preflight(args.app, args.profile, args.session, args.spec, args.binary_sha256)
+        command = preflight(args.app, args.profile, args.session, args.spec, args.binary_sha256, args.quick_directory)
         if not args.check_only: subprocess.run(command, check=True, capture_output=True)
     except (ValueError, OSError, KeyError, TypeError, ET.ParseError, subprocess.SubprocessError):
         # Never interpolate XML parser errors or subprocess output: those may

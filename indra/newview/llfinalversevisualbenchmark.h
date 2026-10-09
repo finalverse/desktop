@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-// Local developer fixture only. No avatar movement, world writes or AI commands.
+// Local developer fixture only. Optional owned-bench interaction uses inherited
+// walking/sit/stand; no content writes or AI commands.
 bool llfinalverseValidateVisualBenchmark(const LLSD& spec, std::string& error);
 LLSD llfinalverseFrameSummary(const std::vector<double>& seconds);
 void llfinalverseVisualBenchmarkIdle(double frame_seconds, bool quitting);

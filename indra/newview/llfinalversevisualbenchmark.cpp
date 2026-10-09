@@ -25,18 +25,43 @@ bool llfinalverseValidateVisualBenchmark(const LLSD& spec, std::string& error)
 {
     const std::set<std::string> names = {"CAM_Arrival", "CAM_Harbor", "CAM_Lumi", "CAM_LumiHome",
         "CAM_Garden", "CAM_Pavilion", "CAM_Waterfront", "CAM_Sunset"};
+    const bool quick = spec.has("quick_mode") && spec["quick_mode"].isBoolean() && spec["quick_mode"].asBoolean();
     if (!spec.isMap() || !spec["schema"].isInteger() || spec["schema"].asInteger() != 1 ||
         spec["grid_login_uri"].asString() != "http://127.0.0.1:18094/" ||
-        !spec["region_id"].isUUID() || spec["region_id"].asUUID().isNull() ||
+        !spec["region_id"].isUUID() || spec["region_id"].asUUID() != LLUUID("a9d44538-26ca-4586-a8a9-e551722ffa15") ||
         !spec["output_dir"].isString() || spec["output_dir"].asString().empty() ||
         !std::filesystem::path(spec["output_dir"].asString()).is_absolute() ||
-        !number(spec["warmup_seconds"], 10., 60.) || !number(spec["sample_seconds"], 10., 60.) ||
+        !number(spec["warmup_seconds"], quick ? 2. : 10., quick ? 10. : 60.) ||
+        !number(spec["sample_seconds"], quick ? 3. : 10., quick ? 10. : 60.) ||
         !spec["views"].isArray() || spec["views"].size() < 1 || spec["views"].size() > 8)
     {
         error = "Expected schema 1, the loopback Phase 4B fixture, region UUID, absolute output path, 10–60 second windows and one to eight canonical cameras.";
         return false;
     }
     std::set<std::string> seen;
+    if (spec.has("quick_mode") && !spec["quick_mode"].isBoolean())
+    {
+        error = "quick_mode must be an explicit boolean.";
+        return false;
+    }
+    if (quick && (spec.has("environment") || spec.has("capture_size") ||
+        (spec.has("quit_after_capture") && spec["quit_after_capture"].asBoolean())))
+    {
+        error = "Quick checks preserve the existing environment, window and login session.";
+        return false;
+    }
+    if (spec.has("interaction"))
+    {
+        const LLSD& action = spec["interaction"];
+        if (!quick || spec["views"].size() != 1 || !action.isMap() ||
+            action["kind"].asString() != "bench_sit_stand" ||
+            !action["seat_id"].isUUID() || action["seat_id"].asUUID().isNull() ||
+            !position(action["expected_position"]))
+        {
+            error = "Interaction requires one quick view and a bounded, owned fixture bench.";
+            return false;
+        }
+    }
     if (spec.has("quit_after_capture") && !spec["quit_after_capture"].isBoolean())
     {
         error = "quit_after_capture must be an explicit boolean in the isolated fixture.";

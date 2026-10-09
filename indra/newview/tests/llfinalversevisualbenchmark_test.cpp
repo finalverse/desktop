@@ -116,4 +116,40 @@ template<> template<> void object_t::test<10>()
     spec["capture_size"][0] = 1280.;
     ensure("dimensions must be integers", !llfinalverseValidateVisualBenchmark(spec, error));
 }
+template<> template<> void object_t::test<11>()
+{
+    std::string error;
+    spec["quick_mode"] = true; spec["warmup_seconds"] = 5.; spec["sample_seconds"] = 5.;
+    ensure("short private visual check", llfinalverseValidateVisualBenchmark(spec, error));
+    spec["sample_seconds"] = 2.;
+    ensure("still requires a real sample", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["sample_seconds"] = 5.; spec["quit_after_capture"] = true;
+    ensure("cannot terminate persistent session", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec.erase("quit_after_capture"); spec["environment"] = LLSD::emptyMap();
+    ensure("cannot leave a changed environment", !llfinalverseValidateVisualBenchmark(spec, error));
+}
+template<> template<> void object_t::test<12>()
+{
+    std::string error;
+    spec["region_id"] = LLUUID::generateNewID();
+    ensure("only the designated region", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["region_id"] = LLUUID("a9d44538-26ca-4586-a8a9-e551722ffa15");
+    spec["quick_mode"] = "true";
+    ensure("cannot enable command mode by coercion", !llfinalverseValidateVisualBenchmark(spec, error));
+}
+template<> template<> void object_t::test<13>()
+{
+    std::string error;
+    const LLSD first = spec["views"][0]; spec["views"] = LLSD::emptyArray(); spec["views"].append(first);
+    spec["quick_mode"] = true; spec["warmup_seconds"] = 5.; spec["sample_seconds"] = 5.;
+    spec["interaction"]["kind"] = "bench_sit_stand";
+    spec["interaction"]["seat_id"] = LLUUID::generateNewID();
+    spec["interaction"]["expected_position"] = first["focus"];
+    ensure("one explicit native bench check", llfinalverseValidateVisualBenchmark(spec, error));
+    spec["interaction"]["kind"] = "delete";
+    ensure("no general world mutation endpoint", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["interaction"]["kind"] = "bench_sit_stand";
+    spec["interaction"]["expected_position"][0] = -1.;
+    ensure("bench remains within fixture", !llfinalverseValidateVisualBenchmark(spec, error));
+}
 }
