@@ -42,6 +42,28 @@ def decode(node):
     if node.tag == 'uuid': return uuid.UUID(node.text or '00000000-0000-0000-0000-000000000000')
     return node.text or ''
 
+def compare_runs(baseline, candidate, changes):
+    """Refuse a performance comparison when the native fixtures differ."""
+    def require(condition):
+        if not condition: raise ValueError('Completed native runs must match build, fixture, cameras, environment, pixels and cached counts; only declared graphics changes are allowed.')
+    require(baseline['status'] == candidate['status'] == 'complete')
+    require(baseline['viewer'] == candidate['viewer'])
+    fixture = lambda run: {k:v for k,v in run['spec'].items() if k != 'output_dir'}
+    require(fixture(baseline) == fixture(candidate))
+    before, after = baseline['views'], candidate['views']
+    require(len(before) == len(after) == len(baseline['spec']['views']) and len(before) > 0)
+    rows = []
+    for left, right in zip(before, after):
+        require(all(left[k] == right[k] for k in ('camera', 'sky', 'water', 'environment_selection', 'width_raw', 'height_raw', 'cached_objects')))
+        require(left['graphics'].keys() == right['graphics'].keys())
+        differences = {k for k,v in left['graphics'].items() if v != right['graphics'][k]}
+        require(differences <= set(changes))
+        for view in (left, right):
+            require(view['valid'] and view['screenshot_saved'] and view['frame_csv_saved'] and view['frames'] > 0 and view['sample_seconds'] > 0)
+        rows.append((left['camera']['name'], left['fps'], right['fps'], (right['fps']/left['fps'] - 1)*100, left['p95_ms'], right['p95_ms']))
+    weighted = lambda views: sum(v['frames'] for v in views)/sum(v['sample_seconds'] for v in views)
+    return rows, weighted(before), weighted(after)
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
@@ -51,22 +73,39 @@ def main():
     spec.add_argument('--region-id', type=uuid.UUID, default=uuid.UUID('a9d44538-26ca-4586-a8a9-e551722ffa15'))
     spec.add_argument('--warmup', type=float, default=15.)
     spec.add_argument('--sample', type=float, default=15.)
+    spec.add_argument('--views', nargs='+', choices=[v[0] for v in VIEWS], help='Canonical subset for feature A/B; omitted means all eight')
     report = commands.add_parser('report')
     report.add_argument('results', type=Path)
+    comparison = commands.add_parser('compare', help='One matched native comparison; no GUI interaction')
+    comparison.add_argument('baseline', type=Path)
+    comparison.add_argument('candidate', type=Path)
+    comparison.add_argument('--changes', nargs='+', required=True, help='Only these recorded graphics controls may differ')
     args = parser.parse_args()
     if args.command == 'spec':
         if not 10 <= args.warmup <= 60 or not 10 <= args.sample <= 60:
             parser.error('Sample and warm-up must be 10–60 seconds.')
+        if args.views and len(set(args.views)) != len(args.views):
+            parser.error('Camera names must be unique.')
         document = ET.Element('llsd')
         document.append(encode(dict(schema=1, grid_login_uri='http://127.0.0.1:18094/',
             region_id=args.region_id, output_dir=str(args.output_dir.absolute()),
             warmup_seconds=args.warmup, sample_seconds=args.sample,
-            views=[dict(name=n, position=p, focus=f, fov=1.) for n,p,f in VIEWS])))
+            views=[dict(name=n, position=p, focus=f, fov=1.) for n,p,f in VIEWS if not args.views or n in args.views])))
         ET.indent(document)
         with args.file.open('xb') as output:
             output.write(ET.tostring(document, encoding='utf-8', xml_declaration=True))
         args.file.chmod(0o600)
         print(f'Created camera specification: {args.file}')
+    elif args.command == 'compare':
+        try:
+            rows, before, after = compare_runs(decode(ET.parse(args.baseline).getroot()[0]), decode(ET.parse(args.candidate).getroot()[0]), args.changes)
+        except (ValueError, KeyError, TypeError, ZeroDivisionError, OSError, ET.ParseError):
+            parser.exit(1, 'Refused comparison: incomplete, invalid or mismatched native evidence.\n')
+        print('| Camera | Baseline FPS | Candidate FPS | Change | Baseline p95 ms | Candidate p95 ms |')
+        print('|---|---:|---:|---:|---:|---:|')
+        for name, left, right, change, lp95, rp95 in rows:
+            print(f'| {name} | {left:.1f} | {right:.1f} | {change:+.2f}% | {lp95:.2f} | {rp95:.2f} |')
+        print(f'Weighted FPS: {before:.2f} → {after:.2f} ({(after/before-1)*100:+.2f}%). Single runs; not a statistical confidence interval or isolated GPU cost.')
     else:
         data = decode(ET.parse(args.results).getroot()[0])
         print('Status:', data['status'])

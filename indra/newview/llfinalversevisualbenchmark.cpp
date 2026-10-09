@@ -31,9 +31,9 @@ bool llfinalverseValidateVisualBenchmark(const LLSD& spec, std::string& error)
         !spec["output_dir"].isString() || spec["output_dir"].asString().empty() ||
         !std::filesystem::path(spec["output_dir"].asString()).is_absolute() ||
         !number(spec["warmup_seconds"], 10., 60.) || !number(spec["sample_seconds"], 10., 60.) ||
-        !spec["views"].isArray() || spec["views"].size() != 8)
+        !spec["views"].isArray() || spec["views"].size() < 1 || spec["views"].size() > 8)
     {
-        error = "Expected schema 1, the loopback Phase 4B fixture, region UUID, absolute output path, 10–60 second windows and eight cameras.";
+        error = "Expected schema 1, the loopback Phase 4B fixture, region UUID, absolute output path, 10–60 second windows and one to eight canonical cameras.";
         return false;
     }
     std::set<std::string> seen;

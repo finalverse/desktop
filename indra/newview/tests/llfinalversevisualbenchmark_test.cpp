@@ -83,4 +83,15 @@ template<> template<> void object_t::test<7>()
     spec["environment"]["sky"] = "script is not a sky";
     ensure("no arbitrary environment payload", !llfinalverseValidateVisualBenchmark(spec, error));
 }
+template<> template<> void object_t::test<8>()
+{
+    std::string error;
+    const LLSD first = spec["views"][0];
+    spec["views"] = LLSD::emptyArray();
+    ensure("empty run cannot masquerade as complete", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["views"].append(first);
+    ensure("canonical subset supports feature A/B without a new harness", llfinalverseValidateVisualBenchmark(spec, error));
+    for (S32 i = 0; i < 8; ++i) spec["views"].append(first);
+    ensure("no unbounded repeated camera run", !llfinalverseValidateVisualBenchmark(spec, error));
+}
 }
