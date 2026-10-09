@@ -191,6 +191,8 @@ set(viewer_SOURCE_FILES
     llfloaterfinalverseexperience.cpp
     llpanelfinalverse.cpp
     llfinalversepresentation.cpp
+    llfinalversevisualbenchmark.cpp
+    llfinalversevisualbenchmarkrunner.cpp
     llfinalverselegacyappearance.cpp
     llfloaterabout.cpp
     llfloateravatarwelcomepack.cpp
@@ -881,6 +883,7 @@ set(viewer_HEADER_FILES
     llfloaterfinalverseexperience.h
     llpanelfinalverse.h
     llfinalversepresentation.h
+    llfinalversevisualbenchmark.h
     llfinalverselegacyappearance.h
     llfloaterabout.h
     llfloateravatarwelcomepack.h
@@ -2433,6 +2436,7 @@ if (LL_TESTS)
   SET(viewer_TEST_SOURCE_FILES
     llagentaccess.cpp
     llfinalversepresentation.cpp
+    llfinalversevisualbenchmark.cpp
     lldateutil.cpp
 #    llmediadataclient.cpp
     lllogininstance.cpp
