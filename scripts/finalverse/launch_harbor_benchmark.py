@@ -15,6 +15,7 @@ from harbor_benchmark import decode, VIEWS
 GRID_KEY = '127.0.0.1:18094'
 GRID_URI = 'http://127.0.0.1:18094/'
 REGION_ID = 'a9d44538-26ca-4586-a8a9-e551722ffa15'
+TEST_BUNDLES = {'com.finalverse.viewer.experience', 'com.finalverse.viewer.visualtests'}
 ALLOWED_SESSION = {
     'FinalverseUXMetrics', 'FirstLoginThisInstall', 'FirstRunThisInstall',
     'UserLoginInfo', 'RememberPassword', 'RememberUser', 'AutoLogin',
@@ -40,7 +41,7 @@ def preflight(app, profile, session, spec, expected_hash):
     require(sys.platform == 'darwin', 'This launcher is for the macOS test fixture.')
     require(profile.is_dir() and profile.resolve() != Path.home().resolve(), 'An existing isolated profile is required.')
     info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
-    require(info.get('CFBundleIdentifier') == 'com.finalverse.viewer.experience' and
+    require(info.get('CFBundleIdentifier') in TEST_BUNDLES and
             info.get('CFBundleExecutable') == 'Finalverse Test', 'Expected the isolated Finalverse test bundle.')
     executable = app / 'Contents/MacOS/Finalverse Test'
     require(hashlib.sha256(executable.read_bytes()).hexdigest() == expected_hash, 'Test executable hash does not match the selected milestone.')
@@ -55,6 +56,11 @@ def preflight(app, profile, session, spec, expected_hash):
     login = value('UserLoginInfo')
     require(isinstance(login, list) and len(login) == 3 and all(isinstance(x, str) and x for x in login), 'An authorized private one-session fixture login is required.')
     fixture = document(spec)
+    if 'capture_size' in fixture:
+        size = fixture['capture_size']
+        require(isinstance(size, list) and len(size) == 2 and all(type(v) is int for v in size) and
+                640 <= size[0] <= 2560 and 480 <= size[1] <= 1600, 'Capture pixels must be bounded integers.')
+    require('quit_after_capture' not in fixture or type(fixture['quit_after_capture']) is bool, 'Automatic native logout must be an explicit boolean.')
     require(fixture.get('schema') == 1 and fixture.get('grid_login_uri') == GRID_URI and str(fixture.get('region_id')) == REGION_ID, 'Benchmark must target the designated loopback grid and region.')
     views = fixture.get('views', [])
     names = [v.get('name') for v in views]

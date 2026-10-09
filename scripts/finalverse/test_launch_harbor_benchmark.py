@@ -38,6 +38,24 @@ class LaunchSafety(unittest.TestCase):
     def test_reject_public_grid_mapping_before_launch(self):
         self.write(self.grid,{GRID_KEY:{'login_uri':['https://login.agni.lindenlab.com/']}})
         with self.assertRaises(ValueError): self.run_preflight()
+    def test_automatic_native_logout_requires_boolean(self):
+        self.fixture['quit_after_capture']=True; self.write(self.spec,self.fixture)
+        self.run_preflight()
+        self.fixture['quit_after_capture']='true'; self.write(self.spec,self.fixture)
+        with self.assertRaises(ValueError): self.run_preflight()
+    def test_capture_window_dimensions_are_bounded_integers(self):
+        self.fixture['capture_size']=[1280,738]
+        self.write(self.spec,self.fixture);self.run_preflight()
+        for bad in [True,1280.0,0,100000]:
+            self.fixture['capture_size']=[bad,738];self.write(self.spec,self.fixture)
+            with self.assertRaises(ValueError): self.run_preflight()
+    def test_dedicated_visual_bundle_is_explicit_and_arbitrary_bundle_refused(self):
+        info=plistlib.loads((self.app/'Contents/Info.plist').read_bytes())
+        info['CFBundleIdentifier']='com.finalverse.viewer.visualtests'
+        (self.app/'Contents/Info.plist').write_bytes(plistlib.dumps(info));self.run_preflight()
+        info['CFBundleIdentifier']='com.example.unrelated'
+        (self.app/'Contents/Info.plist').write_bytes(plistlib.dumps(info))
+        with self.assertRaises(ValueError): self.run_preflight()
     def test_reject_session_redirect_and_remember_override(self):
         for key in ['CurrentGrid','CmdLineLoginURI','AutoLogin','RememberPassword']:
             settings=dict(self.settings); settings[key]={'Value':True}; self.write(self.session,settings)

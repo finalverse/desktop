@@ -74,6 +74,8 @@ def main():
     spec.add_argument('--warmup', type=float, default=15.)
     spec.add_argument('--sample', type=float, default=15.)
     spec.add_argument('--views', nargs='+', choices=[v[0] for v in VIEWS], help='Canonical subset for feature A/B; omitted means all eight')
+    spec.add_argument('--quit-after-capture', action='store_true', help='Opt-in native save/logout after successful isolated capture')
+    spec.add_argument('--size', type=int, nargs=2, metavar=('WIDTH', 'HEIGHT'), help='Bounded native capture pixel dimensions')
     report = commands.add_parser('report')
     report.add_argument('results', type=Path)
     comparison = commands.add_parser('compare', help='One matched native comparison; no GUI interaction')
@@ -87,10 +89,16 @@ def main():
         if args.views and len(set(args.views)) != len(args.views):
             parser.error('Camera names must be unique.')
         document = ET.Element('llsd')
-        document.append(encode(dict(schema=1, grid_login_uri='http://127.0.0.1:18094/',
+        fixture = dict(schema=1, grid_login_uri='http://127.0.0.1:18094/',
             region_id=args.region_id, output_dir=str(args.output_dir.absolute()),
             warmup_seconds=args.warmup, sample_seconds=args.sample,
-            views=[dict(name=n, position=p, focus=f, fov=1.) for n,p,f in VIEWS if not args.views or n in args.views])))
+            views=[dict(name=n, position=p, focus=f, fov=1.) for n,p,f in VIEWS if not args.views or n in args.views])
+        if args.quit_after_capture: fixture['quit_after_capture'] = True
+        if args.size:
+            if not (640 <= args.size[0] <= 2560 and 480 <= args.size[1] <= 1600):
+                parser.error('Capture size must be within 640–2560 by 480–1600 pixels.')
+            fixture['capture_size'] = args.size
+        document.append(encode(fixture))
         ET.indent(document)
         with args.file.open('xb') as output:
             output.write(ET.tostring(document, encoding='utf-8', xml_declaration=True))

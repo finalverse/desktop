@@ -1,6 +1,6 @@
 # Phase 4B visual convergence — 2026-10-09
 
-Phase 4B remains open. This continuation implements native factor-only PBR delivery, independent bench LODs and inherited sitting, and measures lighter graphics options in the actual viewer. Production Lumi, Harbor composition and a lit night scene are still required.
+Phase 4B remains open. This continuation implements native factor-only PBR delivery, independent bench LODs, inherited sitting and bounded native lighting, and measures lighter graphics options in the actual viewer. Production Lumi, Harbor composition and a complete night lighting hierarchy are still required.
 
 ## Tested state
 
@@ -85,24 +85,50 @@ Review native images in batches. Use `harbor_benchmark.py compare BASELINE/resul
 
 ## Remaining delivery
 
-The full matched graphics comparison is complete; it does not justify a universal default. Close bench walking/sitting-pose and exact live LOD transition gates, then vegetation quality, a reviewed pavilion-scale placement/collision contract and beacon review. The current small-asset contract must not be silently widened for buildings. Follow [Lumi's character specification](lumi-character-spec.md) for the pinned legal authoring/rig compatibility spike and [OAR roadmap](../world/oar-import-roadmap.md) for later conversion; neither document counts as a production asset.
+The full matched graphics comparison is complete; it does not justify a universal default. Local bench/tree walking now passes with inherited BulletSim, while the deployed ubODE backend needs separate investigation. Close the visible sitting-pose and exact live LOD transition gates, then vegetation quality, a reviewed pavilion-scale placement/collision contract and beacon review. The current small-asset contract must not be silently widened for buildings. Follow [Lumi's character specification](lumi-character-spec.md) for the pinned authoring/native rig work and [OAR roadmap](../world/oar-import-roadmap.md) for later conversion; neither document counts as a production asset.
 
 | Requested gate | Current evidence / remaining work |
 |---|---|
 | A1 viewer tests | Pass: universal build, 117 CTest entries |
 | A2 lighter comparison | Pass: seven individual trials and matched full eight-view pair |
-| A3 environment previews | Captured/reviewed all three; Golden Hour fill and Night world lights need revision |
+| A3 environment previews | All three reviewed; bounded lantern illumination verified, full Night hierarchy and Golden Hour fill remain open |
 | A4 accepted Balanced profile | Open: provisional combination has Pavilion/Sunset regressions and shadow/readability artifacts |
 | A5 first native PBR asset | Pass: bench material assets/bindings and actual native rendering |
 | A6 color space | Factor path verified; textured normal/ORM paths not in this release contract |
-| A7 bench collision behavior | Open: native convex payload exists; avatar walking/blocking test remains |
+| A7 bench collision behavior | Four actual local walks pass with inherited BulletSim; remote ubODE behavior remains unaccepted |
 | A8 bench seating | Native response, seated state and occupied Undo refusal pass; visible pose remains |
 | A9 bench/tree LOD | Distinct native blocks/counts and delivered hashes pass; exact live level transitions remain |
 | A10 blossom-tree art | v0.1.9 near/middle/distant native review complete; visible blooms/silhouette improved, production foliage quality remains open |
 | A11 pavilion | Open: building-scale contract/material/walking review not implemented |
 | A12 beacon | Open: hero landmark has not passed native evaluation |
-| A13 Lumi strategy | Selected and documented; exact legal source pin/rig spike still precedes production embodiment |
+| A13 Lumi strategy | Exact MPFB source/asset pin and saved weighted authoring base verified; native rig/rest pose and production embodiment remain open |
 | A14 Phase 3 preservation | Original 40 Harbor IDs/transforms and Lumi identity/home/binding/memory/profile match |
 | A15 credential discipline | Current guarded launches/private evidence checked; earlier Agni provenance incident remains unresolved |
 
 The final before/after hero sheet waits for real changes to Lumi, home/garden, pavilion, landmark and composition. This technical delivery does not satisfy that visual milestone.
+
+## Lighting, walking and authoring continuation — 2026-10-10
+
+This increment starts at viewer `61fd3227f1630f3d6ebc749f3eb365fc55d6ebdc`, MutSea `ecc749c4dcbe55cfefb3d104065e1d0ce0d6ca9f` and Studio `3670e1eb82c04db844af5dd0003c6fe43c9ec8d8`. The earlier eight-camera evidence above remains complete and was not repeated. Unrelated destination-discovery work remains separate. No remote deployment or push is included.
+
+The content adapter now binds hash-pinned linear RGB/intensity/radius/falloff through the inherited native Light extra parameter. Emission remains a separate PBR surface factor. Validation limits the small-asset contract to two lights, radius at most 4 m, explicit lighting/wayfinding semantics and bounded factors. Native persistence, quantized wire values and later-light-edit Undo refusal are tested. New compiled/journal records require the matching reader; rollback uses a consistent module/database/journal snapshot, not an older module against newer records.
+
+Lantern v0.1.2 has four parts, two factor-only PBR materials, no textures and **224 / 120 / 44 / 22** triangles. It has one warm point light: intensity 0.8, radius 3.5 m, falloff 1. At (173,120,25), its asset/material/semantic/light records survived PostgreSQL-plus-simulator restart and guarded Undo. A fresh instance is retained. Private `lantern-pbr-v012-final-evidence.json.verify.json` confirms four mesh/LOD assets, two material assets, four semantic components and one native light. Studio v0.1.3 was also exported and validated, with the actual palette filename corrected in provenance; it is an authoring revision and is not deployed.
+
+The current suites passed **31 kernel/catalog, 22 Python package-validator, 15 native tree, 14 native lantern and 51 existing world/navigation cases**. The native suites use the runtime assemblies; portable operator probes use their separately documented SDK. The reusable local `lighting-v012` image contains the active World module. Configuration, credentials and consistent rollback backups remain outside Git.
+
+The operator walking probe checks the receipt actor, region, streamed IDs and actual root positions before four two-second native-control paths. It compares clear bench lane, bench backrest response, trunk blocking and noncolliding foliage clearance. `basicphysics`/`ZeroMesher` failed; inherited ubODE responded to contact but unexpectedly climbed the shaft. Inherited ARM64 BulletSim + Meshmerizer passed all four, including a rerun after adding the root-position guard (`interaction-bullet-position-guard-20261009.json`). Only the isolated loopback fixture switched backend. This result does not certify remote physics, detailed sitting pose or general navigation.
+
+After lighting/physics deployment, a fresh protocol run verified all **40 original Harbor IDs/transforms**, login, UDP streaming and logout. A separate controller audit verified Lumi identity/controller/embodiment/home/autonomy, seven streamed parts, home-creation memory and preserved goal history. The live seven-part character remains the placeholder.
+
+Studio now pins MPFB v2.0.17 / `80919fa4682335c41847f761a4d79dcad4124732` for an offline authoring base, with separate upstream tool/asset provenance. A second Blender process reopened its actual saved source, measured 1.70 m height and confirmed **13,380 weighted body vertices / 26,756 visible triangles / 53 upstream bones**, with no unweighted body vertices. The native audit finds zero matching bone names and records animation incompatibility. Native rig/rest pose/weights, original styling, LODs and a real animated attachment test precede replacing Lumi.
+
+The faster harness now offers explicit automatic native logout after successful evidence writes and optional bounded capture pixels. It uses Cocoa logical-point/backing-pixel conversion on macOS, plus one measured correction for the inherited fixed titlebar allowance, with a five-active-second failure bound if actual pixels do not match. Two native size trials were rejected and preserved, then closed through normal viewer logout; the second observed 1280 × 728, exposing the titlebar difference. The preceding 1024 × 600 captures are also retained as diagnostics; they are not compared against the 1280 × 738 baseline as graphics A/B evidence. Ten C++ harness cases and sixteen Python launch/process/comparison cases pass. The full 117-entry suite above belongs to the earlier baseline; this increment rebuilt the universal viewer and ran the affected CTest entry.
+
+The final native retest passed at **1280 × 738** with successful PNG/CSV/report writes and automatic normal logout/reply; no forced quit occurred. Its actual PNG was reviewed: the lantern emits a warm ground pool, while the bench sits near the radius edge and needs more deliberate placement/fill for the full scene. Camera, sky/water and actual pixels match the earlier unlit diagnostic. Scene counts (366 → 369), binary/profile and local physics differ, so this is an image inspection pair, not a controlled lighting-cost benchmark. Measured diagnostic statistics are **82.69 FPS**, mean **12.09 ms**, median **10.13 ms**, p95 **24.31 ms**; no general performance gain is claimed.
+
+Evidence is private under `dev/phase4b/lantern-night-measured-sized-20261010`, with the comparison in `lantern-night-image-comparison-20261010.json`. Executed ARM64 universal/ad-hoc-signed app: `Finalverse CaptureCheck.app`, SHA-256 `e4376f25560140903642099465f9aa64d72a6ca9a58c15338ab9797cbcac26a7`. Intel was compiled, not executed. No GUI clicks were needed for the successful capture/logout; a late UI observation raced the already completed exit and returned `procNotFound`. The process stayed stopped, and the log retained normal logout/reply with no public-grid authentication. Use process/evidence checks before any UI binding.
+
+The reusable Studio saved-source verifier also passed against the actual `.blend`, with source digest and geometry/weight checks recorded in `lumi-source-verification-20261010.json`. It refuses changed source hashes, online mode and existing output files.
+
+A fresh login after automatic logout passed with **all 40 original Harbor IDs/transforms**, real UDP streaming and logout (`post-auto-logout-protocol-r2-20261010.log`). The first probe missed six late arrivals: imported components had satisfied its initial count, but it requested properties only for the first batch. The probe now requests each newly streamed UUID once throughout its existing bounded window. The original failed attempt is preserved; counts alone still cannot satisfy acceptance. The rebuilt probe's three portable OpenMetaverse DLL hashes match the pinned test SDK, with simulator assemblies unchanged.

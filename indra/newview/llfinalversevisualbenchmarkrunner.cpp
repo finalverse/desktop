@@ -2,6 +2,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfinalversevisualbenchmark.h"
 #include "llagent.h"
+#include "llappviewer.h"
 #include "llenvironment.h"
 #include "llfocusmgr.h"
 #include "llsdserialize.h"
@@ -66,6 +67,27 @@ public:
             fs::permissions(destination, fs::perms::owner_all, fs::perm_options::replace, ec);
             if (ec) { fail("Cannot protect benchmark output directory."); return; }
             mOutput = destination;
+            if (mSpec.has("capture_size"))
+            {
+                // Cocoa setSize takes logical points while reshape/snapshots
+                // report backing pixels. Other native implementations use
+                // pixel dimensions; do not divide their DPI-scaled UI units.
+#if LL_DARWIN
+                mNativeScale = gViewerWindow->getWindow()->getSystemUISize();
+#endif
+                if (!std::isfinite(mNativeScale) || mNativeScale < .5f || mNativeScale > 4.f)
+                {
+                    fail("Invalid native backing-pixel scale.");
+                    return;
+                }
+                mNativeSize = LLCoordWindow(ll_round(mSpec["capture_size"][0].asInteger() / mNativeScale),
+                                           ll_round(mSpec["capture_size"][1].asInteger() / mNativeScale));
+                if (!gViewerWindow->getWindow()->setSize(mNativeSize))
+                {
+                    fail("Native window API rejected the requested capture size.");
+                    return;
+                }
+            }
             if (mSpec.has("environment"))
             {
                 LLSD sky_data = mSpec["environment"]["sky"], water_data = mSpec["environment"]["water"];
@@ -99,6 +121,7 @@ public:
             resetSample();
             return;
         }
+        if (!std::isfinite(dt) || dt <= 0.) { resetSample(); return; }
         const LLSD& view = mSpec["views"][mView];
         auto* camera = LLViewerCamera::getInstance();
         const auto origin = gAgent.getRegion()->getOriginGlobal();
@@ -107,12 +130,38 @@ public:
         camera->setViewNoBroadcast(static_cast<F32>(view["fov"].asReal()));
         const S32 count = gObjectList.getNumObjects();
         const S32 width = gViewerWindow->getWindowWidthRaw(), height = gViewerWindow->getWindowHeightRaw();
+        if (mSpec.has("capture_size") && (width != mSpec["capture_size"][0].asInteger() ||
+            height != mSpec["capture_size"][1].asInteger()))
+        {
+            // Native resize callbacks may arrive on a later frame. Bound the
+            // wait and fail rather than recording a mismatched comparison.
+            mReport["observed_pixels"] = LLSD::emptyArray();
+            mReport["observed_pixels"].append(width);
+            mReport["observed_pixels"].append(height);
+            mResizeWait += dt;
+            if (!mResizeCorrected && mResizeWait >= .5)
+            {
+                // The inherited Cocoa implementation adds a fixed titlebar
+                // allowance. Measure any actual decoration difference once;
+                // avoid hard-coding a current macOS titlebar height.
+                mResizeCorrected = true;
+                mNativeSize.mX += ll_round((mSpec["capture_size"][0].asInteger() - width) / mNativeScale);
+                mNativeSize.mY += ll_round((mSpec["capture_size"][1].asInteger() - height) / mNativeScale);
+                if (mNativeSize.mX <= 0 || mNativeSize.mY <= 0 ||
+                    mNativeSize.mX > 5120 || mNativeSize.mY > 3200 || !window->setSize(mNativeSize))
+                {
+                    fail("Native window API rejected the measured size correction.");
+                    return;
+                }
+            }
+            if (mResizeWait > 5.) fail("Capture pixels did not match the requested native window size.");
+            return;
+        }
         if (count != mObjectCount || width != mWidth || height != mHeight)
         {
             mObjectCount = count; mWidth = width; mHeight = height;
             resetSample();
         }
-        if (!std::isfinite(dt) || dt <= 0.) { resetSample(); return; }
         if (mWarmup < mSpec["warmup_seconds"].asReal()) { mWarmup += dt; return; }
         mFrames.push_back(dt);
         mSampleTime += dt;
@@ -153,7 +202,13 @@ public:
         {
             mDone = true;
             mReport["status"] = "complete";
-            saveReport();
+            if (saveReport() && mSpec["quit_after_capture"].asBoolean())
+            {
+                // Already validated against the one loopback grid and active
+                // region. Use the normal save/upload/logout state machine;
+                // avoid both the UI confirmation and signal-based termination.
+                LLAppViewer::instance()->requestQuit();
+            }
         }
         else { resetSample(); saveReport(); }
     }
@@ -165,12 +220,17 @@ private:
         LL_WARNS("FinalverseBenchmark") << reason << LL_ENDL;
         if (!mOutput.empty() && fs::is_directory(mOutput)) saveReport();
     }
-    void saveReport()
+    bool saveReport()
     {
         std::ofstream output(mOutput / "results.xml");
         LLSDSerialize::toPrettyXML(mReport, output);
         output.close(); privateFile(mOutput / "results.xml");
+        return !output.fail();
     }
+    double mResizeWait = 0.;
+    F32 mNativeScale = 1.f;
+    LLCoordWindow mNativeSize;
+    bool mResizeCorrected = false;
     LLSD mSpec, mReport;
     fs::path mOutput;
     bool mLoaded = false, mDone = false;

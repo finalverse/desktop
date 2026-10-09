@@ -37,6 +37,18 @@ bool llfinalverseValidateVisualBenchmark(const LLSD& spec, std::string& error)
         return false;
     }
     std::set<std::string> seen;
+    if (spec.has("quit_after_capture") && !spec["quit_after_capture"].isBoolean())
+    {
+        error = "quit_after_capture must be an explicit boolean in the isolated fixture.";
+        return false;
+    }
+    if (spec.has("capture_size") && (!spec["capture_size"].isArray() || spec["capture_size"].size() != 2 ||
+        !spec["capture_size"][0].isInteger() || !spec["capture_size"][1].isInteger() ||
+        !number(spec["capture_size"][0], 640., 2560.) || !number(spec["capture_size"][1], 480., 1600.)))
+    {
+        error = "capture_size requires bounded integer pixel dimensions.";
+        return false;
+    }
     for (S32 index = 0; index < spec["views"].size(); ++index)
     {
         const LLSD& view = spec["views"][index];

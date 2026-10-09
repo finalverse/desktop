@@ -47,3 +47,13 @@ An `AvatarTemplate` for this spike needs body/shape, skin, hair, eyes, outfit, a
 6. Canonical camera measurements and texture/triangle budgets recorded. Initial authoring targets: body/outfit/hair combined at most 35k high triangles and approximately 20k/8k/3k lower levels; these are budgets to validate, not measured results.
 
 Lumi remains a P0 Phase 4B gate. A spec, a Blender portrait or an NPC API alone does not complete it.
+
+## Pinned authoring continuation — 2026-10-09
+
+Studio now generates an editable offline MPFB v2.0.17 base from exact revision `80919fa4682335c41847f761a4d79dcad4124732`. Its source pin records core mesh/rig/license hashes; generated provenance hashes the complete core-data inputs and separates CC0 asset rights from the GPL authoring tool. The existing source checkout, failed initialization evidence and successful Blender source are preserved outside Git. No model or upstream tool has become a viewer/server runtime dependency.
+
+The successful base measures 13,380 visible vertices / 26,756 triangles and has 53 upstream game-engine bones, scaled toward the 1.70 m authoring target. None of its bone names match the native viewer skeleton. The generated rig audit explicitly reports native animation incompatibility. Do not import this base through the static-content adapter or rename bones without proving rest pose, hierarchy, weights and real animation. Original eyes/skin/hair/outfit, LODs and the native attachment spike are next; this result does not close production embodiment acceptance.
+
+A second offline Blender process reopened the actual saved `.blend`, measured 1.70 m height and verified positive upstream weights on all 13,380 body vertices. This validates the authoring artifact, not native animation compatibility. The private `authoring-verification.json` and Blender log remain beside the source/evidence outside Git.
+
+A fresh post-lighting simulator audit verified the existing citizen's identity/controller/embodiment/home/autonomy, native seven-part streaming, home-creation memory and preserved goal history. The live logical Lumi remains intact.

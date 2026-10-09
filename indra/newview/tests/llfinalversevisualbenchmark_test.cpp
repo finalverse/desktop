@@ -94,4 +94,26 @@ template<> template<> void object_t::test<8>()
     for (S32 i = 0; i < 8; ++i) spec["views"].append(first);
     ensure("no unbounded repeated camera run", !llfinalverseValidateVisualBenchmark(spec, error));
 }
+template<> template<> void object_t::test<9>()
+{
+    std::string error;
+    spec["quit_after_capture"] = true;
+    ensure("native logout is opt-in for the bounded fixture", llfinalverseValidateVisualBenchmark(spec, error));
+    spec["quit_after_capture"] = "true";
+    ensure("string cannot enable an automatic quit", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["quit_after_capture"] = true;
+    spec["grid_login_uri"] = "https://login.agni.lindenlab.com/cgi-bin/login.cgi";
+    ensure("automatic quit cannot run on a cached public grid", !llfinalverseValidateVisualBenchmark(spec, error));
+}
+template<> template<> void object_t::test<10>()
+{
+    std::string error;
+    spec["capture_size"] = LLSD::emptyArray();
+    spec["capture_size"].append(1280); spec["capture_size"].append(738);
+    ensure("bounded native pixel request", llfinalverseValidateVisualBenchmark(spec, error));
+    spec["capture_size"][0] = 100000;
+    ensure("refuse unbounded allocation", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["capture_size"][0] = 1280.;
+    ensure("dimensions must be integers", !llfinalverseValidateVisualBenchmark(spec, error));
+}
 }
