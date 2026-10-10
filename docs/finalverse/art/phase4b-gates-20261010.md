@@ -60,7 +60,7 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 | B9 production Lumi | PARTIAL | Original skinned Lumi v0.1.1 renders natively as animesh; textures/Lumi gestures/final polish open ([validation](genesis-lumi-validation.md)) |
 | B10 native rig | PASS, current fixture | Pinned 133-bone skeleton, 30 joints, overrides; independent decode 8.4 µm |
 | B11 idle/walk/sit | PARTIAL | Idle and walk native-visible (front-on mid-stride); Sit not implemented |
-| B12 talk/listen/greeting | PARTIAL | Talk/greet states delivered (wire-verified); native `hello` occluded by Lumi's head; listen absent; Lumi-specific animations needed |
+| B12 talk/listen/greeting | PASS, current fixture | Original Lumi motions (v0.1.2): greet flap, listen tilt and talk nod, native-visible; wire-verified |
 | B13 identity unchanged | PASS | Representation migration verified against pre-migration receipt; rollback and re-apply also verified |
 | B14 pavilion | FAIL — open | Production social place pending |
 | B15 beacon | FAIL — open | Hero landmark upgrade pending |

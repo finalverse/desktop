@@ -86,9 +86,31 @@ The independent decode reproduces the authored rest pose within **8.4 µm** acro
 | G27 evidence archived | PASS | Private evidence directories above |
 | G28 report statuses | PASS | This table |
 
+## Increment 2 — Lumi's own motions (package v0.1.2, module r4)
+
+Native human gestures were delivered but hidden by Lumi's anatomy (finding 1 below). Studio now authors three original native keyframe motions for her proportions with `lumi_motions.py`, encoded by `native_rig.encode_anim`:
+
+- `lumi_greet`: 1.6 s; a double arm flap below the lobes, a small hop, an alternating head tilt.
+- `lumi_talk`: a 1.4 s loop; a gentle nod with small arm gestures.
+- `lumi_listen`: a 2.4 s loop; an attentive head tilt.
+
+How the motions flow through the system:
+
+- **Contract.** `AvatarCompiled` schema 2 carries validated package motions. Schema 1 stays valid, and v0.1.1 recompiles byte-identically.
+- **Validation.** The shared `NativeKeyframe` validator requires v1.0 only, pinned-skeleton joints, pelvis-only translation, and no emote, hand pose, constraint or trailing bytes. 6 new compiler rejection tests; 17 in total.
+- **Module.** It stores the motions as native animation assets under content-derived IDs and journals `package_updated`, because the body is unchanged.
+- **Behaviour.** A human greeting triggers `lumi_greet`. Any other message triggers `lumi_listen` until her reply; the reply triggers `lumi_talk`, scaled to its length.
+
+Evidence:
+
+- Wire: [stand] → `lumi_greet` (`02ae640b…`) 243 ms after the greeting → [stand].
+- Native viewer frames (`quick-visual-lumi-20261010/sheet-lumi-motions-native.png`): arms spread at +1.41 s into greet, a clear listen head tilt, and a subtle talk nod 5.8 s into an 8 s reply window.
+
+Gate changes: **G9 PASS** (library and package motions load natively). **G19 PARTIAL**: greet, listen and talk are native-visible; turn is not visually captured; Sit is absent. **B12 PASS** for the current fixture.
+
 ## Findings and remaining defects
 
-1. **Native human gestures don't read on Lumi's anatomy.**
+1. **Native human gestures don't read on Lumi's anatomy** (resolved in increment 2 with Lumi motions).
    - Layered stand+hello renders offline match the viewer frames: her short right arm rises under her own side lobe.
    - The server and wire are correct.
    - Fix: original Lumi keyframe animations (greet flap below the lobes, talk head-bob, listen tilt), which needs package-supplied, validated animation assets. Next increment.
