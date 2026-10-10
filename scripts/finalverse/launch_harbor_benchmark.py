@@ -3,12 +3,14 @@
 # Copyright (c) 2026 Finalverse contributors. SPDX-License-Identifier: LGPL-2.1-only
 import argparse
 import hashlib
+import math
 import os
 from pathlib import Path
 import plistlib
 import stat
 import subprocess
 import sys
+import uuid
 import xml.etree.ElementTree as ET
 from harbor_benchmark import decode, VIEWS
 
@@ -64,10 +66,33 @@ def preflight(app, profile, session, spec, expected_hash, quick_directory=None):
         require(isinstance(size, list) and len(size) == 2 and all(type(v) is int for v in size) and
                 640 <= size[0] <= 2560 and 480 <= size[1] <= 1600, 'Capture pixels must be bounded integers.')
     require('quit_after_capture' not in fixture or type(fixture['quit_after_capture']) is bool, 'Automatic native logout must be an explicit boolean.')
-    require(fixture.get('schema') == 1 and fixture.get('grid_login_uri') == GRID_URI and str(fixture.get('region_id')) == REGION_ID, 'Benchmark must target the designated loopback grid and region.')
+    require(type(fixture.get('schema')) is int and fixture['schema'] == 1 and
+            fixture.get('grid_login_uri') == GRID_URI and isinstance(fixture.get('region_id'), uuid.UUID) and
+            str(fixture['region_id']) == REGION_ID, 'Benchmark must target the designated loopback grid and typed region UUID.')
+    require('quick_mode' not in fixture or fixture['quick_mode'] is False,
+            'Use the persistent queue for quick checks; launch with a normal warm-start specification.')
+    require('interaction' not in fixture, 'Launch readiness must not perform avatar interaction.')
+    def number(value, low, high):
+        return type(value) in (int, float) and math.isfinite(value) and low <= value <= high
+    require(all(number(fixture.get(k), 10., 60.) for k in ['warmup_seconds', 'sample_seconds']),
+            'Native warm-start windows require 10–60 seconds.')
     views = fixture.get('views', [])
+    require(isinstance(views, list) and all(isinstance(v, dict) for v in views), 'Expected native camera maps.')
     names = [v.get('name') for v in views]
     require(1 <= len(names) <= 8 and len(set(names)) == len(names) and set(names) <= {v[0] for v in VIEWS}, 'Expected a unique canonical camera subset.')
+    for view in views:
+        for key in ['position', 'focus']:
+            value = view.get(key)
+            require(isinstance(value, list) and len(value) == 3 and
+                    all(number(v, 0., 128. if i == 2 else 256.) for i, v in enumerate(value)),
+                    'Camera coordinates must remain in the native fixture bounds.')
+        require(number(view.get('fov'), .3, 1.5) and
+                sum((view['position'][i] - view['focus'][i])**2 for i in range(2)) >= .01,
+                'Camera requires a bounded FOV and horizontal direction.')
+    if 'environment' in fixture:
+        env = fixture['environment']
+        require(isinstance(env, dict) and all(isinstance(env.get(k), dict) for k in ['sky', 'water']),
+                'Native environment preview requires sky and water maps.')
     output = Path(fixture['output_dir'])
     require(output.is_absolute() and not output.exists() and not output.is_symlink() and output.parent.is_dir(), 'Choose a new absolute evidence directory with an existing parent.')
     # No startup URLs or additional options are accepted. Credentials remain in

@@ -1,34 +1,39 @@
 # Phase 4B continuation — 2026-10-10
 
-Phase 4B remains open. This pass implements the requested persistent local visual-check hook and explicit native bench approach/Sit/Stand acceptance sequence. The Mac is locked; no new viewer launch, screen capture, measured quick-check duration or visible seating acceptance is claimed.
+Phase 4B remains open. After unlock, the persistent visual hook was run and a real bench alignment defect was corrected in Starter Library v0.1.8. Settled single checks took 10.40 / 10.59 seconds; corrected front/side native Sit/Stand sequences took 21.33 / 21.28 seconds without GUI clicks. Both visible seating gates pass for the current test avatar. [Detailed source, trial failures, evidence and limits](bench-interaction-20261010.md) are retained; production Lumi, hero content and full lighting remain unfinished.
 
 ## Repositories and package
 
-| Repository | Start | State before this pass | Push |
+| Repository | Start | Scope | Push |
 |---|---|---|---|
-| Viewer `dev/worktrees/viewer-ai-world` | `1500762635649d7de9e60c3c83ad3179f5cd3ea1` | Destination/discovery work dirty; preserved separately | None |
+| Viewer `dev/worktrees/viewer-ai-world` | `1500762635649d7de9e60c3c83ad3179f5cd3ea1` | Persistent hook/launch validation; destination WIP preserved separately | None |
 | MutSea `dev/worktrees/mutsea-worldops` | `f3dcd7f1ee435f873da853eb1043217148c8746b` | Clean; source unchanged in this pass | None |
-| Studio `studio` | `72945c2aaebbfba6093f3f7aca4cc7c068ed36a5` | Clean; source unchanged in this pass | None |
+| Studio `studio` | `72945c2aaebbfba6093f3f7aca4cc7c068ed36a5` | Clean at start; shared seat definition/metadata authoring changed after unlock | None |
 
 All paths are below `/Users/wenyan/Finalverse`. The viewer branch is `codex/phase4b-destinations-import`. The package `/Users/wenyan/Finalverse/dev/phase4b/Finalverse QuickCheck.app` contains an ARM64 executable with SHA-256 `633e186f687d42bb3561221db97e169960f11fbd29f4c996fa12f0d336da2da7`; deep/strict ad-hoc verification passed. It includes preserved destination WIP, as did the preceding test package. Prior universal packages are intact. Intel execution/build acceptance for this increment is not claimed.
+
+The unlocked continuation starts at viewer `ea58a91a512c3437b7a0be290e109e2ad519b1c3`; MutSea/Studio starts are as above. This continuation changes viewer Python launch validation and Studio source/seat metadata. C++ and the packaged executable are unchanged; MutSea source remains clean. The isolated fixture catalog/bench instances changed through the existing authorized content path.
 
 Xcode reported build success; its process remained in the observed exiting state and the idle CMake wrapper needed termination. See the [build limitation and commands](../rendering/quick-visual-check.md). The original SDK-cache wait, interrupted universal attempt, narrower ARM64 build and diagnostics remain outside Git. Disk space was about 60 GiB at continuation start; no user source or unrelated builds were removed.
 
 ## Tests and evidence
 
 - **117/117 CTest entries passed**, 121.75 s. The changed benchmark target was rebuilt with **13/13 C++ cases**. Other prebuilt regression executables were exercised; this was not an ALL_BUILD of every test target.
-- **24/24 Python tests passed** for launch/session guards, comparison validity, queue safety and process correlation.
-- Actual package signature and ARM64 architecture verified; guarded loopback launch preflight passed without launching.
+- **28/28 Python tests now pass** for launch/session guards, comparison validity, queue safety, process correlation and native warm-start/camera limits. The preceding 24-test result remains earlier evidence.
+- **5/5 Studio metadata-revision tests** and **13/13 native content tests** pass for the corrected package.
+- Actual package signature and ARM64 architecture verified; guarded loopback launches, repeated captures, restoration spot check and visible bench interaction completed after unlock.
 - Fresh bench native preflight verified **13 mesh/LOD assets, 13 semantic components, 13 material face bindings, 2 material assets**, native seat success and occupied Undo refusal. Receipt: `dev/phase4b/bench-seat-preflight-20261010.json.verify.json`. It uses a new copied receipt; prior evidence is intact.
-- Remote credential guard passed. No credential values, private session XML or capability URLs were printed or committed.
+- Remote credential guard passed. Private account/session XML, capability URLs and raw receipts remain outside Git.
 
-The current local simulator is the existing PostgreSQL fixture on loopback port 18094, with inherited BulletSim/Meshmerizer. No server module, physics default, remote deployment, logical Lumi state or scene geometry was changed in this pass. The preflight used the designated test account with appearance sending disabled.
+The current local simulator is the existing PostgreSQL fixture on loopback port 18094, with inherited BulletSim/Meshmerizer. The corrected bench's retained geometry/materials were reimported as a new version and earlier trials retired by guarded Undo. A final simulator restart reverified all 13 mesh/LOD/semantic/material-face records, two material assets, native Sit and occupied Undo refusal. Fresh real login/UDP regression preserved the original 40 IDs/transforms; 100 components received, normal logout confirmed. No server module, physics default, remote deployment or logical Lumi state changed. Protocol probes disable appearance sending.
 
 ## Faster verification
 
-Previously a focused capture still needed a new launch/login; native GUI inventory itself took 21.44 s in this pass and reported the Mac locked. The new [quick harness](../rendering/quick-visual-check.md) queues repeated requests in the same guarded session. Single/trio/full previews use 1/3/8 canonical views with fresh private evidence and JSON summaries. Default active capture targets are 10/30/80 s. Actual elapsed timings and camera restoration remain to be verified live.
+Previously a focused capture still needed a new launch/login; native GUI inventory itself took 21.44 s before unlock. The [quick harness](../rendering/quick-visual-check.md) queues requests in the same guarded session. Single/trio/full previews use 1/3/8 canonical views with fresh private evidence and JSON summaries. Settled single checks measured 10.40 / 10.59 s; earlier requests took 47.57 / 72.44 s, so this is not a cold-login timing guarantee. Camera restoration/FOV and a returned third-person view were checked. Trio/full timings remain configured targets, not measured results.
 
-Bench mode uses inherited grounded autopilot, native Sit, seated capture, native Stand and standing capture. The streamed owned root must match its receipt position. Position/rotation, seat parent and active animation IDs are recorded. The design requires no GUI clicks for that sequence; none were performed while locked. Camera checks produce no WorldLine events. Final controlled performance still uses the existing matched methodology after hero acceptance; no eight-camera benchmark was repeated here.
+Bench mode uses inherited grounded autopilot, native Sit, seated capture, native Stand and standing capture. The streamed owned root must match its receipt position. Position/rotation, seat parent and active animation IDs are recorded. Front and side review exposed v0.1.6 clipping and a rejected v0.1.7 overcorrection, then accepted v0.1.8 contact/clearance. No GUI clicks were needed inside any queued sequence. GUI was used for occasional startup notices, a restoration check and normal logout before required catalog reload/restart. Camera checks produce no WorldLine events; content changes do. No eight-camera benchmark was repeated.
+
+A shortened five-second normal warm-start was rejected by native validation. The launcher now checks the native 10–60-second windows, typed UUID and camera/FOV bounds before opening the app. The later 10/10-second Day warm-start completed. Blender also blocked before script execution in macOS volume enumeration; the seat-only revision reuses hash-checked authoring payloads without rerunning it. Rejected trials and diagnostics are retained.
 
 ## Graphics and content
 
@@ -42,8 +47,8 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 
 | Gate | Status | Evidence / remaining work |
 |---|---|---|
-| B1 visible sit | FAIL — open | Native protocol passes; approach/seated frames await unlock |
-| B2 stand | FAIL — open | Native probe succeeds; visible return/alignment await unlock |
+| B1 visible sit | PASS, current fixture | v0.1.8 front/side seat contact and backrest clearance; human test avatar |
+| B2 stand | PASS, current fixture | Native Stand confirmed; full-body side view on ground |
 | B3 collision path | FAIL — open | Four inherited walking probes pass; full continuous hero route remains |
 | B4 pavilion walkability | FAIL — open | Production entrance/interior not built |
 | B5 lightweight Balanced selected | FAIL — open | Shadow-only candidate prepared; not a saved default/final acceptance |
@@ -67,10 +72,10 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 | B23 WorldLine | PASS, existing state | Existing content journal/guarded Undo preserved; no structural changes here |
 | B24 improved final screenshots | FAIL — open | Final eight-view hero review not performed |
 | B25 final FPS | FAIL — open | Final scene/performance run not ready |
-| B26 regression tests | PASS, current increment | 117 CTest entries, 13 changed C++ cases, 24 Python tests |
+| B26 regression tests | PASS, current increment | Unchanged binary: 117 CTest / 13 C++ cases; current 28 Python / 5 Studio / 13 native content tests |
 | B27 credentials clean | FAIL — open | Current remote scan passes; historical cached Agni provenance incident remains unresolved |
-| B28 PostgreSQL restart | PASS, existing fixture | Earlier restart/Undo proofs retained; fresh bench preflight succeeds |
+| B28 PostgreSQL restart | PASS, current fixture | Final v0.1.8 bench native/semantic/material/Sit checks and original 40 transforms survive simulator restart |
 
 ## Resume
 
-After manual unlock, use the prepared guarded launch with the private queue and Day warm-start fixture. Verify two short captures in the same PID, then the close bench sequence; review its three images together. Save actual duration and restoration evidence before accepting the harness and visible seat. Continue the requested order through conservative graphics, Golden Hour/Night, native Lumi and hero scene content. Phase 4C and OAR imports remain outside this critical path.
+Continue with the full native collision route, conservative graphics and Golden Hour/Night, then native production Lumi and hero content. Use the same guarded session for ordinary queued checks; relaunch only when a required catalog/module reload or restart demands it. Full eight-view scene/performance acceptance follows hero completion. Phase 4C and OAR imports remain outside this critical path.

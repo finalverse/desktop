@@ -1,6 +1,6 @@
 # Repeated local visual checks
 
-Implementation/build status on 2026-10-10: ARM64 package and static tests pass; live queue timing, camera restoration and bench pose acceptance await manual Mac unlock. The native UI inventory reported the Mac locked. Durations below are configured targets, not measured runtime results.
+Verified on 2026-10-10 after unlock: repeated single-view requests took **10.40 / 10.59 seconds** once the scene settled, in the same viewer PID. Early requests took 47.57 / 72.44 seconds; focus loss and changing cached object counts can restart the steady sample, so the fast target is not a cold-login guarantee. Native restoration flags/FOV and a returned third-person UI view were checked. Corrected bench front/side sequences took **21.33 / 21.28 seconds**, including Sit and Stand, without GUI clicks. See the [actual bench evidence and limits](../art/bench-interaction-20261010.md).
 
 The viewer can accept another bounded camera check while the same authorized loopback session remains logged in. This opt-in developer hook reuses native camera, snapshot and frame sampling. It does not expose a network endpoint, accept scripts or invoke AI. `FinalverseQuickVisualDirectory` is empty by default and never saved.
 
@@ -24,6 +24,8 @@ python3 scripts/finalverse/quick_visual_check.py \
 | Full preview | Batch scene review at a milestone | All eight canonical views | 80 s |
 
 Full quick preview remains a feature check. Use the existing longer matched `harbor_benchmark.py` methodology for final controlled release performance comparisons. These short samples must not be compared to older baselines as evidence of a speed improvement.
+
+Launch readiness uses normal native **10–60 second warm-up/sample windows**. Use the queue for shorter 2–10 / 3–10 second quick windows. The launcher now checks those native limits, typed region UUID, camera geometry/FOV and environment map structure before opening the app. A shortened five-second normal warm-start was rejected by the viewer; its evidence remains retained. The launcher prevents repeating that wasted launch and refuses avatar interaction in a launch-readiness specification. Native runtime validation remains authoritative.
 
 `--position X Y Z --focus X Y Z` overrides only the selected target; finite in-region coordinates, a nonvertical direction and bounded FOV remain mandatory. The result records the exact camera. No override changes a canonical definition on disk. Each accepted request produces a new immutable capture directory containing native PNGs, frame CSVs, `results.xml` and `summary.json`. The JSON includes elapsed wall time, camera restoration, actual pixels, environment and graphics settings. Screenshots and file writing are outside the next steady sample.
 

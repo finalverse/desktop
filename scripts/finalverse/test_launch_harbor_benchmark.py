@@ -6,6 +6,7 @@ from pathlib import Path
 import plistlib
 import tempfile
 import unittest
+import uuid
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 from harbor_benchmark import encode
@@ -23,7 +24,9 @@ class LaunchSafety(unittest.TestCase):
         self.session = self.root/'session.xml'; self.spec = self.root/'spec.xml'
         self.settings = {k:{'Value':False} for k in ['AutoLogin','RememberUser','RememberPassword']}
         self.settings['UserLoginInfo'] = {'Value':['Disposable','Fixture','synthetic-test-secret']}
-        self.fixture = {'schema':1,'grid_login_uri':GRID_URI,'region_id':REGION_ID,'output_dir':str(self.root/'new-evidence'),'views':[{'name':'CAM_Pavilion'}]}
+        self.fixture = {'schema':1,'grid_login_uri':GRID_URI,'region_id':uuid.UUID(REGION_ID),
+            'output_dir':str(self.root/'new-evidence'),'warmup_seconds':10.,'sample_seconds':10.,
+            'views':[{'name':'CAM_Pavilion','position':[145.,130.,30.], 'focus':[150.,135.,27.], 'fov':1.}]}
         self.write(self.session,self.settings); self.write(self.spec,self.fixture)
         self.ps = patch('launch_harbor_benchmark.subprocess.check_output',return_value=''); self.ps.start()
         self.platform = patch('launch_harbor_benchmark.sys.platform','darwin'); self.platform.start()
@@ -76,7 +79,7 @@ class LaunchSafety(unittest.TestCase):
     def test_reject_wrong_region_and_linked_session(self):
         self.fixture['region_id']='00000000-0000-0000-0000-000000000000';self.write(self.spec,self.fixture)
         with self.assertRaises(ValueError): self.run_preflight()
-        self.fixture['region_id']=REGION_ID;self.write(self.spec,self.fixture)
+        self.fixture['region_id']=uuid.UUID(REGION_ID);self.write(self.spec,self.fixture)
         other=self.root/'other.xml';self.session.rename(other);self.session.symlink_to(other)
         with self.assertRaises(ValueError): self.run_preflight()
     def test_queue_is_opt_in_private_and_cannot_replace_pending_work(self):
@@ -89,5 +92,27 @@ class LaunchSafety(unittest.TestCase):
         with self.assertRaises(ValueError): preflight(self.app,self.profile,self.session,self.spec,self.digest,queue)
         (queue/'request.xml').unlink();linked=self.root/'linked';linked.symlink_to(queue,target_is_directory=True)
         with self.assertRaises(ValueError): preflight(self.app,self.profile,self.session,self.spec,self.digest,linked)
+    def test_native_warm_start_limits_checked_before_launch(self):
+        for key in ['warmup_seconds', 'sample_seconds']:
+            for value in [5., True, float('nan'), 61., None]:
+                self.fixture[key]=value;self.write(self.spec,self.fixture)
+                with self.assertRaises(ValueError): self.run_preflight()
+            self.fixture[key]=10.
+    def test_camera_geometry_and_fov_checked_before_launch(self):
+        view=self.fixture['views'][0]
+        for key,value in [('position',[257.,0.,1.]),('focus',[True,1.,1.]),('fov',2.)]:
+            old=view[key];view[key]=value;self.write(self.spec,self.fixture)
+            with self.assertRaises(ValueError): self.run_preflight()
+            view[key]=old
+        view['focus']=view['position'];self.write(self.spec,self.fixture)
+        with self.assertRaises(ValueError): self.run_preflight()
+    def test_region_requires_native_uuid_type(self):
+        self.fixture['region_id']=REGION_ID;self.write(self.spec,self.fixture)
+        with self.assertRaises(ValueError): self.run_preflight()
+    def test_launch_cannot_replace_quick_queue_interaction_flow(self):
+        for key,value in [('quick_mode',True),('interaction',{})]:
+            self.fixture[key]=value;self.write(self.spec,self.fixture)
+            with self.assertRaises(ValueError): self.run_preflight()
+            del self.fixture[key]
 
 if __name__=='__main__': unittest.main()
