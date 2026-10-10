@@ -24,7 +24,7 @@ The current fixture root is `fbc98973-9c8c-f856-689e-56ad00dc920c` at approximat
 
 Studio's `scripts/bench_seating.py` shares the corrected definition with the Blender generator and produces a new metadata package from retained, hash-checked original payloads. `exports/bench-pbr-v0.1.8/bench` retains the same editable `.blend`, interchange geometry, material library and independently reduced LOD inputs as v0.1.6. Its provenance pins the earlier manifest hash. Native compiled mesh bytes differ only in the inherited serializer's date field; all other bytes and native material payloads match. Budget remains **13 parts, 2 materials, no textures, 1,404 / 754 / 286 / 130 triangles**.
 
-Blender startup was sampled waiting in `NSFileManager.mountedVolumeURLsIncludingResourceValuesForKeys` → `__getattrlist`, before the Python script ran. Its task-specific process was terminated. Diagnostics remain private. No mounted volume was detached and no unrelated build/source was removed. The metadata revision avoids that dependency for an unchanged mesh; it is not a successful new Blender regeneration.
+Blender startup was sampled waiting in `NSFileManager.mountedVolumeURLsIncludingResourceValuesForKeys` → `__getattrlist`, before the Python script ran. Termination was requested for the task-specific process; it remained in an uninterruptible kernel wait when checked afterward. Diagnostics remain private. No mounted volume was detached and no unrelated build/source was removed. The metadata revision avoids that dependency for an unchanged mesh; it is not a successful new Blender regeneration. New Blender authoring requires resolving this filesystem wait.
 
 ## Timing and evidence
 
