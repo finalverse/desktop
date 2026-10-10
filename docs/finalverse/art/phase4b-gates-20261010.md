@@ -2,6 +2,8 @@
 
 Phase 4B remains open. After unlock, the persistent visual hook was run and a real bench alignment defect was corrected in Starter Library v0.1.8. Settled single checks took 10.40 / 10.59 seconds; corrected front/side native Sit/Stand sequences took 21.33 / 21.28 seconds without GUI clicks. Both visible seating gates pass for the current test avatar. [Detailed source, trial failures, evidence and limits](bench-interaction-20261010.md) are retained; production Lumi, hero content and full lighting remain unfinished.
 
+**Later integrated continuation:** [the current ledger](../phase4b-integrated-plan.md) adds and records the completed passive OAR compatibility milestone and [Genesis source audit](genesis-native-pipeline.md). New tools have 26 OAR and 32 viewer Python tests; C++ binary and earlier CTest results below are unchanged. The OAR experiment runs in a separate PostgreSQL fixture; none of B3–B25's unfinished Harbor/production-avatar gates becomes a pass from that restore. The historical narrative below describes the earlier bench pass. Its former “OAR outside the critical path” ordering is superseded by the integrated brief.
+
 ## Repositories and package
 
 | Repository | Start | Scope | Push |
@@ -78,4 +80,4 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 
 ## Resume
 
-Continue with the full native collision route, conservative graphics and Golden Hour/Night, then native production Lumi and hero content. Use the same guarded session for ordinary queued checks; relaunch only when a required catalog/module reload or restart demands it. Full eight-view scene/performance acceptance follows hero completion. Phase 4C and OAR imports remain outside this critical path.
+Resume from the [integrated ledger](../phase4b-integrated-plan.md): retain these bench proofs, finish collision/lighting, turn the completed isolated OAR experiment into cleared reusable content, prove native Genesis Lumi and Elara, then complete hero composition. Use the guarded queue for ordinary checks; full eight-view scene/performance acceptance follows hero completion. Phase 4C remains later work.

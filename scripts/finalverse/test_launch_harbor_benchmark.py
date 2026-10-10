@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2026 Finalverse contributors. SPDX-License-Identifier: LGPL-2.1-only
 import hashlib
+import json
 import os
 from pathlib import Path
 import plistlib
@@ -10,7 +11,7 @@ import uuid
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 from harbor_benchmark import encode
-from launch_harbor_benchmark import preflight, GRID_KEY, GRID_URI, REGION_ID
+from launch_harbor_benchmark import preflight, preflight_staging, GRID_KEY, GRID_URI, REGION_ID
 
 class LaunchSafety(unittest.TestCase):
     def setUp(self):
@@ -20,7 +21,7 @@ class LaunchSafety(unittest.TestCase):
         (self.app/'Contents/MacOS/Finalverse Test').write_bytes(b'fixture executable')
         self.digest = hashlib.sha256(b'fixture executable').hexdigest()
         self.profile = self.root/'profile'; self.grid = self.profile/'Library/Application Support/Finalverse/user_settings/grids.xml'; self.grid.parent.mkdir(parents=True)
-        self.write(self.grid, {GRID_KEY:{'login_uri':[GRID_URI]}})
+        self.write(self.grid, {GRID_KEY:self.grid_entry(GRID_KEY,GRID_URI)})
         self.session = self.root/'session.xml'; self.spec = self.root/'spec.xml'
         self.settings = {k:{'Value':False} for k in ['AutoLogin','RememberUser','RememberPassword']}
         self.settings['UserLoginInfo'] = {'Value':['Disposable','Fixture','synthetic-test-secret']}
@@ -34,6 +35,8 @@ class LaunchSafety(unittest.TestCase):
         self.platform.stop(); self.ps.stop(); self.temp.cleanup()
     def write(self,path,data):
         root=ET.Element('llsd'); root.append(encode(data)); path.write_bytes(ET.tostring(root)); path.chmod(0o600)
+    def grid_entry(self,key,uri):
+        return dict(keyname=key,login_uri=[uri],grid_login_id='MutSeaFixture',system_grid=False,login_identifier_types=['agent'])
     def run_preflight(self): return preflight(self.app,self.profile,self.session,self.spec,self.digest)
     def test_explicit_grid_profile_and_no_secret_in_argv(self):
         args=self.run_preflight(); self.assertIn(GRID_KEY,args); self.assertIn('CFFIXED_USER_HOME='+str(self.profile.resolve()),args)
@@ -114,5 +117,46 @@ class LaunchSafety(unittest.TestCase):
             self.fixture[key]=value;self.write(self.spec,self.fixture)
             with self.assertRaises(ValueError): self.run_preflight()
             del self.fixture[key]
+
+    def staging_fixture(self):
+        account=self.root/'staging.json'
+        data=dict(grid_url='http://127.0.0.1:18095/', region_id=str(uuid.uuid4()), registered=True,
+                  first_name='Disposable',last_name='Fixture',password='synthetic-test-secret')
+        account.write_text(json.dumps(data));account.chmod(0o600)
+        self.write(self.grid, {'127.0.0.1:18095':self.grid_entry('127.0.0.1:18095',data['grid_url'])})
+        return account,data
+
+    def test_staging_preserves_package_and_private_login_guards(self):
+        account,data=self.staging_fixture()
+        command=preflight_staging(self.app,self.profile,self.session,account,self.digest)
+        self.assertIn('127.0.0.1:18095',command)
+        self.assertNotIn('synthetic-test-secret',' '.join(command))
+        self.assertIn('FinalverseQuickVisualDirectory',command)
+        account.chmod(0o644)
+        with self.assertRaises(ValueError):preflight_staging(self.app,self.profile,self.session,account,self.digest)
+
+    def test_staging_rejects_other_grid_unregistered_and_harbor_identity(self):
+        account,data=self.staging_fixture()
+        for key,value in [('grid_url','https://login.agni.lindenlab.com/'),('registered',False),('region_id',REGION_ID)]:
+            bad=dict(data);bad[key]=value;account.write_text(json.dumps(bad))
+            with self.assertRaises(ValueError):preflight_staging(self.app,self.profile,self.session,account,self.digest)
+
+    def test_staging_rejects_mismatched_login_and_benchmark_replay(self):
+        account,data=self.staging_fixture()
+        data['password']='different-synthetic-secret';account.write_text(json.dumps(data))
+        with self.assertRaises(ValueError):preflight_staging(self.app,self.profile,self.session,account,self.digest)
+        data['password']='synthetic-test-secret';account.write_text(json.dumps(data))
+        self.settings['FinalverseVisualBenchmarkFile']={'Value':'/tmp/old-spec.xml'}
+        self.write(self.session,self.settings)
+        with self.assertRaises(ValueError):preflight_staging(self.app,self.profile,self.session,account,self.digest)
+
+    def test_native_grid_rejection_cannot_escape_preflight(self):
+        for key,value in [('keyname',None),('keyname','util.agni.lindenlab.com'),
+                          ('grid_login_id','Agni'),('system_grid',True),('login_identifier_types',['account'])]:
+            entry=self.grid_entry(GRID_KEY,GRID_URI);entry[key]=value
+            self.write(self.grid,{GRID_KEY:entry})
+            with self.assertRaises(ValueError):self.run_preflight()
+        self.write(self.grid,{GRID_KEY:self.grid_entry(GRID_KEY,GRID_URI),'other':{}})
+        with self.assertRaises(ValueError):self.run_preflight()
 
 if __name__=='__main__': unittest.main()

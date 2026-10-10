@@ -1,6 +1,6 @@
 # OAR input and MutSea WorldTemplate conversion
 
-2026-10-09. This is a future import plan, not a deployed Scene Cloud feature. Harbor remains intentionally authored. No arbitrary OAR is restored into the running Harbor for Phase 4B.
+2026-10-10. The integrated Phase 4B brief adds an immediate **isolated OAR compatibility experiment**. That experiment now passes for passive OpenVCE 2022: 459 groups / 4,090 parts, 283 passive assets, native delivery and clean PostgreSQL-backed restart. [Current ledger](../phase4b-integrated-plan.md) and MutSea's `docs/mutsea/oar-compatibility.md` record exact scope, failures and rights limitations. Harbor remains preserved. This is not a deployed Scene Cloud or WorldTemplate provisioning feature.
 
 ## Existing restore boundary
 
@@ -38,10 +38,10 @@ OAR is an **input format**. WorldTemplate is the intended canonical MutSea packa
 
 ## Delivery order and unresolved work
 
-1. Finish the current native material, collision, seating, LOD and Lumi/Harbor visual gates.
-2. In Phase 4B.1, formalize reusable Avatar/Place/World templates and dependency/version/provenance validation using the existing cleared Starter Library content.
-3. Add a read-only OAR inspection tool and fixtures before any restoration service.
-4. Add the isolated no-script conversion worker and adversarial tests. Review inherited archive readers; do not assume the present reader meets the proposed bounds.
-5. Add approved template provisioning with stable IDs, conflict handling, transaction recovery and reversible migration.
+1. Retain current bench/tree/light proofs and complete remaining interaction/lighting gates.
+2. Bounded offline inspection/quarantine and isolated passive restore/restart/native-viewer proof now pass for the selected source. The manual fixture is not a deployed conversion worker.
+3. Prove rights-cleared reusable content and Genesis native pipelines, then complete hero Harbor composition.
+4. In Phase 4B.1 formalize Avatar/Place/World packages, dependencies, versioning and provenance through the shared content registry.
+5. Add approved provisioning with stable instance IDs, conflict handling, transaction recovery and rollback; Scene Cloud/WorldSync remain later work.
 
-Whole-world atomicity, script quarantine across restart, license resolution, tenant isolation, asset garbage collection and WorldSync are not implemented by this roadmap. A successful raw restore proves none of these gates.
+Script exclusion across restart is proven for this passive fixture with engines disabled and task inventory empty. Whole-world atomicity, complete license resolution, production tenant isolation, asset garbage collection and WorldSync remain open. A successful raw restore does not prove those product gates.
