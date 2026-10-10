@@ -38,7 +38,7 @@ def guarded_process(app, session, root, digest, rows, command_for_pid):
     return matches[0]
 
 
-def specification(mode, camera, root, warmup=5., sample=5., position=None, focus=None, seat=None, seat_position=None):
+def specification(mode, camera, root, warmup=5., sample=5., position=None, focus=None, seat=None, seat_position=None, any_owner=False):
     require(mode in ('single', 'trio', 'full'), 'Unknown mode.')
     require(2 <= warmup <= 10 and 3 <= sample <= 10, 'Quick windows must be 2–10 / 3–10 seconds.')
     require(camera in {v[0] for v in VIEWS}, 'Use a canonical target name.')
@@ -63,6 +63,8 @@ def specification(mode, camera, root, warmup=5., sample=5., position=None, focus
         require(mode == 'single' and seat.int != 0 and seat_position is not None and coordinates(seat_position),
                 'Bench interaction requires one view, a fixture UUID and expected position.')
         result['interaction'] = dict(kind='bench_sit_stand', seat_id=seat, expected_position=seat_position)
+        if any_owner:
+            result['interaction']['any_owner'] = True
     return result
 
 
@@ -95,13 +97,14 @@ def main():
     parser.add_argument('--sample', type=float, default=5.)
     parser.add_argument('--seat-id', type=uuid.UUID, help='Explicit opt-in native owned-bench approach/sit/stand')
     parser.add_argument('--seat-position', nargs=3, type=float)
+    parser.add_argument('--seat-any-owner', action='store_true', help='Explicit opt-in: sit on shared (not owned) seating; ID/position checks still apply')
     args = parser.parse_args()
     try:
         rows = subprocess.check_output(['ps', '-axo', 'pid=,comm='], text=True)
         guarded_process(args.app, args.session, args.directory, args.binary_sha256, rows,
                         lambda pid: subprocess.check_output(['ps', '-p', str(pid), '-o', 'command='], text=True))
         fixture = specification(args.mode, args.camera, args.directory, args.warmup, args.sample,
-                                args.position, args.focus, args.seat_id, args.seat_position)
+                                args.position, args.focus, args.seat_id, args.seat_position, args.seat_any_owner)
         started = time.monotonic(); submit(args.directory, fixture)
         evidence = Path(fixture['output_dir']); results = evidence / 'results.xml'
         while time.monotonic() - started < 190:

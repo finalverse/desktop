@@ -281,13 +281,17 @@ private:
         }
         const LLSD& action = mSpec["interaction"];
         auto* seat = gObjectList.findObject(action["seat_id"].asUUID());
-        if (!seat || seat->getRegion() != gAgent.getRegion() || !seat->permYouOwner() ||
+        // Owned fixture benches by default; any_owner is an explicit opt-in for shared
+        // (for example estate-provisioned) seating. Sitting is a native, server-permitted
+        // action that changes no content; the exact ID and position checks still apply.
+        if (!seat || seat->getRegion() != gAgent.getRegion() || !(seat->permYouOwner() || action["any_owner"].asBoolean()) ||
             dist_vec(seat->getPositionRegion(), ll_vector3_from_sd(action["expected_position"])) > .05f)
         {
-            fail("Owned fixture bench or its expected native position did not match."); return false;
+            fail("Fixture bench, its ownership policy or its expected native position did not match."); return false;
         }
+        // Approach in front of the seat in its own frame (benches face their local -Y).
         const LLVector3d approach = gAgent.getRegion()->getOriginGlobal() +
-            LLVector3d(seat->getPositionRegion() + LLVector3(0.f, -1.4f, .8f));
+            LLVector3d(seat->getPositionRegion() + LLVector3(0.f, -1.4f, .8f) * seat->getRotationRegion());
         if (mInteractionPhase == 0)
         {
             if (gAgent.isSitting() || gAgent.getAutoPilot() || gAgent.getFlying())

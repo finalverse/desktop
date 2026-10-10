@@ -45,6 +45,12 @@ class QuickChecks(unittest.TestCase):
         self.assertEqual(spec['interaction']['seat_id'], uid)
         for mode, seat, pos in [('trio', uid, [176, 120, 25]), ('single', uuid.UUID(int=0), [176, 120, 25]), ('single', uid, [-1, 120, 25])]:
             with self.assertRaises(ValueError): specification(mode, 'CAM_Waterfront', self.root, seat=seat, seat_position=pos)
+        self.assertNotIn('any_owner', spec['interaction'])
+
+    def test_shared_seating_is_an_explicit_opt_in(self):
+        uid = uuid.uuid4()
+        spec = specification('single', 'CAM_Lumi', self.root, seat=uid, seat_position=[126.109, 190.109, 25.78], any_owner=True)
+        self.assertIs(spec['interaction']['any_owner'], True)
     def test_active_process_exact_fixture_and_build(self):
         app = self.root / 'Test.app'; (app / 'Contents/MacOS').mkdir(parents=True)
         (app / 'Contents/Info.plist').write_bytes(plistlib.dumps(dict(CFBundleIdentifier='com.finalverse.viewer.visualtests', CFBundleExecutable='Finalverse Test')))
