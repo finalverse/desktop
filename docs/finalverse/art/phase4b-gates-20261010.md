@@ -57,11 +57,11 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 | B6 Golden Hour | FAIL — open | Foreground fill still needs revision |
 | B7 Night | FAIL — open | Bounded lantern pool passes; destination lighting hierarchy incomplete |
 | B8 Pavilion hotspot | FAIL — open | Prior shadow-only cost small; final pavilion absent |
-| B9 production Lumi | FAIL — open | Seven-part placeholder still present; editable CC0 base only |
-| B10 native rig | FAIL — open | Source skeleton incompatible; proper binding/animation validation required |
-| B11 idle/walk/sit | FAIL — open | Required on production Lumi, not proven by human bench tests |
-| B12 talk/listen/greeting | FAIL — open | Production avatar gesture states pending |
-| B13 identity unchanged | PASS | No citizen identity/home/memory mutation in this pass |
+| B9 production Lumi | PARTIAL | Original skinned Lumi v0.1.1 renders natively as animesh; textures/Lumi gestures/final polish open ([validation](genesis-lumi-validation.md)) |
+| B10 native rig | PASS, current fixture | Pinned 133-bone skeleton, 30 joints, overrides; independent decode 8.4 µm |
+| B11 idle/walk/sit | PARTIAL | Idle and walk native-visible (front-on mid-stride); Sit not implemented |
+| B12 talk/listen/greeting | PARTIAL | Talk/greet states delivered (wire-verified); native `hello` occluded by Lumi's head; listen absent; Lumi-specific animations needed |
+| B13 identity unchanged | PASS | Representation migration verified against pre-migration receipt; rollback and re-apply also verified |
 | B14 pavilion | FAIL — open | Production social place pending |
 | B15 beacon | FAIL — open | Hero landmark upgrade pending |
 | B16 arrival composition | FAIL — open | Current sandbox composition not accepted |
@@ -69,8 +69,8 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 | B18 Lumi Home visuals | FAIL — open | Existing semantic home preserved; visual upgrade pending |
 | B19 Garden visuals | FAIL — open | Existing relationship preserved; coherent garden pending |
 | B20 AI recognizes hero assets | FAIL — open | Imported small-asset semantics pass; all final hero assets not present |
-| B21 home relationship | PASS, existing state | Prior citizen/home proofs preserved; must verify after embodiment migration |
-| B22 navigation | PASS, existing state | Prior citizen route/native walking proofs; production avatar navigation pending |
+| B21 home relationship | PASS, after migration | Home relationship/memories verified after migration, rollback and PostgreSQL restart |
+| B22 navigation | PASS, animesh | Real walks home at 0.20 m root lift; representation-specific lift/speed; turn and face-outward |
 | B23 WorldLine | PASS, existing state | Existing content journal/guarded Undo preserved; no structural changes here |
 | B24 improved final screenshots | FAIL — open | Final eight-view hero review not performed |
 | B25 final FPS | FAIL — open | Final scene/performance run not ready |

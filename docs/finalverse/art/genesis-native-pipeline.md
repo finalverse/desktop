@@ -32,6 +32,8 @@ No new registry, arbitrary model-generated Python execution, renderer rewrite or
 
 ## Authoring status
 
+2026-10-10 continuation: Lumi is authored without Blender (Studio `scripts/build_lumi.py`, implicit surface, native-skeleton weights) and validated natively; see [Genesis Lumi validation](genesis-lumi-validation.md). After a reboot with `/Volumes/HPP900` detached, Blender 5.2.2 starts again; the earlier hang coincided with the FSKit `UVFSService` stuck in kernel wait since boot. The paragraph below is the original record.
+
 The Mac startup probe on 2026-10-10 blocked inside `NSFileManager.mountedVolumeURLsIncludingResourceValuesForKeys` → `__getattrlist`, before any Python. The same operation was observed in earlier failed authoring; unlocking does not resolve that kernel wait. Diagnostics and the task-specific process identity remain private. No volume was unmounted. A TERM request did not clear the blocked process when checked.
 
 A Debian bookworm ARM64 headless fallback was attempted with official Blender `3.4.1+dfsg-2+b1`; dependency downloads failed connecting to the official HTTP mirror. No image or authoring success is claimed from that attempt. Next agent should resolve authoring availability without repeating GUI waits or altering unrelated mounted data. Native viewer acceptance remains on the Mac.
