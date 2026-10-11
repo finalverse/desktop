@@ -51,7 +51,7 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 |---|---|---|
 | B1 visible sit | PASS, current fixture | v0.1.8 front/side seat contact and backrest clearance; human test avatar |
 | B2 stand | PASS, current fixture | Native Stand confirmed; full-body side view on ground |
-| B3 collision path | FAIL — open | Four inherited walking probes pass; full continuous hero route remains |
+| B3 collision path | PARTIAL | A newcomer walk from the arrival compass, past the beacon and up the north walk onto the pavilion deck, passed by protocol without stalling ([onboarding](newcomer-onboarding-validation.md)); a native continuous route is not captured |
 | B4 pavilion walkability | PASS, current fixture | Pavilion v2: native walk from the plaza onto the deck, Sit and Stand on an estate bench ([validation](harbor-pavilion-validation.md)) |
 | B5 lightweight Balanced selected | FAIL — open | Shadow-only candidate prepared; not a saved default/final acceptance |
 | B6 Golden Hour | PARTIAL | Eight-camera native set on the hero Harbor ([world/lighting](harbor-world-template-validation.md)); art-direction sign-off pending |
@@ -77,6 +77,8 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 | B26 regression tests | PASS, current increment | Unchanged binary: 117 CTest / 13 C++ cases; current 28 Python / 5 Studio / 13 native content tests |
 | B27 credentials clean | FAIL — open | Current remote scan passes; historical cached Agni provenance incident remains unresolved |
 | B28 PostgreSQL restart | PASS, current fixture | Final v0.1.8 bench native/semantic/material/Sit checks and original 40 transforms survive simulator restart |
+| K WorldTemplate (integrated plan) | PASS, current fixture | `harbor-world@0.2.0`: provision into a fresh region, protocol visit, rollback, re-provision ([world](harbor-world-template-validation.md)) |
+| L five-minute new-user entry (integrated plan) | PARTIAL | Machine path PASS in 31.1 s: provisioned account with a Genesis outfit, first login, arrival, semantics, starter world, pavilion sit/stand, re-login. Human session, self-serve chooser and visitor-to-Lumi interaction open ([onboarding](newcomer-onboarding-validation.md)) |
 
 ## Resume
 

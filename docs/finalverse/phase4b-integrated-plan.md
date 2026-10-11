@@ -99,6 +99,16 @@ Lumi still walks home from every side and plants and undoes her own garden. A na
 
 See [world template, lighting and incident](art/harbor-world-template-validation.md).
 
+**Implemented 2026-10-11: newcomer provisioning and the five-minute entry check.**
+
+- MutSea `[FinalverseAccounts]` prepares local accounts with a chosen Genesis outfit and the arrival as home.
+- A new account (Kai Female) made a cold-cache first native login onto the arrival compass, and a second account saw its Genesis appearance.
+- Its protocol journey covered place semantics, the starter world, the walk to the pavilion and a bench sit/stand: 9 milestones in 31.1 s.
+- It resumed at the pavilion on re-login, with a native sit and stand.
+- Human-session, chooser and visitor-to-Lumi checks remain.
+
+See [onboarding](art/newcomer-onboarding-validation.md).
+
 Historical note: a fresh Mac Blender process blocked in mounted-volume enumeration before Python. After a 2026-10-10 reboot with the exFAT drive `HPP900` no longer mounted, Blender 5.2.2 started normally, which supports the FSKit-volume diagnosis; the reboot also reset state, so it is not proven. A separate pinned Debian ARM64 headless authoring build was attempted; dependency downloads failed on HTTP connections to the official Debian mirror. It has not generated a character. No volume was detached, no Blender preferences were changed and no fresh authoring success is claimed.
 
 ## Visual and performance acceptance
@@ -109,4 +119,4 @@ Current small assets retain their actual budgets: bench 1,404/754/286/130 triang
 
 ## Release gates
 
-Production Lumi/native motions; recognizable and walkable hero areas; accepted Golden Hour/Night; stable appearance and identity; grounded AI semantics; guarded operations/Undo; PostgreSQL restart; package provenance/dependency closure; original Harbor IDs retained; native viewer evidence and acceptable frame-time percentiles; completed regression suite. The nine-character collection, full WorldTemplate lifecycle and new-user validation remain open. Commit coherent milestones locally; no push or remote deployment is authorized by this brief.
+Production Lumi/native motions; recognizable and walkable hero areas; accepted Golden Hour/Night; stable appearance and identity; grounded AI semantics; guarded operations/Undo; PostgreSQL restart; package provenance/dependency closure; original Harbor IDs retained; native viewer evidence and acceptable frame-time percentiles; completed regression suite. The nine-character collection and the WorldTemplate lifecycle pass on the current fixture. New-user validation passes on the machine path; a human session, a self-serve chooser and visitor-to-Lumi interaction remain open. Commit coherent milestones locally; no push or remote deployment is authorized by this brief.
