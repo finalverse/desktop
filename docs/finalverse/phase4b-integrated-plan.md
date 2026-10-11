@@ -90,6 +90,15 @@ The pavilion replaced the v1 sandbox pavilion. It uses eight new modules plus th
 
 Lumi still walks home from every side and plants and undoes her own garden. A navigation obstacle-model defect found by these checks was fixed: snapshots now report a body-height footprint. See [hero places](art/harbor-hero-places-validation.md).
 
+**Implemented 2026-10-11: walks, the first WorldTemplate and the lighting review.**
+
+- North and Lake walks replace the v1 path slabs.
+- `mutsea.starter.harbor-world@0.2.0` composes the arrival, pavilion, overlook and walks on Harbor's terrain. It was provisioned into a fresh region, visited by a second account, rolled back and re-provisioned.
+- Eight-camera native sets were captured in Day, Golden Hour and Night.
+- A disk-full incident, caused by recreating the simulator container without `-it`, is recorded with its mitigation.
+
+See [world template, lighting and incident](art/harbor-world-template-validation.md).
+
 Historical note: a fresh Mac Blender process blocked in mounted-volume enumeration before Python. After a 2026-10-10 reboot with the exFAT drive `HPP900` no longer mounted, Blender 5.2.2 started normally, which supports the FSKit-volume diagnosis; the reboot also reset state, so it is not proven. A separate pinned Debian ARM64 headless authoring build was attempted; dependency downloads failed on HTTP connections to the official Debian mirror. It has not generated a character. No volume was detached, no Blender preferences were changed and no fresh authoring success is claimed.
 
 ## Visual and performance acceptance

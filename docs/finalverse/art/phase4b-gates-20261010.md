@@ -54,8 +54,8 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 | B3 collision path | FAIL — open | Four inherited walking probes pass; full continuous hero route remains |
 | B4 pavilion walkability | PASS, current fixture | Pavilion v2: native walk from the plaza onto the deck, Sit and Stand on an estate bench ([validation](harbor-pavilion-validation.md)) |
 | B5 lightweight Balanced selected | FAIL — open | Shadow-only candidate prepared; not a saved default/final acceptance |
-| B6 Golden Hour | FAIL — open | Foreground fill still needs revision |
-| B7 Night | FAIL — open | Bounded lantern pool passes; destination lighting hierarchy incomplete |
+| B6 Golden Hour | PARTIAL | Eight-camera native set on the hero Harbor ([world/lighting](harbor-world-template-validation.md)); art-direction sign-off pending |
+| B7 Night | PARTIAL | Beacon, path and overlook lantern pools across eight cameras; pavilion interior dim |
 | B8 Pavilion hotspot | FAIL — open | Pavilion v2 interior 62–66 fps, p95 ~28 ms (exterior 83–92); final profile pending |
 | B9 production Lumi | PARTIAL | Original skinned Lumi v0.1.1 renders natively as animesh; textures/Lumi gestures/final polish open ([validation](genesis-lumi-validation.md)) |
 | B10 native rig | PASS, current fixture | Pinned 133-bone skeleton, 30 joints, overrides; independent decode 8.4 µm |
@@ -72,8 +72,8 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 | B21 home relationship | PASS, after migration | Home relationship/memories verified after migration, rollback and PostgreSQL restart |
 | B22 navigation | PASS, animesh | Real walks home at 0.20 m root lift; with the cottage garden from front, back and side (body-height footprint fix) |
 | B23 WorldLine | PASS, existing state | Existing content journal/guarded Undo preserved; no structural changes here |
-| B24 improved final screenshots | FAIL — open | Final eight-view hero review not performed |
-| B25 final FPS | FAIL — open | Final scene/performance run not ready |
+| B24 improved final screenshots | PASS, current fixture | Eight-view hero sets in Day, Golden Hour and Night |
+| B25 final FPS | PARTIAL | 70–117 fps, p95 ≤ 27 ms (feature runs, shadows on); controlled release benchmark pending |
 | B26 regression tests | PASS, current increment | Unchanged binary: 117 CTest / 13 C++ cases; current 28 Python / 5 Studio / 13 native content tests |
 | B27 credentials clean | FAIL — open | Current remote scan passes; historical cached Agni provenance incident remains unresolved |
 | B28 PostgreSQL restart | PASS, current fixture | Final v0.1.8 bench native/semantic/material/Sit checks and original 40 transforms survive simulator restart |
