@@ -63,14 +63,14 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 | B12 talk/listen/greeting | PASS, current fixture | Original Lumi motions (v0.1.2): greet flap, listen tilt and talk nod, native-visible; wire-verified |
 | B13 identity unchanged | PASS | Representation migration verified against pre-migration receipt; rollback and re-apply also verified |
 | B14 pavilion | PARTIAL | Pavilion v2 provisioned as a PlaceTemplate with rollback rehearsed; skylight soffit and lighting presets open |
-| B15 beacon | FAIL — open | Hero landmark upgrade pending |
-| B16 arrival composition | FAIL — open | Current sandbox composition not accepted |
-| B17 waterfront | FAIL — open | Small assets available; final composition pending |
-| B18 Lumi Home visuals | FAIL — open | Existing semantic home preserved; visual upgrade pending |
-| B19 Garden visuals | FAIL — open | Existing relationship preserved; coherent garden pending |
-| B20 AI recognizes hero assets | PARTIAL | Pavilion parts carry semantics and place context (title, role, entrances) through the World relay; other hero places pending |
+| B15 beacon | PASS, current fixture | Harbor Beacon (three stacked modules, native wayfinding light) on the arrival axis ([hero places](harbor-hero-places-validation.md)) |
+| B16 arrival composition | PARTIAL | Harbor Arrival place: paving, compass at spawn, beacon, welcome stone, benches, lanterns, trees; Golden Hour/Night review pending |
+| B17 waterfront | PARTIAL | Lake Overlook place (timber deck, rail, lake-facing benches, lanterns); lighting presets pending |
+| B18 Lumi Home visuals | PARTIAL | Identity-preserving restyle (3 undoable WorldPlans) and cottage garden around it; geometry remains primitive |
+| B19 Garden visuals | PASS, current fixture | Cottage garden beds/trees/lanterns; Lumi's own garden tool proposed, planted and undone beside it |
+| B20 AI recognizes hero assets | PARTIAL | All four hero places provision with place semantics; World-relay check shown for pavilion parts; agent dialogue about places not yet evaluated |
 | B21 home relationship | PASS, after migration | Home relationship/memories verified after migration, rollback and PostgreSQL restart |
-| B22 navigation | PASS, animesh | Real walks home at 0.20 m root lift; representation-specific lift/speed; turn and face-outward |
+| B22 navigation | PASS, animesh | Real walks home at 0.20 m root lift; with the cottage garden from front, back and side (body-height footprint fix) |
 | B23 WorldLine | PASS, existing state | Existing content journal/guarded Undo preserved; no structural changes here |
 | B24 improved final screenshots | FAIL — open | Final eight-view hero review not performed |
 | B25 final FPS | FAIL — open | Final scene/performance run not ready |

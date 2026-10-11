@@ -82,6 +82,14 @@ Studio now pins all six actual PNG inputs and the native 133-bone / 26-volume sk
 
 The pavilion replaced the v1 sandbox pavilion. It uses eight new modules plus the approved bench, lantern and tree (59 placements). Native walk / Sit / Stand passes, agent semantics carry the place context, and rollback and re-provision were rehearsed live. See [Harbor Pavilion validation](art/harbor-pavilion-validation.md). The beacon, arrival, Lumi Home, Garden and waterfront follow the same path.
 
+**Implemented 2026-10-11: Arrival, Beacon, Lake Overlook, Lumi's cottage.**
+
+- **Harbor Arrival** (70 placements) with the stacked **Harbor Beacon**.
+- **Lake Overlook** (29 placements, approved modules only).
+- **Lumi's Cottage Garden** (9 placements) around her identity-preserving home, which was restyled through three undoable WorldPlans.
+
+Lumi still walks home from every side and plants and undoes her own garden. A navigation obstacle-model defect found by these checks was fixed: snapshots now report a body-height footprint. See [hero places](art/harbor-hero-places-validation.md).
+
 Historical note: a fresh Mac Blender process blocked in mounted-volume enumeration before Python. After a 2026-10-10 reboot with the exFAT drive `HPP900` no longer mounted, Blender 5.2.2 started normally, which supports the FSKit-volume diagnosis; the reboot also reset state, so it is not proven. A separate pinned Debian ARM64 headless authoring build was attempted; dependency downloads failed on HTTP connections to the official Debian mirror. It has not generated a character. No volume was detached, no Blender preferences were changed and no fresh authoring success is claimed.
 
 ## Visual and performance acceptance
