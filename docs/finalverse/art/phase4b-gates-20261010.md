@@ -52,23 +52,23 @@ Bench/tree/lantern content and earlier native persistence/Undo proofs remain int
 | B1 visible sit | PASS, current fixture | v0.1.8 front/side seat contact and backrest clearance; human test avatar |
 | B2 stand | PASS, current fixture | Native Stand confirmed; full-body side view on ground |
 | B3 collision path | FAIL — open | Four inherited walking probes pass; full continuous hero route remains |
-| B4 pavilion walkability | FAIL — open | Production entrance/interior not built |
+| B4 pavilion walkability | PASS, current fixture | Pavilion v2: native walk from the plaza onto the deck, Sit and Stand on an estate bench ([validation](harbor-pavilion-validation.md)) |
 | B5 lightweight Balanced selected | FAIL — open | Shadow-only candidate prepared; not a saved default/final acceptance |
 | B6 Golden Hour | FAIL — open | Foreground fill still needs revision |
 | B7 Night | FAIL — open | Bounded lantern pool passes; destination lighting hierarchy incomplete |
-| B8 Pavilion hotspot | FAIL — open | Prior shadow-only cost small; final pavilion absent |
+| B8 Pavilion hotspot | FAIL — open | Pavilion v2 interior 62–66 fps, p95 ~28 ms (exterior 83–92); final profile pending |
 | B9 production Lumi | PARTIAL | Original skinned Lumi v0.1.1 renders natively as animesh; textures/Lumi gestures/final polish open ([validation](genesis-lumi-validation.md)) |
 | B10 native rig | PASS, current fixture | Pinned 133-bone skeleton, 30 joints, overrides; independent decode 8.4 µm |
 | B11 idle/walk/sit | PARTIAL | Idle and walk native-visible (front-on mid-stride); Sit not implemented |
 | B12 talk/listen/greeting | PASS, current fixture | Original Lumi motions (v0.1.2): greet flap, listen tilt and talk nod, native-visible; wire-verified |
 | B13 identity unchanged | PASS | Representation migration verified against pre-migration receipt; rollback and re-apply also verified |
-| B14 pavilion | FAIL — open | Production social place pending |
+| B14 pavilion | PARTIAL | Pavilion v2 provisioned as a PlaceTemplate with rollback rehearsed; skylight soffit and lighting presets open |
 | B15 beacon | FAIL — open | Hero landmark upgrade pending |
 | B16 arrival composition | FAIL — open | Current sandbox composition not accepted |
 | B17 waterfront | FAIL — open | Small assets available; final composition pending |
 | B18 Lumi Home visuals | FAIL — open | Existing semantic home preserved; visual upgrade pending |
 | B19 Garden visuals | FAIL — open | Existing relationship preserved; coherent garden pending |
-| B20 AI recognizes hero assets | FAIL — open | Imported small-asset semantics pass; all final hero assets not present |
+| B20 AI recognizes hero assets | PARTIAL | Pavilion parts carry semantics and place context (title, role, entrances) through the World relay; other hero places pending |
 | B21 home relationship | PASS, after migration | Home relationship/memories verified after migration, rollback and PostgreSQL restart |
 | B22 navigation | PASS, animesh | Real walks home at 0.20 m root lift; representation-specific lift/speed; turn and face-outward |
 | B23 WorldLine | PASS, existing state | Existing content journal/guarded Undo preserved; no structural changes here |

@@ -78,6 +78,10 @@ Studio now pins all six actual PNG inputs and the native 133-bone / 26-volume sk
 
 **Implemented 2026-10-11: Genesis humanoid family (v0.1.0).** Elara F/M, Kai F/M, Terra F/M and Ignis F/M are worn native avatars on the pinned CC0 MPFB base: a rigged attachment plus an alpha wearable. All eight compile and pass the independent decoder. All render natively, shown as a non-persistent animesh gallery on Harbor. Elara F is worn on a real account, seen by a second observer and rolled back. Walk/Sit while worn, LOD review, textures and the selectable chooser remain open. See [Genesis humanoid validation](art/genesis-humanoid-validation.md).
 
+**Implemented 2026-10-11: PlaceTemplate and the Harbor Pavilion v2.** A place composes operator-approved small assets as pinned `package@version` placements with offsets and yaw. It adds place semantics and entrances, and is provisioned as one journaled operation: retire with snapshots, create every placement, compensate on failure, fingerprint-guarded rollback.
+
+The pavilion replaced the v1 sandbox pavilion. It uses eight new modules plus the approved bench, lantern and tree (59 placements). Native walk / Sit / Stand passes, agent semantics carry the place context, and rollback and re-provision were rehearsed live. See [Harbor Pavilion validation](art/harbor-pavilion-validation.md). The beacon, arrival, Lumi Home, Garden and waterfront follow the same path.
+
 Historical note: a fresh Mac Blender process blocked in mounted-volume enumeration before Python. After a 2026-10-10 reboot with the exFAT drive `HPP900` no longer mounted, Blender 5.2.2 started normally, which supports the FSKit-volume diagnosis; the reboot also reset state, so it is not proven. A separate pinned Debian ARM64 headless authoring build was attempted; dependency downloads failed on HTTP connections to the official Debian mirror. It has not generated a character. No volume was detached, no Blender preferences were changed and no fresh authoring success is claimed.
 
 ## Visual and performance acceptance
