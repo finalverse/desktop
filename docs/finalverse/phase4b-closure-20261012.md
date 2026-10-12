@@ -49,7 +49,11 @@ Nothing was pushed or deployed remotely.
 
 Rollback modules r12, r11b, r10b and r9 are kept, as are the database dumps taken before each place, the world and the newcomer.
 
-**Runtime snapshot pending.** The host rebooted on 2026-10-12 and Docker was not running at closure. Take a final `pg_dumpall` and commit the simulator image at the next Docker start. That start also restarts unrelated local containers that crash-loop on missing configuration; they are outside this work.
+**Runtime snapshot, taken after the host reboot:**
+- simulator image `mutsea-finalverse-phase4b:close-20261012` (`c0600a32…`, module r13c `c858dc0e…`);
+- database dump `closure-all.sql` (`c0e10e2a…`, 140 MB, private).
+
+After the reboot, every place, the world and the newcomer re-provisioned idempotently.
 
 ## Lessons kept for the next phase
 
