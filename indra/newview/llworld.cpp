@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llworld.h"
+#include "llgroundplane.h"
 #include "llrender.h"
 
 #include "indra_constants.h"
@@ -567,7 +568,7 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
     intersection = land_intersection;
     intersection_normal = resolveLandNormalGlobal(land_intersection);
 
-    if (avatarp && !avatarp->mFootPlane.isExactlyClear())
+    if (avatarp && llFootPlaneHasSurface(avatarp->mFootPlane.mV))
     {
         LLVector3 foot_plane_normal(avatarp->mFootPlane.mV);
         LLVector3 start_pt = avatarp->getRegion()->getPosRegionFromGlobal(point_a);

@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Finalverse contributors. SPDX-License-Identifier: LGPL-2.1-only
 #include "llviewerprecompiledheaders.h"
 #include "llfinalversevisualbenchmark.h"
+#include "llgroundplane.h"
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llenvironment.h"
@@ -263,6 +264,9 @@ private:
         result["autopilot"] = gAgent.getAutoPilot();
         if (gAgentAvatarp)
         {
+            result["foot_plane"] = LLSD::emptyArray();
+            for (int i = 0; i != 4; ++i) result["foot_plane"].append(gAgentAvatarp->mFootPlane.mV[i]);
+            result["foot_plane_has_surface"] = llFootPlaneHasSurface(gAgentAvatarp->mFootPlane.mV);
             result["rotation"] = ll_sd_from_quaternion(gAgentAvatarp->getRotationRegion());
             auto* parent = static_cast<LLViewerObject*>(gAgentAvatarp->getParent());
             result["seat_root_id"] = parent ? parent->getRootEdit()->getID() : LLUUID::null;
