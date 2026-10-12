@@ -24,6 +24,9 @@ include(Linking)
 # We go to some trouble to set LL_BUILD to the set of relevant compiler flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
 
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} $ENV{LL_BUILD_RELEASE}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} $ENV{LL_BUILD_RELWITHDEBINFO}")
+
 if (DARWIN)
   # LL_BUILD carries a literal -mmacosx-version-min=<ver> from
   # viewer-build-variables. We derive the macOS deployment target in
@@ -31,10 +34,12 @@ if (DARWIN)
   # and let CMAKE_OSX_DEPLOYMENT_TARGET emit the flag to both compiler and
   # linker. Strip the verbatim flag here so it can't conflict with the
   # clamped deployment target.
-  string(REGEX REPLACE "-mmacosx-version-min=[0-9.]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  # Configuration-specific cached LL_BUILD flags can carry the same old
+  # minimum. Remove it after importing all configurations, not just LL_BUILD.
+  foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+    string(REGEX REPLACE "-mmacosx-version-min=[0-9.]+" "" ${flag_var} "${${flag_var}}")
+  endforeach()
 endif (DARWIN)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} $ENV{LL_BUILD_RELEASE}")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} $ENV{LL_BUILD_RELWITHDEBINFO}")
 
 # Given that, all the flags you see added below are flags NOT present in
 # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables.
