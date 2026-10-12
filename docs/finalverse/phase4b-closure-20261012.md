@@ -1,6 +1,6 @@
 # Phase 4B closure — 2026-10-12
 
-Phase 4B ("first impression") is **closed by product decision, with carry-forward**. Closing it is not the same as passing every gate. Each open gate below is moved, explicitly, to the track that owns it. The [B1–B28 ledger](art/phase4b-gates-20261010.md) and the [integrated ledger](phase4b-integrated-plan.md) remain the evidence of record.
+**Historical checkpoint; closure superseded by the user’s 2026-10-12 instruction. Phase 4B remains OPEN until visual, performance, onboarding and world-template gates pass.** Retain the earlier checkpoint/tag for rollback, but do not treat its carry-forward decision as current authorization to advance phases. [Current convergence and evidence](art/genesis-surface-validation-20261012.md). The table below records the earlier checkpoint’s outstanding work. The [B1–B28 ledger](art/phase4b-gates-20261010.md) and the [integrated ledger](phase4b-integrated-plan.md) remain the evidence of record.
 
 ## What Phase 4B delivered
 

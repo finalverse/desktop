@@ -2,6 +2,8 @@
 
 2026-10-10. Plan reconciled with the supplied five-prompt integration brief. Finalverse is the consumer experience; MutSea is the spatial runtime/content authority; Studio is an authoring surface. This ledger records implemented evidence separately from proposed interfaces.
 
+**Current status, 2026-10-12: OPEN.** The latest user instruction supersedes the historical closure/carry-forward decision. Genesis native compatibility is proven; full texture/face art, continuous LOD review, controlled performance and human/self-serve onboarding still gate acceptance. The roster stays at nine. Elara is exclusively female; Auren is the distinct male architect. Female Ignis uses garnet/gold/rose. [Current surface and region evidence](art/genesis-surface-validation-20261012.md).
+
 ## Starting state
 
 | Component | Workspace below `~/Finalverse` | Starting commit | State |
@@ -68,7 +70,7 @@ The six supplied PNG references exist in `~/Project2026/Finalverse/Images`: Lumi
 
 Lumi is the mint-green companion with turquoise eyes and rounded triangular head. The earlier MPFB humanoid was an incompatible rig study, not this character design. Keep it as evidence. Establish a shared native skeleton/skin/animation/LOD contract, then a nonhuman Lumi representation and humanoid Elara Female proof. Preserve canonical Lumi citizen identity, memory, home, garden and WorldLine; migrate representation with recovery, without creating another citizen.
 
-Order: Lumi → Elara Female → Elara Male → Kai Male/Female → Terra Male/Female → Ignis Male/Female. Do not list incomplete models as selectable. Each accepted model needs real viewer idle/walk/turn/Sit where appropriate, appearance persistence, restart and a second observer. Native skin weights/rest pose and animation compatibility must be proven, not inferred from Blender renders.
+Order: Lumi → Elara Female → Auren → Kai Male/Female → Terra Male/Female → Ignis Male/Female. The provisional Elara Male identifier is retired; existing inventory is preserved and migration is explicit. Do not list incomplete models as selectable. Each accepted model needs real viewer idle/walk/turn/Sit where appropriate, appearance persistence, restart and a second observer. Native skin weights/rest pose and animation compatibility must be proven, not inferred from Blender renders.
 
 Studio now pins all six actual PNG inputs and the native 133-bone / 26-volume skeleton in `manifests/genesis-reference-audit-v0.1.json`; **zero** production/selectable avatars. [Source audit and required representation boundary](art/genesis-native-pipeline.md). `CitizenBridge.Body()` currently returns a seven-part **SceneObjectGroup**, not an avatar ScenePresence; inherited avatar animations do not automatically animate it. A new representation adapter and recovery path must preserve the logical citizen ID. The static ContentCompile adapter explicitly supports only untextured/unrigged small assets, so it must not be silently reused for Genesis.
 
@@ -119,4 +121,4 @@ Current small assets retain their actual budgets: bench 1,404/754/286/130 triang
 
 ## Release gates
 
-Production Lumi/native motions; recognizable and walkable hero areas; accepted Golden Hour/Night; stable appearance and identity; grounded AI semantics; guarded operations/Undo; PostgreSQL restart; package provenance/dependency closure; original Harbor IDs retained; native viewer evidence and acceptable frame-time percentiles; completed regression suite. The nine-character collection and the WorldTemplate lifecycle pass on the current fixture. New-user validation passes on the machine path; a human session, a self-serve chooser and visitor-to-Lumi interaction remain open. Commit coherent milestones locally; no push or remote deployment is authorized by this brief.
+Production Lumi/native motions; recognizable and walkable hero areas; accepted Golden Hour/Night; stable appearance and identity; grounded AI semantics; guarded operations/Undo; PostgreSQL restart; package provenance/dependency closure; original Harbor IDs retained; native viewer evidence and acceptable frame-time percentiles; completed regression suite. The nine-template collection passes native compatibility checks and the WorldTemplate lifecycle passes on the current fixture; this does not accept final avatar art or every release gate. New-user validation passes on the machine path; a human session, a self-serve chooser and visitor-to-Lumi interaction remain open. Commit coherent milestones locally; no push or remote deployment is authorized by this brief.

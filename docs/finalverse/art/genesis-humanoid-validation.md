@@ -12,7 +12,7 @@ Each humanoid is a **worn native avatar**: one rigged mesh attachment skinned to
 
 All eight were provisioned in turn to a real account. Each walked, sat and stood natively and was seen by a second account. None is selectable yet.
 
-**Template identity.** Studio `manifests/genesis-templates-v0.2.json` lists `package_id@version` with compiled pins. The provisional `finalverse.genesis.elara-male@0.1.0` is **retired** and superseded by `finalverse.genesis.auren@0.1.0`:
+**Template identity.** Studio `manifests/genesis-templates-v0.3.json` is current (v0.2 remains a historical checkpoint). It lists `package_id@version` with compiled pins. The provisional `finalverse.genesis.elara-male@0.1.0` is **retired** and superseded by `finalverse.genesis.auren@0.1.0`:
 
 - Runtime configurations naming it are refused, with the successor named (`AvatarCatalog.Retired`).
 - Nothing is silently aliased.
@@ -137,3 +137,10 @@ Related wardrobe fix (MutSea `0a003d70e2`): Current Outfit links now carry the v
   - Terra Female is closest to the reference.
   - Hair, crowns and props are rigid, with no secondary motion.
 - After a simulator restart, the test viewer's next login is usually refused once ("already logged in"). Relaunching succeeds; the QA cycle retries automatically.
+
+
+## Surface and idle-variant follow-up (2026-10-12)
+
+[The next bounded surface revision](genesis-surface-validation-20261012.md) adds original cloth/bronze/leather albedo to Auren 0.2.0 without changing any mesh, rig, alpha or LOD bytes. Native walk/Sit/Stand, a second observer, exact downloaded surface hashes and clean PostgreSQL restart pass. H9 remains **PARTIAL**, not PASS: the other eight templates, face/skin/hair detail and normal/ORM maps are still unfinished.
+
+A later fresh-login close-up observed compressed/crossed legs with inherited `STAND_3` (`42b46214-4b44-79ae-deb8-0df61424ff4b`) active on the Auren body. Restored Elara 0.1.0 also shows the defect with only base stand active, so it is not specific to that variant. The same session’s walk/Sit/Stand looked correct. The existing static/distance/rest-pose evidence does not test every inherited idle variant. The surface revision preserves the previous geometry and skin bytes, so investigate native joint overrides/retargeting and compare fresh-login initialization with the valid post-Sit/Stand state, and Auren 0.1.0 before changing the shared pipeline. Do not suppress native idle motion to hide the failure. Full idle-variant acceptance is **OPEN**; the earlier H1/H2 compatibility results do not imply final animation/art acceptance. Phase 4B remains open under the latest user instruction.
