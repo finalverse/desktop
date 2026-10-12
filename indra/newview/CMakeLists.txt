@@ -191,6 +191,8 @@ set(viewer_SOURCE_FILES
     llfloaterfinalverseexperience.cpp
     llpanelfinalverse.cpp
     llfinalversepresentation.cpp
+    llfinalversevisualbenchmark.cpp
+    llfinalversevisualbenchmarkrunner.cpp
     llfinalverselegacyappearance.cpp
     llfloaterabout.cpp
     llfloateravatarwelcomepack.cpp
@@ -881,6 +883,7 @@ set(viewer_HEADER_FILES
     llfloaterfinalverseexperience.h
     llpanelfinalverse.h
     llfinalversepresentation.h
+    llfinalversevisualbenchmark.h
     llfinalverselegacyappearance.h
     llfloaterabout.h
     llfloateravatarwelcomepack.h
@@ -2427,12 +2430,15 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
 endif ()
 
 if (LL_TESTS)
+  add_executable(finalverse_ground_plane_test tests/llgroundplane_test.cpp)
+  add_test(NAME finalverse_ground_plane COMMAND finalverse_ground_plane_test)
   # To add a viewer unit test, just add the test .cpp file below
   # This creates a separate test project per file listed.
   include(LLAddBuildTest)
   SET(viewer_TEST_SOURCE_FILES
     llagentaccess.cpp
     llfinalversepresentation.cpp
+    llfinalversevisualbenchmark.cpp
     lldateutil.cpp
 #    llmediadataclient.cpp
     lllogininstance.cpp

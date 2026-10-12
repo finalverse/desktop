@@ -2,6 +2,20 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
 <map>
+  <key>FinalverseQuickVisualDirectory</key>
+  <map>
+    <key>Comment</key><string>Opt-in private local command directory for repeated visual checks in the designated loopback fixture. Empty disables polling; never persisted.</string>
+    <key>Persist</key><integer>0</integer>
+    <key>Type</key><string>String</string>
+    <key>Value</key><string></string>
+  </map>
+  <key>FinalverseVisualBenchmarkFile</key>
+  <map>
+    <key>Comment</key><string>Opt-in local Phase 4B camera/snapshot benchmark specification. Restricted to the designated loopback fixture; never moves avatars or changes world state.</string>
+    <key>Persist</key><integer>0</integer>
+    <key>Type</key><string>String</string>
+    <key>Value</key><string></string>
+  </map>
   <key>FinalverseUXMetrics</key>
   <map>
     <key>Comment</key><string>Opt-in local timings for Finalverse panel opening and HUD CPU drawing, without scene or credential data.</string>

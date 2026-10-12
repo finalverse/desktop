@@ -103,9 +103,20 @@ void llfinalverseUploadLegacyBake(LLViewerTexLayerSet* layer, S32 x, S32 y, S32 
         !layer || !layer->isLocalTextureDataFinal() || gAgentAvatarp->isEditingAppearance() ||
         width <= 0 || height <= 0 || width > 2048 || height > 2048) return;
     const U8 te = gAgentAvatarp->getBakedTE(layer);
+    checkSession();
+    if (!layer->isVisible())
+    {
+        // Inherited rule (LLViewerTexLayerSetBuffer::doUpload before d58e7cfbfc): a layer set
+        // fully hidden by an alpha wearable is not uploaded. Its baked slot is IMG_INVISIBLE,
+        // so neither this viewer nor observers draw the system mesh (for example the hair).
+        static const LLUUID invisible_cache_id("6d2f1d6c-8f7e-4b1a-9c0e-2a4b6e8f0a11");
+        gAgentAvatarp->setTETexture(te, IMG_INVISIBLE);
+        completed[te] = {IMG_INVISIBLE, invisible_cache_id, generations[te]};
+        publish();
+        return;
+    }
     const std::string capability = gAgent.getRegion()->getCapability("UploadBakedTexture");
     if (capability.empty()) return;
-    checkSession();
     const U64 generation = generations[te];
     const LLUUID session = bake_session, region_id = gAgent.getRegion()->getRegionID();
     std::vector<U8> color(width * height * 4);

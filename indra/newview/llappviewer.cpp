@@ -28,6 +28,7 @@
 #include "finalversebrand.h"
 
 #include "llappviewer.h"
+#include "llfinalversevisualbenchmark.h"
 
 // Viewer includes
 #include "llversioninfo.h"
@@ -5568,6 +5569,8 @@ void LLAppViewer::idle()
 
         gAgentCamera.updateCamera();
     }
+
+    llfinalverseVisualBenchmarkIdle(gFrameIntervalSeconds.value(), mQuitRequested || gLogoutInProgress);
 
     // update media focus
     LLViewerMediaFocus::getInstance()->update();
