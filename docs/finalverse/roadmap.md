@@ -1,5 +1,15 @@
 # Roadmap and recommended next milestone
 
+## Status — 2026-10-12
+
+**Phase 4B is closed with carry-forward** ([closure](phase4b-closure-20261012.md)).
+
+Part of 4B.1 was delivered with it:
+- PlaceTemplate and WorldTemplate provisioning;
+- newcomer account → Genesis appearance provisioning.
+
+Open 4B gates moved to named tracks: market-quality visuals, the performance profile, the AI track, and the 4B.5 study / 4C.
+
 ## Current plan — 2026-10-08
 
 Phase 2 world creation and Phase 3 persistent Lumi are implemented development slices; Phase 4A has passed packaged macOS engineering acceptance. Its UI is retained. The Phase 0 ordering below is historical, not the current execution plan.
