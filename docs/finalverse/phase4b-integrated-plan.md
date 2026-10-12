@@ -122,3 +122,8 @@ Current small assets retain their actual budgets: bench 1,404/754/286/130 triang
 ## Release gates
 
 Production Lumi/native motions; recognizable and walkable hero areas; accepted Golden Hour/Night; stable appearance and identity; grounded AI semantics; guarded operations/Undo; PostgreSQL restart; package provenance/dependency closure; original Harbor IDs retained; native viewer evidence and acceptable frame-time percentiles; completed regression suite. The nine-template collection passes native compatibility checks and the WorldTemplate lifecycle passes on the current fixture; this does not accept final avatar art or every release gate. New-user validation passes on the machine path; a human session, a self-serve chooser and visitor-to-Lumi interaction remain open. Commit coherent milestones locally; no push or remote deployment is authorized by this brief.
+
+
+## 2026-10-13 priority update
+
+The direct human instruction now asks for a quick engineering wrap, combined representative visual tests and progress on innovative world creation. [Current convergence audit](phase4b/convergence-audit.md) retains all passed avatar/world receipts and remaining release gates. Auren's display identity is **Auren Caelwyn**, with Elara Vayne preserved and every package/inventory identity unchanged. The source diagnosis/fix for fresh-login feet is a UnitW no-contact plane being treated as a surface, not a reason to replace the rig. The [WorldSpec prototype](phase4b/world-architect-prototype.md) already reuses the existing plan/kernel for actual recipe build and Undo. Final art/chooser/human onboarding/performance stay visible as open product-release work; they do not block useful bounded creation R&D under the latest instruction.

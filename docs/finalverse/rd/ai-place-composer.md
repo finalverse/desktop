@@ -1,6 +1,6 @@
 # R&D: AI Place Composer
 
-2026-10-12. This is the first R&D track after the [Phase 4B closure](../phase4b-closure-20261012.md).
+2026-10-12 baseline, updated2026-10-13. The historical [Phase4B checkpoint](../phase4b-closure-20261012.md) is superseded by current release gates. The latest user instruction prioritizes bounded engineering convergence and innovative creation features together.
 
 **Goal:** a person describes a place ("a reading nook by the lake", "a picnic spot for six"). Lumi composes it from the approved Starter Library. The person reviews the validated preview, builds it, and can undo it in one step. It should be good enough to demo and to ship, not a toy.
 
@@ -110,3 +110,8 @@ The Create panel UI itself was not driven; the probe uses the same relay operati
   - Titles are bland ("Nook").
   - A requested canopy is dropped in about 13% of random intents. It cannot stand over a beacon, and on large paved places a roof exceeds the 96-placement budget.
 - **Not yet built:** a terrain-aware site search ("put it by the lake"), and Lumi as co-builder (M4).
+
+
+### WorldSpec vertical slice (2026-10-13)
+
+Saved, version/catalog-pinned place recipes now replay through the same solver/critic and MutSea WorldPlan path without inference. A real newcomer built a nine-placement recipe, received place semantics, then restored the848-part fixture through guarded Undo. Gateway91ms, prepare497ms, commit981ms. A natural-language request also exported a recipe; replay34.27ms and a three-bench remix17.08ms required no more model calls. These are feature measurements, not a human five-minute journey or a new release-performance gate. [Implementation and exact limitations](../phase4b/world-architect-prototype.md).
