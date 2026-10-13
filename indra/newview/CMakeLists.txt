@@ -1097,6 +1097,7 @@ set(viewer_HEADER_FILES
     lllogchat.h
     llloginhandler.h
     lllogininstance.h
+    llloginstart.h
     llmachineid.h
     llmanip.h
     llmaniprotate.h

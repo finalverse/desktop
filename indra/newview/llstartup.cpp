@@ -131,6 +131,7 @@
 #include "llregex.h"
 
 #include "llloginflags.h"
+#include "llloginstart.h"
 #include "llmd5.h"
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
@@ -2355,9 +2356,7 @@ bool idle_startup()
             LLSLURL start_slurl = LLStartUp::getStartSLURL();
             LL_DEBUGS("AppInit") << "start slurl "<<start_slurl.asString()<<LL_ENDL;
 
-            if (((start_slurl.getType() == LLSLURL::LOCATION) && (gAgentStartLocation == "url")) ||
-                ((start_slurl.getType() == LLSLURL::LAST_LOCATION) && (gAgentStartLocation == "last")) ||
-                ((start_slurl.getType() == LLSLURL::HOME_LOCATION) && (gAgentStartLocation == "home")))
+            if (gAgentStartLocation == llLoginStartDestination(start_slurl.getType()))
             {
                 if (start_slurl.getType() == LLSLURL::LAST_LOCATION
                     && gAgentStartLocation == "last"

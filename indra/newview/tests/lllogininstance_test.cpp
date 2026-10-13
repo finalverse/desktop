@@ -64,6 +64,7 @@ static LLEventStream gTestPump("test_pump");
 
 #include "../llslurl.h"
 #include "../llstartup.h"
+#include "../llloginstart.h"
 LLSLURL LLStartUp::sStartSLURL;
 LLSLURL& LLStartUp::getStartSLURL() { return sStartSLURL; }
 std::string LLStartUp::getUserId() { return ""; };
@@ -484,5 +485,25 @@ namespace tut
         ensure("TOS auth failure", logininstance->authFailure());
         logininstance->connect(test_uri, agentCredential);
         ensure_equals("Default for agree to tos", gLoginCreds["params"]["read_critical"].asBoolean(), false);
+    }
+
+    template<> template<>
+    void lllogininstance_object::test<3>()
+    {
+        set_test_name("Default start reply matches the inherited login request");
+        ensure_equals("Fresh session has no spatial SLURL", LLStartUp::getStartSLURL().getType(), LLSLURL::INVALID);
+        logininstance->connect("testing-uri", agentCredential);
+        ensure_equals("Unspecified destination requests last", gLoginCreds["params"]["start"].asString(), std::string("last"));
+        ensure_equals("Expected reply follows actual request", gLoginCreds["params"]["start"].asString(),
+                      std::string(llLoginStartDestination(LLSLURL::INVALID)));
+        ensure_equals("Explicit home stays home", std::string(llLoginStartDestination(LLSLURL::HOME_LOCATION)), std::string("home"));
+        ensure_equals("Explicit URL stays URL", std::string(llLoginStartDestination(LLSLURL::LOCATION)), std::string("url"));
+        for (auto type : {LLSLURL::INVALID, LLSLURL::LAST_LOCATION, LLSLURL::APP, LLSLURL::HELP, LLSLURL::EMPTY})
+        {
+            ensure_equals("Non-spatial startup uses last", std::string(llLoginStartDestination(type)), std::string("last"));
+            ensure("Real fallback remains unexpected", std::string(llLoginStartDestination(type)) != "safe");
+        }
+        ensure("Wrong destination for home remains unexpected", std::string(llLoginStartDestination(LLSLURL::HOME_LOCATION)) != "last");
+        ensure("Wrong destination for URL remains unexpected", std::string(llLoginStartDestination(LLSLURL::LOCATION)) != "last");
     }
 }

@@ -42,6 +42,7 @@
 #include "llviewercontrol.h"
 #include "llversioninfo.h"
 #include "llslurl.h"
+#include "llloginstart.h"
 #include "llstartup.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
@@ -568,8 +569,8 @@ void LLLoginInstance::saveMFAHash(LLSD const& response)
 
 std::string construct_start_string()
 {
-    std::string start;
     LLSLURL start_slurl = LLStartUp::getStartSLURL();
+    std::string start(llLoginStartDestination(start_slurl.getType()));
     switch(start_slurl.getType())
     {
         case LLSLURL::LOCATION:
@@ -586,14 +587,9 @@ std::string construct_start_string()
                         << position[VZ]);
             break;
         }
-        case LLSLURL::HOME_LOCATION:
-        {
-            start = "home";
-            break;
-        }
         default:
         {
-            start = "last";
+            break;
         }
     }
     return start;

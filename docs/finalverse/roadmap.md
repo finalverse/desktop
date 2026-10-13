@@ -8,7 +8,7 @@ Part of 4B.1 was delivered with it:
 - PlaceTemplate and WorldTemplate provisioning;
 - newcomer account → Genesis appearance provisioning.
 
-Grounded shoreline creation, saved recipe replay and one combined island review are complete development slices. The next reusable content foundation is an original island WorldTemplate, safe native world rollback and account/home provisioning, described in [island provisioning](world/original-island-provisioning.md). Market-quality art, real first-session UX, continuous collision/LOD, distribution and controlled performance remain open. Complete those gates before claiming 4B closure or advancing public acquisition.
+Grounded shoreline creation, saved recipe replay and one combined island review are complete development slices. The reusable foundation now includes an original island WorldTemplate, safe native rollback and account/home provisioning, described in [island provisioning](world/original-island-provisioning.md). A [native newcomer review](phase4b/newcomer-creation-review.md) verifies visible Auren, grounded creation, inspection, WorldLine and exact Undo; both established local grids received the source guard with their scene/inventory/appearance/history preserved. Market-quality art, public onboarding/choices, a first-time user study, continuous collision/LOD, distribution and controlled performance remain open. Complete those gates before claiming 4B closure or advancing public acquisition.
 
 ## Current plan — 2026-10-08
 
