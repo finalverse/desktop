@@ -1,14 +1,14 @@
 # Roadmap and recommended next milestone
 
-## Status — 2026-10-12
+## Status — 2026-10-14
 
-**Phase 4B is closed with carry-forward** ([closure](phase4b-closure-20261012.md)).
+**Phase 4B remains open.** The user continued the final art, onboarding, world-template and controlled performance gates after the historical [2026-10-12 closure checkpoint](phase4b-closure-20261012.md). That checkpoint records earlier evidence; it does not constitute current product acceptance.
 
 Part of 4B.1 was delivered with it:
 - PlaceTemplate and WorldTemplate provisioning;
 - newcomer account → Genesis appearance provisioning.
 
-Open 4B gates moved to named tracks: market-quality visuals, the performance profile, the AI track, and the 4B.5 study / 4C.
+Grounded shoreline creation, saved recipe replay and one combined island review are complete development slices. The next reusable content foundation is an original island WorldTemplate, safe native world rollback and account/home provisioning, described in [island provisioning](world/original-island-provisioning.md). Market-quality art, real first-session UX, continuous collision/LOD, distribution and controlled performance remain open. Complete those gates before claiming 4B closure or advancing public acquisition.
 
 ## Current plan — 2026-10-08
 

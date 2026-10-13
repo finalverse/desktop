@@ -1,0 +1,15 @@
+# Original island and Starter Library provisioning
+
+Studio now authors `mutsea.starter.aurens-island@0.1.0`: an original deterministic coastal heightfield and four pinned reusable places—arrival, pavilion, reading nook and fire circle. MutSea provisions the composition through its existing WorldTemplateKernel/PlaceKernel, with canonical instance IDs and native permission checks. The reading nook derives from the accepted shoreline recipe but carries no test-account UUIDs or instance ownership.
+
+Native entity semantics include the world template/version/hash and containing world/place operations. This makes the scene's meaning traceable through the same persistent WorldLine used for mutations. The gateway/model does not gain a direct terrain or arbitrary world-write API. This is an operator starter-world capability; community tenancy, public template browsing, world branching/merge and live WorldSync remain later work.
+
+World rollback now checks durable terrain, water, parcel landing, every place fingerprint/delete permission and later unrelated objects before intent. It restores the original parcel landing as well as terrain/water. MutSea's inherited terrain database rounds to millimetres; the postcondition uses that serializer's own roundtrip, while the source package keeps its exact R32 pin. Historical entries without compatible postconditions refuse automatic rollback instead of guessing from current state.
+
+Newcomer provisioning checks dry, level arrival terrain, fills only a missing home through native GridUserService, and confirms it before reporting readiness. Existing nonzero homes, passwords and inventories are preserved. Initial appearance and pinned Genesis assignment continue through mature account/wardrobe services. A new account's home login, scene stream, Current Outfit and semantics are tested at the protocol level; the public onboarding UI and final appearance baking remain separate acceptance gates.
+
+The isolated engineering fixture uses 134 linked groups / 498 parts. Its terrain, four place pins and generator provenance are original Starter Library candidates, independently reproducible without an imported OAR. It does not replace the current Harbor or curated Tropical worlds. Imported archive member-level rights remain open; the original package does not retroactively clear those archives.
+
+This increment changes no viewer renderer/UI code and runs no repeated avatar screenshot loop. The prior [combined shoreline review](../phase4b/shoreline-creation-review.md) remains the visual evidence for that separate curated instance. Source tests, protocol streaming and rollback proof do not establish market-quality art or a controlled performance result. Phase 4B stays open for those gates and a real first-session UX review. The source guard is not yet installed in the established primary runtime; avoid automatic world rollback there until a deliberate update.
+
+See MutSea `docs/mutsea/world-template-provisioning.md` and the companion native acceptance record for reproducible authoring, transaction and test details.
