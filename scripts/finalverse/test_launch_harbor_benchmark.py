@@ -135,6 +135,31 @@ class LaunchSafety(unittest.TestCase):
         account.chmod(0o644)
         with self.assertRaises(ValueError):preflight_staging(self.app,self.profile,self.session,account,self.digest)
 
+    def test_staging_combined_review_is_pinned_to_account_and_cold_start(self):
+        account,data=self.staging_fixture()
+        self.fixture.update(grid_login_uri=data['grid_url'], region_id=uuid.UUID(data['region_id']), staging_review=True)
+        self.write(self.spec,self.fixture)
+        command=preflight_staging(self.app,self.profile,self.session,account,self.digest,self.spec)
+        self.assertIn(str(self.spec.resolve()),command)
+        self.assertNotIn('synthetic-test-secret',' '.join(command))
+        for key,bad in [('region_id',uuid.uuid4()),('grid_login_uri',GRID_URI),('staging_review',False),
+                        ('warmup_seconds',2.),('sample_seconds',3.),('quick_mode',True),('interaction',{})]:
+            value=self.fixture.get(key);present=key in self.fixture
+            self.fixture[key]=bad;self.write(self.spec,self.fixture)
+            with self.assertRaises(ValueError):preflight_staging(self.app,self.profile,self.session,account,self.digest,self.spec)
+            if present:self.fixture[key]=value
+            else:self.fixture.pop(key)
+
+    def test_staging_review_does_not_expand_to_full_visual_benchmark(self):
+        account,data=self.staging_fixture()
+        self.fixture.update(grid_login_uri=data['grid_url'], region_id=uuid.UUID(data['region_id']), staging_review=True)
+        camera=self.fixture['views'][0]
+        self.fixture['views']=[dict(camera,name=n) for n in ['CAM_Arrival','CAM_Garden','CAM_Waterfront']]
+        self.write(self.spec,self.fixture)
+        preflight_staging(self.app,self.profile,self.session,account,self.digest,self.spec)
+        self.fixture['views'].append(dict(camera,name='CAM_Harbor'));self.write(self.spec,self.fixture)
+        with self.assertRaises(ValueError):preflight_staging(self.app,self.profile,self.session,account,self.digest,self.spec)
+
     def test_staging_rejects_other_grid_unregistered_and_harbor_identity(self):
         account,data=self.staging_fixture()
         for key,value in [('grid_url','https://login.agni.lindenlab.com/'),('registered',False),('region_id',REGION_ID)]:

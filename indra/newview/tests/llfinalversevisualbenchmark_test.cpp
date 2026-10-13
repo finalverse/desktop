@@ -152,4 +152,29 @@ template<> template<> void object_t::test<13>()
     spec["interaction"]["expected_position"][0] = -1.;
     ensure("bench remains within fixture", !llfinalverseValidateVisualBenchmark(spec, error));
 }
+template<> template<> void object_t::test<14>()
+{
+    std::string error;
+    const LLSD camera = spec["views"][0]; spec["views"] = LLSD::emptyArray(); spec["views"].append(camera);
+    spec["staging_review"] = true;
+    spec["grid_login_uri"] = "http://127.0.0.1:18095/";
+    spec["region_id"] = LLUUID::generateNewID();
+    ensure("explicit separate loopback staging review", llfinalverseValidateVisualBenchmark(spec, error));
+    spec["region_id"] = LLUUID::null;
+    ensure("staging must pin a region", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["region_id"] = LLUUID("a9d44538-26ca-4586-a8a9-e551722ffa15");
+    ensure("staging cannot reuse Harbor identity", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["region_id"] = LLUUID::generateNewID(); spec["quick_mode"] = true;
+    ensure("staging cannot bypass cold start", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec.erase("quick_mode"); spec["interaction"] = LLSD::emptyMap();
+    ensure("staging is passive", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec.erase("interaction"); spec["grid_login_uri"] = "http://127.0.0.1:18094/";
+    ensure("explicit staging cannot cross grids", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["grid_login_uri"] = "http://127.0.0.1:18095/";
+    for (const char* name : {"CAM_Harbor", "CAM_Garden", "CAM_Waterfront"})
+    {
+        LLSD extra = camera; extra["name"] = name; spec["views"].append(extra);
+    }
+    ensure("staging stays a combined three-view review", !llfinalverseValidateVisualBenchmark(spec, error));
+}
 }

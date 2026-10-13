@@ -71,17 +71,16 @@ def guarded_session(app, profile, session, expected_hash, grid_key=GRID_KEY, gri
     require(isinstance(login, list) and len(login) == 3 and all(isinstance(x, str) and x for x in login), 'An authorized private one-session fixture login is required.')
     return settings
 
-def preflight(app, profile, session, spec, expected_hash, quick_directory=None):
-    guarded_session(app, profile, session, expected_hash)
-    fixture = document(spec)
+def validate_capture(fixture, grid_uri=GRID_URI, region_id=REGION_ID, staging=False):
     if 'capture_size' in fixture:
         size = fixture['capture_size']
         require(isinstance(size, list) and len(size) == 2 and all(type(v) is int for v in size) and
                 640 <= size[0] <= 2560 and 480 <= size[1] <= 1600, 'Capture pixels must be bounded integers.')
     require('quit_after_capture' not in fixture or type(fixture['quit_after_capture']) is bool, 'Automatic native logout must be an explicit boolean.')
     require(type(fixture.get('schema')) is int and fixture['schema'] == 1 and
-            fixture.get('grid_login_uri') == GRID_URI and isinstance(fixture.get('region_id'), uuid.UUID) and
-            str(fixture['region_id']) == REGION_ID, 'Benchmark must target the designated loopback grid and typed region UUID.')
+            fixture.get('grid_login_uri') == grid_uri and isinstance(fixture.get('region_id'), uuid.UUID) and
+            str(fixture['region_id']) == region_id, 'Benchmark must target the designated loopback grid and typed region UUID.')
+    require(fixture.get('staging_review', False) is staging, 'Staging review must be explicitly identified and cannot cross grids.')
     require('quick_mode' not in fixture or fixture['quick_mode'] is False,
             'Use the persistent queue for quick checks; launch with a normal warm-start specification.')
     require('interaction' not in fixture, 'Launch readiness must not perform avatar interaction.')
@@ -92,7 +91,7 @@ def preflight(app, profile, session, spec, expected_hash, quick_directory=None):
     views = fixture.get('views', [])
     require(isinstance(views, list) and all(isinstance(v, dict) for v in views), 'Expected native camera maps.')
     names = [v.get('name') for v in views]
-    require(1 <= len(names) <= 8 and len(set(names)) == len(names) and set(names) <= {v[0] for v in VIEWS}, 'Expected a unique canonical camera subset.')
+    require(1 <= len(names) <= (3 if staging else 8) and len(set(names)) == len(names) and set(names) <= {v[0] for v in VIEWS}, 'Expected a unique canonical camera subset.')
     for view in views:
         for key in ['position', 'focus']:
             value = view.get(key)
@@ -108,6 +107,11 @@ def preflight(app, profile, session, spec, expected_hash, quick_directory=None):
                 'Native environment preview requires sky and water maps.')
     output = Path(fixture['output_dir'])
     require(output.is_absolute() and not output.exists() and not output.is_symlink() and output.parent.is_dir(), 'Choose a new absolute evidence directory with an existing parent.')
+
+def preflight(app, profile, session, spec, expected_hash, quick_directory=None):
+    guarded_session(app, profile, session, expected_hash)
+    fixture = document(spec)
+    validate_capture(fixture)
     # No startup URLs or additional options are accepted. Credentials remain in
     # the owned session file, never argv or preflight output.
     command = ['open', '--env', 'CFFIXED_USER_HOME=' + str(profile.resolve()), str(app.resolve()),
@@ -124,7 +128,7 @@ def preflight(app, profile, session, spec, expected_hash, quick_directory=None):
         command += ['--set', 'FinalverseQuickVisualDirectory', str(quick_directory)]
     return command
 
-def preflight_staging(app, profile, session, account, expected_hash):
+def preflight_staging(app, profile, session, account, expected_hash, review_spec=None):
     """One native UI check of the separate OAR fixture; never repurpose Harbor's benchmark."""
     info = account.lstat()
     require(stat.S_ISREG(info.st_mode) and info.st_uid == os.getuid() and
@@ -141,9 +145,11 @@ def preflight_staging(app, profile, session, account, expected_hash):
             'Private session and verified staging account must match.')
     require(not settings.get('FinalverseVisualBenchmarkFile', {}).get('Value'),
             'Staging cannot replay the Harbor benchmark.')
+    if review_spec is not None:
+        validate_capture(document(review_spec), grid_uri, data['region_id'], staging=True)
     return ['open', '--env', 'CFFIXED_USER_HOME=' + str(profile.resolve()), str(app.resolve()),
         '--args', '--grid', grid_key, '--sessionsettings', str(session.resolve()),
-        '--set', 'FinalverseVisualBenchmarkFile', '', '--set', 'FinalverseQuickVisualDirectory', '',
+        '--set', 'FinalverseVisualBenchmarkFile', str(review_spec.resolve()) if review_spec is not None else '', '--set', 'FinalverseQuickVisualDirectory', '',
         '--set', 'AutoLogin', 'false', '--set', 'RememberPassword', 'false', '--set', 'RememberUser', 'false']
 
 def main():
@@ -155,12 +161,14 @@ def main():
     parser.add_argument('--binary-sha256', required=True)
     parser.add_argument('--check-only', action='store_true')
     parser.add_argument('--quick-directory', type=Path, help='Private directory for later captures in this same session')
+    parser.add_argument('--staging-review-spec', type=Path, help='One passive review of up to three cameras, pinned to the staging account')
     args = parser.parse_args()
     try:
         if args.staging_account:
             require(args.quick_directory is None, 'The Harbor queue is not valid in OAR staging.')
-            command = preflight_staging(args.app, args.profile, args.session, args.staging_account, args.binary_sha256)
+            command = preflight_staging(args.app, args.profile, args.session, args.staging_account, args.binary_sha256, args.staging_review_spec)
         else:
+            require(args.staging_review_spec is None, 'Staging review needs its private staging account.')
             command = preflight(args.app, args.profile, args.session, args.spec, args.binary_sha256, args.quick_directory)
         if not args.check_only: subprocess.run(command, check=True, capture_output=True)
     except (ValueError, OSError, KeyError, TypeError, ET.ParseError, subprocess.SubprocessError):
