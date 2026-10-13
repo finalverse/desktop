@@ -4,7 +4,7 @@ The latest direct user instruction narrows this pass: avoid repeating avatar scr
 
 ## Starting repositories
 
-Viewer `2b20576cd3`, MutSea `d83773771e`, Studio `63e7ae5`, AI gateway `0a720d9`. Viewer/MutSea remain on `codex/phase4b-destinations-import`; gateway on `codex/persistent-ai-citizens`; Studio on `main`. Existing viewer destination/network/UI WIP is preserved and excluded from commits. Other three repositories were clean. Origin/upstream remotes were inspected; no push is authorized. Disk: about79 GiB available at start.
+Viewer `2b20576cd3`, MutSea `d83773771e`, Studio `63e7ae5`, AI gateway `0a720d9`. Viewer/MutSea remain on `codex/phase4b-destinations-import`; gateway on `codex/persistent-ai-citizens`; Studio on `main`. Existing viewer destination/network/UI WIP is preserved and excluded from commits. Other three repositories were clean. Origin/upstream remotes were inspected; this earlier checkpoint had no push authorization. The subsequent user-authorized publication is recorded below. Disk: about79 GiB available at start.
 
 ## Status from actual code/evidence
 
@@ -38,3 +38,11 @@ Xcode updated to27.0 and initially required its license. The user accepted it on
 Source regression, ARM64 build, CTest, fresh login and representative standing/appearance validation are complete for this checkpoint. Keep final avatar art, chooser, lighting and performance as explicitly open release work rather than inventing acceptance. Advance the working **save→edit→replay WorldSpec** path toward consumer Create→Share→Join→Remix. First make one approved, persistent place reusable; later add terrain-aware semantic siting and Lumi as co-builder using existing actor policy/WorldLine. No arbitrary model code, parallel execution stack, new avatar roster or speculative enterprise backend.
 
 See [World Architect prototype](world-architect-prototype.md), [island shortlist](../worlds/island-oar-candidates.md) and the earlier [surface/initialization record](../art/genesis-surface-validation-20261012.md). Phase4B market-release acceptance is still partial; this checkpoint does not make it production-ready by renaming its status.
+
+## Recipe/co-builder checkpoint — 2026-10-13
+
+The user subsequently authorized merging the existing milestone into main and pushing it. MutSea upstream was fetched/checked first; its tracked upstream commit is already an ancestor. Viewer upstream is also an ancestor. Published main commits: viewer `e632dd22b9`, MutSea `5e42de19f3`, AI gateway `e6f923f`, Studio `761ccb9`. The user requested private `finalverse/ai-gateway` and `finalverse/studio` repositories; both now exist with private visibility and main as default. New recipe/siting/co-builder development continues locally on `codex/worldspec-create` in viewer, MutSea, gateway and agent-runtime. Existing unrelated destination/network WIP remains excluded.
+
+Create now exposes native Load/Save/Remix and Create with Lumi. WorldSpec2 adds a bounded placement rule while preserving v1. Nearby terrain/collision/parcel siting, exact-site approval, actual part budgets, completed-memory recording and restart Undo use the existing executor. Details and limits are in [World Architect](world-architect-prototype.md). A real three-bench remix and a29-part Lumi place were visibly built; both survived simulator restart and were undone. The co-built place additionally passed full29-part UDP transform/ownership/semantic verification after both services restarted. A newer approved creation was observed during this check and preserved; no broad world reset was performed.
+
+Final art, self-serve onboarding, real shoreline integration, controlled performance, public multi-user co-builder policy and reusable island-template acceptance remain open. One isolated Tropical OAR staging increment follows, with no Harbor volumes reused. No public deployment is implied by publishing source checkpoints.

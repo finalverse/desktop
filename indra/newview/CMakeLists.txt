@@ -188,6 +188,8 @@ set(viewer_SOURCE_FILES
     llflexibleobject.cpp
     llfloater360capture.cpp
     llfloaterfinalverseai.cpp
+    llfloaterfinalverserecipe.cpp
+    llfinalverseworldrecipe.cpp
     llfloaterfinalverseexperience.cpp
     llpanelfinalverse.cpp
     llfinalversepresentation.cpp
@@ -880,6 +882,8 @@ set(viewer_HEADER_FILES
     llflexibleobject.h
     llfloater360capture.h
     llfloaterfinalverseai.h
+    llfloaterfinalverserecipe.h
+    llfinalverseworldrecipe.h
     llfloaterfinalverseexperience.h
     llpanelfinalverse.h
     llfinalversepresentation.h
@@ -2439,6 +2443,7 @@ if (LL_TESTS)
     llagentaccess.cpp
     llfinalversepresentation.cpp
     llfinalversevisualbenchmark.cpp
+    llfinalverseworldrecipe.cpp
     lldateutil.cpp
 #    llmediadataclient.cpp
     lllogininstance.cpp

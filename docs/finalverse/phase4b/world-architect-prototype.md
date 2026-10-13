@@ -1,51 +1,57 @@
-# World Architect: reusable WorldSpec slice — 2026-10-13
+# World Architect: recipes, grounded placement and Lumi co-building — 2026-10-13
 
-**Implemented locally:** natural-language composition can return an editable WorldSpec; a saved recipe can be replayed without inference into the existing WorldPlan/MutSea path. This is a working single-place foundation for Create→Share→Remix, not a whole-city generator or a public social product.
+Implemented as one bounded place, using the inherited viewer and existing MutSea executor. Final avatar/environment art, self-serve avatar onboarding and controlled release performance remain open. This is a local development milestone, not public production acceptance.
 
 ```mermaid
 flowchart LR
-    A[Natural language] --> B[Existing intent model]
-    B --> C[WorldSpec recipe]
-    C --> D[Save / edit a copy / replay]
+    A[Create / natural language / Lumi] --> B[Existing intent model]
+    B --> C[Versioned WorldSpec]
+    C --> D[Save / load / remix choices]
     D --> E[Existing solver and critic]
-    E --> F[WorldPlan preview]
-    F --> G[MutSea policy / approval]
-    G --> H[PlaceKernel / WorldLine / Undo]
+    E --> F[MutSea terrain / parcels / collision / pins]
+    F --> G[Human approval of exact preview]
+    G --> H[PlaceKernel / WorldLine / guarded Undo]
 ```
 
-## Contract
+## Authoring contract
 
-`composer/world_spec.py` reuses the existing PlaceIntent schema. WorldSpec1 carries `kind=world_spec`, `solver_version`, `library_sha256` and `place` choices. Unknown fields, versions and catalogs are rejected. It contains no actor credentials, entity IDs, runtime coordinates, asset URLs or executable code. Canonical JSON plus SHA-256 makes choices diffable; changed seating/planting/lighting produces a distinct recipe. JSON key order does not change its identity. Current solver/catalog versions are pinned; historical compiler resolution and automatic recipe upgrading are not implemented.
+Gateway `composer/world_spec.py` reuses PlaceIntent. WorldSpec1 retains its original exact forward-placement behavior. WorldSpec2 additionally requires a bounded `site`: `in_front_of_actor`, `near_actor` or `near_water`. Solver version and catalog hash remain pinned. Unknown keys, versions and incompatible catalogs reject. Recipes carry authoring choices, with no actor credentials, entity IDs, coordinates, asset URLs or executable code. Canonical JSON and SHA-256 make edits diffable; these are not whole-world branches or merge operations.
 
-Successful composition responses add `world_spec` and `world_spec_sha256`. The existing `plan` field remains the same schema. `POST /v1/world/spec/plan` accepts only a wrapped recipe and does not call a model. The offline CLI `python -m composer.world_spec recipe.json NEW-preview.json` also compiles a proposal and refuses existing outputs. The checked-in `examples/caelwyn-reading-garden.world.json` is original bounded authoring data.
+Natural composition emits v2: ordinary requests choose nearby clear ground, while lake/water/shore requests select the water rule. `POST /v1/world/spec/plan` compiles a recipe without inference. The existing offline `python -m composer.world_spec recipe.json NEW-preview.json` remains available. Changing a v1 recipe's placement in the viewer explicitly produces v2 rather than silently changing old behavior.
 
-MutSea remains authority: it replaces placeholder identity with the authenticated actor, selects a site in front of that actor, checks terrain, parcel permissions, occupied space, asset pins, budgets and pending approval expiry. The existing deterministic PlaceKernel performs the commit and fingerprint-guarded Undo. Sharing the recipe grants no access to the author's account or existing world. The recipe hash is returned to the authoring client; it is not yet a separately indexed WorldLine field or marketplace record.
+## Mac Create UI
 
-## Actual validation
+**Create → Load a recipe** uses the mature asynchronous native file picker. Finalverse AI exposes Load, Save and Remix. Remix copies the recipe and edits name, bench count, size, planting, lighting and placement; its button produces a new preview, never an automatic commit. Saving keeps the current preview. The original file remains unchanged. Files are bounded to 4096 bytes and must be regular/non-symlink inputs; exclusive mode-0600 output creation refuses overwriting an existing file. The gateway checks exact pins again.
 
-Gateway suite: **66 tests** pass, including8 WorldSpec tests for canonical identity/remix, deterministic replay, repair isolation, authority/code/URL rejection, invalid budgets/versions, inference-free replay, real loopback HTTP and sanitized refusal. The existing58 tests still pass. Standalone CLI produced the expected preview and recipe hash `4939793b08a8fa26f55b9faa5f8c194963f2b84bb315bd5317f7f3ed418ee01e`.
+The AI panel retains its recipe and last-operation handle when hidden. **Nearby** recovers the latest owned Undo handle from the server after a viewer restart. **History** joins the existing action and place journals into bounded human summaries, without introducing another database or executor. Closing/reopening invalidates an approval preview through the existing entry flow; it does not discard a completed operation's Undo handle. A simulator restart invalidates pending approval, as before.
 
-An isolated loopback gateway on18767 ran the new source without replacing other services. A real **Harbor Newcomer** account submitted the saved recipe through the native viewer capability/protocol harness:
+## Grounded siting
 
-| Step | Result |
-|---|---|
-| Gateway replay | 91 ms, no model call |
-| MutSea prepare / policy preview | 497 ms |
-| MutSea deterministic commit | 981 ms |
-| Created result | 9 approved placements /81 native parts |
-| Native object stream | 848→929 |
-| Semantic query | `Caelwyn Reading Garden`, `user.36210212.caelwyn-reading-garden`, authenticated newcomer owner |
-| Guarded Undo | 929→848; fixture restored |
+`ComposerSiting.cs` evaluates at most32 candidates within64 meters. It samples actual region height/water data, checks nine footprint samples for dry level terrain and retains the existing PlaceKernel's object/parcel/permission checks for every actual part. The water rule requires real submerged terrain within12 meters; an arbitrary label or decorative water mesh does not satisfy it. If no valid site exists, the request refuses without mutation.
 
-Receipts are private in `dev/phase4b/closeout-20261013/worldspec-native-{build,undo}.json`. The probe supports a bounded regular recipe and only the designated loopback gateway ports; no remote endpoint, redirects or new cloud credentials. All creation still uses the existing prepare/commit/undo operations. No simulator module was changed for WorldSpec.
+Prepare returns the exact anchor/yaw/rationale and actual native part count. Commit rechecks the approved terrain/shoreline and uses the same place plan. It never moves a proposal silently after approval. Legacy recipes retain one exact forward candidate. Native nearby placement passed; a real native shoreline creation remains an open integration gate. Synthetic wet/dry/steep/edge/change tests are not relabelled as native shoreline proof.
 
-The first database dump failed because its command referenced an unset POSTGRES_USER. The successful retry followed the build; it is not a pre-operation backup. A clean post-Undo full dump was saved. Earlier full dumps and kernel snapshots remain preserved, and no existing object was replaced. Record this failure rather than invent backup ordering.
+## Lumi co-builder
 
-## Limits and next slice
+**Create → Create with Lumi** pre-fills a request and waits for Send. Existing Rust runtime routes a creation intention to the existing gateway and permits only a single bounded compose_place proposal. MutSea's tokenized citizen bridge wraps the same prepare/commit/Undo paths and ownership checks. Lumi cannot execute model code or arbitrary WorldActions.
 
-This verifies **gateway→native MutSea→semantic result→Undo**. It does not establish a consumer Share/Remix button, two-user native-screen acceptance of the recipe result, new-recipe restart acceptance, a five-minute human onboarding session or public deployment. The reused compose_place kernel's earlier second-observer/restart tests remain retained; they are not relabelled as new recipe-specific visual tests. No repetitive avatar captures were needed for this backend addition.
+The controller reviews a grounded preview and explicitly chooses **Build together**. One goal has a192-part/180-second budget, two model calls maximum and the retained action budget. Charge actual parts, not placement-group count. Only a matching confirmed commit completes the goal and writes episodic memory; late cancelled replies and failed commits are blocked. Goal/intention/action/plan/operation IDs remain correlated. Completed memory and server citizen plan ownership restore from the existing SQLite/journals. The service remains controller-only; newly registered users cannot independently command this shared Lumi.
 
-Next: expose saved recipes through the existing Create panel, preview/remix them as choices, then add a grounded terrain-aware site selector and Lumi co-builder. Preserve the existing approval path. Aether Sprite remains a later interaction concept rather than a new agent/model requirement. Multi-place/world composition requires an explicit transactional contract; do not silently widen this one-place version.
+A co-built recipe can be saved through the same native picker and later loaded/remixed. A dedicated conversational remix of an existing place and persistent recipe library in the agent database are not implemented. After runtime restart the saved file remains available, while volatile authoring/preview state is cleared.
 
+## Validation
 
-A real local Ollama request also exported a WorldSpec: “Create a tiny reading nook with two benches under a tree and flower beds.” Inference took13.69s during the native build. Its saved recipe replay took34.27ms (31 placements), and a three-bench remix took17.08ms (35 placements), without further inference. Distinct canonical hashes and actual timing receipts are retained in `worldspec-replay-latencies.json`. These are local feature measurements, not an end-to-end10s release guarantee. The temporary loopback18767 smoke gateway was stopped after these checks; the unchanged simulator remains running.
+- Gateway:70 tests, including v1 compatibility, v2 choice/pin validation, canonical identity and inference-free HTTP replay.
+- Rust:69 tests, including retained43 persistence tests and26 runtime tests. New tests cover cancellation, approval gating, actual part budgets, confirmed commit/Undo memory and failed-commit refusal.
+- MutSea:10 siting/audit checks plus45 retained content/place/world-template checks. World add-on builds with zero warnings/errors. Native smoke has one retained nullable warning in the older compose branch.
+- ARM64 Release viewer builds; recipe TUT and presentation CTests pass. Four recipe cases cover exclusive saves, immutability, bounded inputs and v1/v2 handling. Final packaged XML contrast and controls were checked natively.
+- Native Save/Remix: original recipe preserved; three-bench remix built12 placements/116 parts, visibly rendered, survived simulator restart, recovered Undo through Nearby and rolled back. History shows commit/Undo.
+- Native Lumi: one local Ollama inference (22.77 seconds) proposed7 placements/29 parts. Preview preceded creation; explicit Build together confirmed the mutation and goal memory. Native scene rendered one bench/paving/two lights. Saved recipe equals the proposed authoring data. Replay and remix require no further model calls.
+
+After both services restarted, the read-only native probe verified all29 part IDs/transforms and owned place semantics, the completed goal/memory and Human WorldLine. The native viewer then invoked Undo; the place journal confirmed rollback and a read-only PostgreSQL query found zero of its29 part IDs. The saved recipe persisted. A newer approved creation was preserved. The optional `co_build_undo_verify` UDP mode is implemented but not executed in this increment; database absence is not mislabelled as a post-Undo UDP test.
+
+Private receipts are under `dev/worldspec-create-20261013`; no credentials, raw journals, database dumps or screenshots are committed. Follow its validation/handoff record for restart and full-part protocol acceptance. The older `dev/phase4b/closeout-20261013/worldspec-native-{build,undo}.json` proves the earlier newcomer CLI route (nine placements/81 parts) and remains retained.
+
+## Next bounded gate
+
+Advance one script-disabled Tropical OAR into an isolated staging instance, retaining Harbor and its PostgreSQL volumes. Verify terrain, dependency closure, native delivery, spawn/collision and provenance before turning it into a reusable WorldTemplate. Do not publish an archive merely because the catalog says CC0. No additional characters, renderer rewrite or speculative enterprise backend is needed for this slice.

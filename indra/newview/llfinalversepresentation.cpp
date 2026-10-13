@@ -9,6 +9,7 @@ std::string llfinalversePlanSummary(const LLSD& plan)
     std::ostringstream text;
     const LLSD steps = plan["steps"];
     text << "Ready for your review · " << steps.size() << (steps.size() == 1 ? " change" : " changes") << "\n";
+    if (plan["siting"].isString()) text << plan["siting"].asString() << "\n";
 
     S32 index = 0;
     for (const auto& step : llsd::inArray(steps))

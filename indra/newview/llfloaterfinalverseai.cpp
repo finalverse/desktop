@@ -2,6 +2,9 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterfinalverseai.h"
 #include "llfinalversepresentation.h"
+#include "llfinalverseworldrecipe.h"
+#include "llviewermenufile.h"
+#include "llnotificationsutil.h"
 #include "llfloaterreg.h"
 #include "lltextbox.h"
 #include "llviewercontrol.h"
@@ -77,7 +80,7 @@ bool LLFloaterFinalverseAI::postBuild()
     getChild<LLButton>("inspect")->setCommitCallback([this](LLUICtrl*, const LLSD&) { run("inspect"); });
     getChild<LLButton>("build")->setCommitCallback([this](LLUICtrl*, const LLSD&) { run("commit"); });
     getChild<LLButton>("cancel")->setCommitCallback([this](LLUICtrl*, const LLSD&) { cancel(); });
-    getChild<LLButton>("undo")->setCommitCallback([this](LLUICtrl*, const LLSD&) { run("undo"); });
+    getChild<LLButton>("undo")->setCommitCallback([this](LLUICtrl*, const LLSD&) { if (getChild<LLCheckBoxCtrl>("citizen_mode")->get()) saveRecipe(); else run("undo"); });
     getChild<LLButton>("history")->setCommitCallback([this](LLUICtrl*, const LLSD&) { run("journal"); });
     getChild<LLLineEditor>("request")->setCommitCallback([this](LLUICtrl*, const LLSD&) { run(getChild<LLCheckBoxCtrl>("citizen_mode")->get() ? "citizen_say" : "plan"); });
     for (const auto& binding : {std::pair<const char*, const char*>{"citizen_inspect", "inspect"}, {"citizen_pause", "pause"}, {"citizen_resume", "resume"}, {"citizen_cancel", "cancel"}, {"citizen_approve", "approve"}, {"citizen_undo", "undo"}})
@@ -92,9 +95,55 @@ bool LLFloaterFinalverseAI::postBuild()
         show(citizen ? "Talk to Lumi. Ask who she is, what she remembers, or say 'Lumi, go home.' Garden creation needs separate approval." : "Ask about the world or propose an approved world change.");
     });
     getChild<LLCheckBoxCtrl>("details")->setCommitCallback([this](LLUICtrl*, const LLSD&) { renderActivity(); });
+    getChild<LLButton>("recipe_load")->setCommitCallback([this](LLUICtrl*, const LLSD&) { loadRecipe(); });
+    getChild<LLButton>("recipe_save")->setCommitCallback([this](LLUICtrl*, const LLSD&) { saveRecipe(); });
+    getChild<LLButton>("recipe_remix")->setCommitCallback([this](LLUICtrl*, const LLSD&) { LLFloaterReg::showInstance("finalverse_recipe", mRecipe); });
     show("Ask about the world, select an owned object to edit, or stand on clear ground to create Lumi's home. Every change needs your approval.");
     busy(false);
     return true;
+}
+void LLFloaterFinalverseAI::openRecipe()
+{
+    openRequest("", false);
+    auto self = dynamic_cast<LLFloaterFinalverseAI*>(LLFloaterReg::findInstance("finalverse_ai"));
+    if (self && !self->mBusy) self->loadRecipe();
+}
+bool LLFloaterFinalverseAI::previewRecipe(const LLSD& recipe)
+{
+    auto self = dynamic_cast<LLFloaterFinalverseAI*>(LLFloaterReg::showInstance("finalverse_ai"));
+    std::string error;
+    if (!self || self->mBusy || !llfinalverseValidateRecipe(recipe, error)) return false;
+    self->getChild<LLCheckBoxCtrl>("citizen_mode")->set(false);
+    self->getChild<LLButton>("ask")->setLabel("Plan");
+    self->mRecipe = recipe;
+    self->run("recipe");
+    return true;
+}
+void LLFloaterFinalverseAI::loadRecipe()
+{
+    if (mBusy) return;
+    cancel();
+    const auto handle = getHandle();
+    const U32 generation = mGeneration;
+    LLFilePickerReplyThread::startPicker([handle, generation](const std::vector<std::string>& names, LLFilePicker::ELoadFilter, LLFilePicker::ESaveFilter) {
+        auto self = dynamic_cast<LLFloaterFinalverseAI*>(handle.get());
+        if (!self || self->mBusy || self->mGeneration != generation || names.size() != 1) return;
+        std::string error; LLSD recipe = llfinalverseReadRecipe(names.front(), error);
+        if (!recipe.isMap()) { self->show(error); return; }
+        previewRecipe(recipe);
+    }, LLFilePicker::FFLOAD_ALL, false);
+}
+void LLFloaterFinalverseAI::saveRecipe()
+{
+    if (mBusy || !mRecipe.isMap()) return;
+    const LLSD recipe = mRecipe; const auto handle = getHandle();
+    LLFilePickerReplyThread::startPicker([handle, recipe](const std::vector<std::string>& names, LLFilePicker::ELoadFilter, LLFilePicker::ESaveFilter) {
+        if (names.size() != 1) return;
+        std::string error; const bool saved = llfinalverseSaveRecipe(recipe, names.front(), error);
+        auto self = dynamic_cast<LLFloaterFinalverseAI*>(handle.get());
+        // Saving authoring data must not replace a live approval preview.
+        if (self) LLNotificationsUtil::add("GenericAlert", LLSD().with("MESSAGE", saved ? "Recipe saved. Load it to preview a new place, or share the file with a friend." : error));
+    }, LLFilePicker::FFSAVE_ALL, "finalverse-recipe-" + LLUUID::generateNewID().asString() + ".json");
 }
 void LLFloaterFinalverseAI::openRequest(const std::string& text, bool citizen, bool submit)
 {
@@ -135,7 +184,12 @@ void LLFloaterFinalverseAI::busy(bool active, bool mutation)
     getChild<LLButton>("citizen_approve")->setVisible(citizen);
     getChild<LLButton>("citizen_approve")->setEnabled(!active && mCitizenPrepared.has("plan_id"));
     for (const char* name : {"citizen_inspect", "citizen_pause", "citizen_resume", "citizen_cancel", "citizen_undo"}) getChild<LLButton>(name)->setVisible(citizen);
-    getChild<LLButton>("undo")->setEnabled(!active && !mLastPlan.empty());
+    for (const char* name : {"recipe_load", "recipe_save", "recipe_remix"}) getChild<LLButton>(name)->setVisible(!citizen);
+    getChild<LLButton>("recipe_load")->setEnabled(!active);
+    getChild<LLButton>("recipe_save")->setEnabled(!active && mRecipe.isMap());
+    getChild<LLButton>("recipe_remix")->setEnabled(!active && mRecipe.isMap());
+    getChild<LLButton>("undo")->setLabel(citizen ? "Save recipe" : "Undo last");
+    getChild<LLButton>("undo")->setEnabled(!active && (citizen ? mRecipe.isMap() : !mLastPlan.empty()));
     getChild<LLButton>("cancel")->setEnabled(!mMutation);
     getChild<LLLineEditor>("request")->setEnabled(!active);
     getChild<LLCheckBoxCtrl>("citizen_mode")->setEnabled(!active);
@@ -172,7 +226,7 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
     if (operation == "plan" && (prompt.empty() || prompt.size() > 2048)) { show("Enter a request of up to 2048 characters."); return; }
     const bool citizen = operation.compare(0, 8, "citizen_") == 0;
     if (citizen && operation == "citizen_say" && (prompt.empty() || prompt.size() > 2048)) { show("Enter a message for Lumi of up to 2048 characters."); return; }
-    LLSD body; body["op"] = citizen ? "citizen" : operation == "plan" ? "inspect" : operation;
+    LLSD body; body["op"] = citizen ? "citizen" : (operation == "plan" || operation == "recipe") ? "inspect" : operation;
     if (citizen) { body["command"] = operation.substr(8); body["text"] = prompt; }
     if (auto object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject()) body["selected_id"] = object->getID().asString();
     if (operation == "commit") body["plan_id"] = mPrepared["plan_id"];
@@ -180,8 +234,9 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
     const U32 generation = ++mGeneration;
     const LLHandle<LLFloater> handle = getHandle();
     busy(true, operation == "commit" || operation == "undo" || operation == "citizen_approve" || operation == "citizen_undo");
-    show(operation == "plan" ? "Looking around and planning…" : operation == "citizen_say" ? "Lumi is considering your message… You can pause or cancel while she thinks." : "Waiting for the world service…");
-    LLCoros::instance().launch("FinalverseWorld", [handle, generation, region_id, capability, operation, body, prompt]()
+    const LLSD recipe = mRecipe;
+    show(operation == "recipe" ? "Replaying your recipe and checking placement…" : operation == "plan" ? "Looking around and planning…" : operation == "citizen_say" ? "Lumi is considering your message… You can pause or cancel while she thinks." : "Waiting for the world service…");
+    LLCoros::instance().launch("FinalverseWorld", [handle, generation, region_id, capability, operation, body, prompt, recipe]()
     {
         auto current = [&]() -> LLFloaterFinalverseAI*
         {
@@ -191,12 +246,16 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
             { self->mPrepared = LLSD(); self->mCitizenPrepared = LLSD(); self->mLastPlan.clear(); self->busy(false); self->show("Your region changed. Please inspect and plan again."); return nullptr; }
             return self;
         };
-        LLSD reply = post(capability, body);
+        // Recipe replay has no inference context. Going directly to prepare
+        // avoids a redundant inspection racing the inherited 100 ms throttle.
+        LLSD reply = operation == "recipe" ? LLSD() : post(capability, body);
         auto self = current(); if (!self) return;
         if (reply.has("error")) { self->mPrepared = LLSD(); self->mCitizenPrepared = LLSD(); self->busy(false); self->show(reply["error"].asString()); return; }
         if (operation.compare(0, 8, "citizen_") == 0)
         {
             const LLSD result = reply["result"];
+            std::string recipe_error;
+            if (llfinalverseValidateRecipe(result["world_spec"], recipe_error)) self->mRecipe = result["world_spec"];
             self->mCitizenPrepared = LLSD();
             std::ostringstream display, technical;
             display << "Lumi: " << result["answer"].asString() << "\n\n";
@@ -220,10 +279,12 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
             if (result["preview"].isMap())
             {
                 self->mCitizenPrepared = result["preview"];
+                self->getChild<LLButton>("citizen_approve")->setLabel(result["world_spec"].isMap() ? "Build together" : "Create garden");
                 display << "\n" << llfinalversePlanSummary(result["preview"]) << "\n";
                 for (const auto& step : llsd::inArray(result["preview"]["steps"]))
                 { technical << "• " << step["after"]["name"].asString() << "\n"; describe(technical, step["after"]); }
             }
+            self->getChild<LLButton>("citizen_undo")->setLabel("Undo creation");
             if (operation == "citizen_inspect")
             {
                 display << "\nPersistent memories\n";
@@ -234,12 +295,16 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
             self->show(display.str(), technical.str()); self->busy(false); return;
         }
         if (operation == "inspect" || operation == "plan") self->mLastPlan = reply["result"]["undoable_plan_id"].asString();
-        if (operation == "plan")
+        if (operation == "plan" || operation == "recipe")
         {
-            LLSD request; request["request"] = prompt; request["world_context"] = modelContext(reply["result"]);
-            LLSD generated = post("http://127.0.0.1:18765/v1/world/plan", request);
+            LLSD request;
+            if (operation == "recipe") request["world_spec"] = recipe;
+            else { request["request"] = prompt; request["world_context"] = modelContext(reply["result"]); }
+            LLSD generated = post(operation == "recipe" ? "http://127.0.0.1:18765/v1/world/spec/plan" : "http://127.0.0.1:18765/v1/world/plan", request);
             self = current(); if (!self) return;
             if (generated.has("error")) { self->busy(false); self->show(generated["error"].asString()); return; }
+            std::string recipe_error;
+            self->mRecipe = llfinalverseValidateRecipe(generated["world_spec"], recipe_error) ? generated["world_spec"] : LLSD();
             self->mPrepared = LLSD();
             if (!generated["plan"].isMap()) { self->busy(false); self->show(generated["answer"].asString()); return; }
             self->show("Checking placement and permissions…");

@@ -42,6 +42,8 @@ bool LLFloaterFinalverseExperience::postBuild()
     getChild<LLButton>("create_home")->setCommitCallback([](LLUICtrl*,const LLSD&) { LLFloaterFinalverseAI::openRequest("Create a small lakeside home for Lumi here.",false); });
     getChild<LLButton>("create_garden")->setCommitCallback([](LLUICtrl*,const LLSD&) { LLFloaterFinalverseAI::openRequest("Lumi, improve the area around your home with a small garden.",true); });
     getChild<LLButton>("create_anything")->setCommitCallback([](LLUICtrl*,const LLSD&) { LLFloaterFinalverseAI::openRequest("",false); });
+    getChild<LLButton>("create_recipe")->setCommitCallback([](LLUICtrl*,const LLSD&) { LLFloaterFinalverseAI::openRecipe(); });
+    getChild<LLButton>("create_lumi")->setCommitCallback([](LLUICtrl*,const LLSD&) { LLFloaterFinalverseAI::openRequest("Lumi, create a quiet reading nook nearby.",true); });
     getChild<LLButton>("nearby_world")->setCommitCallback([](LLUICtrl*,const LLSD&) { LLFloaterFinalverseAI::openRequest("What objects are around me?",false,true); });
     for (const char* page : {"explore", "create", "friends"})
     {

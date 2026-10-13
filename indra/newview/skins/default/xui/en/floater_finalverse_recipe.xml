@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="finalverse_recipe" title="REMIX A PLACE" width="384" height="404" layout="topleft" positioning="centered" single_instance="true" save_rect="false" can_resize="false" bg_opaque_color="FinalverseBackground" bg_alpha_color="FinalverseBackground" bg_opaque_image="Rounded_Rect" bg_alpha_image="Rounded_Rect" bg_opaque_image_overlay="FinalverseBackground" bg_alpha_image_overlay="FinalverseBackground">
+    <text name="heading" left="20" top="36" width="344" height="26" font="SansSerifLarge" text_color="FinalverseText">Make it yours</text>
+    <text name="status" left="20" top="74" width="344" height="46" font="SansSerif" text_color="FinalverseSecondary" word_wrap="true"/>
+    <line_editor name="title" left="20" top="126" width="344" height="32" font="SansSerif" max_length_bytes="240" label="Name your place" bg_color="FinalverseSurface" text_color="FinalverseText" use_bg_color="true"/>
+    <text left="20" top="178" width="126" height="22" font="SansSerif" text_color="FinalverseText">Benches</text>
+    <spinner name="benches" left="156" top="174" width="208" height="28" decimal_digits="0" min_val="0" max_val="8" increment="1"/>
+    <text left="20" top="214" width="126" height="22" font="SansSerif" text_color="FinalverseText">Size</text>
+    <combo_box name="size" left="156" top="208" width="208" height="28">
+        <combo_box.item label="Small" value="small"/><combo_box.item label="Medium" value="medium"/><combo_box.item label="Large" value="large"/>
+    </combo_box>
+    <text left="20" top="248" width="126" height="22" font="SansSerif" text_color="FinalverseText">Plants</text>
+    <combo_box name="planting" left="156" top="242" width="208" height="28">
+        <combo_box.item label="None" value="none"/><combo_box.item label="Flower beds" value="beds"/><combo_box.item label="Trees" value="trees"/><combo_box.item label="Trees and flowers" value="both"/>
+    </combo_box>
+    <text left="20" top="282" width="126" height="22" font="SansSerif" text_color="FinalverseText">Light</text>
+    <combo_box name="lighting" left="156" top="276" width="208" height="28">
+        <combo_box.item label="None" value="none"/><combo_box.item label="Low" value="low"/><combo_box.item label="Medium" value="medium"/><combo_box.item label="High" value="high"/>
+    </combo_box>
+    <text left="20" top="316" width="126" height="22" font="SansSerif" text_color="FinalverseText">Placement</text>
+    <combo_box name="site" left="156" top="310" width="208" height="28">
+        <combo_box.item label="In front of me" value="in_front_of_actor"/><combo_box.item label="Clear ground nearby" value="near_actor"/><combo_box.item label="Near water" value="near_water"/>
+    </combo_box>
+    <button name="cancel" label="Cancel" left="20" top="358" width="112" height="32" font="SansSerifSmall" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_disabled="Rounded_Rect" image_disabled_selected="Rounded_Rect" image_color_disabled="FinalverseSurface" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" label_color_disabled="FinalverseSecondary" draw_focus_border="true"/>
+    <button name="preview" label="Preview remix" left="144" top="358" width="220" height="32" font="SansSerifSmall" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_disabled="Rounded_Rect" image_disabled_selected="Rounded_Rect" image_color_disabled="FinalverseSurface" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" label_color_disabled="FinalverseSecondary" draw_focus_border="true"/>
+</floater>

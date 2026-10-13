@@ -9,12 +9,17 @@ public:
     explicit LLFloaterFinalverseAI(const LLSD& key) : LLFloater(key) {}
     bool postBuild() override;
     static void openRequest(const std::string& text, bool citizen, bool submit = false);
+    static void openRecipe();
+    static bool previewRecipe(const LLSD& recipe);
 private:
     void run(const std::string& operation);
     void cancel();
     void busy(bool active, bool mutation = false);
     void show(const std::string& text, const std::string& details = "");
     void renderActivity();
+    void loadRecipe();
+    void saveRecipe();
+    LLSD mRecipe;
     U32 mGeneration = 0;
     bool mBusy = false;
     bool mMutation = false;
