@@ -1,6 +1,6 @@
 # World API mapping and first action contract
 
-Status: proposed Finalverse facade over source-proven viewer operations; no Finalverse facade exists at the starting commit.
+Current status: authenticated MutSea inspection, plans, native execution and WorldLine are implemented development slices. See [Phase 2](phase2-ai-world-creation.md), [experience discovery](phase4b/experience-discovery.md) and the world documentation for implemented contracts and acceptance. The operation map and proposed envelope below preserve the historical Phase 0 audit; they are not a claim that every conceptual operation is implemented.
 
 | Conceptual operation | Existing implementation evidence | Adapter work / limit |
 |---|---|---|

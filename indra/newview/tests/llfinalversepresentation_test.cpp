@@ -60,4 +60,40 @@ template<> template<> void object_t::test<5>()
     ensure("advertised but invalid service must remain visible",llfinalverseBenefitsExpected(false,response));
 }
 
+LLSD servicesReply()
+{
+    LLSD reply;
+    reply["schema_version"] = 1; reply["region_id"] = "region"; reply["actor_id"] = "actor";
+    reply["recovery_required"] = false; reply["compose_places"] = true;
+    reply["citizen"]["present"] = true; reply["citizen"]["can_interact"] = true; reply["citizen"]["state"] = "enabled";
+    return reply;
+}
+template<> template<> void object_t::test<7>()
+{
+    const auto reply = servicesReply();
+    auto result = llfinalverseParseServices(reply, "region", "actor");
+    ensure("authenticated controller can use existing relay", result.citizen_interactive && result.canCompose());
+    ensure("old region reply cannot grant new controls", !llfinalverseParseServices(reply, "another-region", "actor").known);
+    ensure("other account reply cannot grant controls", !llfinalverseParseServices(reply, "region", "another-actor").known);
+}
+template<> template<> void object_t::test<8>()
+{
+    LLSD reply = servicesReply(); reply["citizen"]["can_interact"] = "true";
+    ensure("coerced boolean cannot enable controls", !llfinalverseParseServices(reply, "region", "actor").known);
+    reply = servicesReply(); reply["citizen"]["present"] = false;
+    ensure("contradictory presence cannot grant control", !llfinalverseParseServices(reply, "region", "actor").known);
+    reply = servicesReply(); reply["schema_version"] = 2;
+    ensure("unsupported schema fails closed", !llfinalverseParseServices(reply, "region", "actor").known);
+    ensure("missing metadata fails closed", !llfinalverseParseServices(LLSD(), "region", "actor").citizen_interactive);
+}
+template<> template<> void object_t::test<9>()
+{
+    LLSD reply = servicesReply(); reply["citizen"]["can_interact"] = false; reply["citizen"]["state"] = "not_controller";
+    auto result = llfinalverseParseServices(reply, "region", "actor");
+    ensure("observer can create without commanding citizen", result.citizen_present && !result.citizen_interactive && result.canCompose());
+    ensure("observer limitation is explained", llfinalverseCitizenUnavailable(result).find("controller") != std::string::npos);
+    reply["recovery_required"] = true; result = llfinalverseParseServices(reply, "region", "actor");
+    ensure("recovery keeps inspection but pauses changes", result.world && !result.canCompose() && !result.canPlan());
+}
+
 }

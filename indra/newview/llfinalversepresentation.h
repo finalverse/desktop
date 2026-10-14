@@ -9,4 +9,18 @@ std::string llfinalversePlanSummary(const LLSD& plan);
 // Vendor account benefits are optional on a non-system grid. An advertised
 // service still requires its normal error notification if initialization fails.
 bool llfinalverseBenefitsExpected(bool system_grid, const LLSD& response);
+
+struct LLFinalverseServices
+{
+    bool world = false, checking = false, known = false, recovery = false;
+    bool compose = false, citizen_present = false, citizen_interactive = false;
+    std::string citizen_state;
+    bool canCompose() const { return known && compose && !recovery; }
+    bool canPlan() const { return world && !recovery; }
+};
+// Session-bound discovery is presentation only; native policy remains authority.
+LLFinalverseServices llfinalverseParseServices(const LLSD& result, const std::string& region, const std::string& actor);
+std::string llfinalverseCitizenUnavailable(const LLFinalverseServices& services);
+// Cached lightweight capability request, never a model call or world mutation.
+LLFinalverseServices llfinalverseWorldServices();
 #endif

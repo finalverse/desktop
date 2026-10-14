@@ -62,3 +62,38 @@ bool llfinalverseBenefitsExpected(bool system_grid, const LLSD& response)
 {
     return system_grid || response.has("account_level_benefits");
 }
+
+LLFinalverseServices llfinalverseParseServices(const LLSD& result, const std::string& region, const std::string& actor)
+{
+    LLFinalverseServices services;
+    const LLSD citizen = result["citizen"];
+    if (region.empty() || actor.empty() || !result.isMap() ||
+        !result["schema_version"].isInteger() || result["schema_version"].asInteger() != 1 ||
+        !result["region_id"].isString() || result["region_id"].asString() != region ||
+        !result["actor_id"].isString() || result["actor_id"].asString() != actor ||
+        !result["recovery_required"].isBoolean() || !result["compose_places"].isBoolean() ||
+        !citizen.isMap() || !citizen["present"].isBoolean() || !citizen["can_interact"].isBoolean() ||
+        !citizen["state"].isString()) return services;
+    const std::string state = citizen["state"].asString();
+    if (state != "enabled" && state != "not_enabled" && state != "not_in_world" &&
+        state != "not_controller" && state != "starting" && state != "representation_recovery") return services;
+    // Do not turn malformed discovery into an affirmative citizen control.
+    if (citizen["can_interact"].asBoolean() && (!citizen["present"].asBoolean() || state != "enabled")) return services;
+    services.world = services.known = true;
+    services.recovery = result["recovery_required"].asBoolean();
+    services.compose = result["compose_places"].asBoolean();
+    services.citizen_present = citizen["present"].asBoolean();
+    services.citizen_interactive = citizen["can_interact"].asBoolean();
+    services.citizen_state = state;
+    return services;
+}
+
+std::string llfinalverseCitizenUnavailable(const LLFinalverseServices& services)
+{
+    if (services.checking) return "Checking which AI tools are available in this world…";
+    if (!services.known) return "Lumi's tools are unavailable here. You can still inspect the world.";
+    if (services.citizen_state == "not_controller") return "Lumi is here, but this account cannot use her controller tools. You can still explore and create.";
+    if (services.citizen_state == "starting") return "Lumi is still connecting. You can explore while her tools become available.";
+    if (services.citizen_state == "representation_recovery") return "Lumi's embodiment needs administrator recovery. You can still explore the world.";
+    return "Lumi is not connected to this world. You can create your own place and explore.";
+}

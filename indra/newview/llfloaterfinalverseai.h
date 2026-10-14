@@ -2,14 +2,17 @@
 #ifndef LL_FLOATER_FINALVERSE_AI_H
 #define LL_FLOATER_FINALVERSE_AI_H
 #include "llfloater.h"
+#include "lltimer.h"
 
 class LLFloaterFinalverseAI : public LLFloater
 {
 public:
     explicit LLFloaterFinalverseAI(const LLSD& key) : LLFloater(key) {}
     bool postBuild() override;
+    void draw() override;
     static void openRequest(const std::string& text, bool citizen, bool submit = false);
     static void openRecipe();
+    static void openNearby();
     static bool previewRecipe(const LLSD& recipe);
 private:
     void run(const std::string& operation);
@@ -29,5 +32,6 @@ private:
     std::string mHumanText;
     std::string mTechnicalText;
     std::string mLastPlan;
+    LLTimer mServicesRefresh;
 };
 #endif

@@ -193,6 +193,7 @@ set(viewer_SOURCE_FILES
     llfloaterfinalverseexperience.cpp
     llpanelfinalverse.cpp
     llfinalversepresentation.cpp
+    llfinalverseworldservices.cpp
     llfinalversevisualbenchmark.cpp
     llfinalversevisualbenchmarkrunner.cpp
     llfinalverselegacyappearance.cpp

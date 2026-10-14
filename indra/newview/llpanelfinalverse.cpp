@@ -3,6 +3,7 @@
 #include "llpanelfinalverse.h"
 #include "llfloaterfinalverseai.h"
 #include "llfloaterfinalverseexperience.h"
+#include "llfinalversepresentation.h"
 #include "llagent.h"
 #include "llbutton.h"
 #include "llfloaterreg.h"
@@ -68,10 +69,14 @@ void LLPanelFinalverse::layout()
     command->setShape(LLRect((width-command_width)/2, 120, (width+command_width)/2, 16));
     getChild<LLLineEditor>("command")->setShape(LLRect(16, 84, command_width-104, 48));
     getChild<LLButton>("send")->setShape(LLRect(command_width-96, 84, command_width-16, 48));
-    const S32 nav_width = command_width-32, item_width = nav_width/5;
+    const S32 nav_width = command_width-32, item_width = nav_width/(mLumiAvailable ? 5 : 4);
     S32 x = 16;
     for (const char* name : {"explore", "create", "lumi", "friends", "me"})
-    { getChild<LLButton>(name)->setShape(LLRect(x, 40, x+item_width-4, 8)); x += item_width; }
+    {
+        const bool visible = std::string(name) != "lumi" || mLumiAvailable;
+        getChild<LLButton>(name)->setVisible(visible);
+        if (visible) { getChild<LLButton>(name)->setShape(LLRect(x, 40, x+item_width-4, 8)); x += item_width; }
+    }
     getChild<LLPanel>("identity_surface")->setShape(LLRect(16, height-16, llmin(320, width-16), height-96));
     getChild<LLPanel>("utility_surface")->setShape(LLRect(llmax(16,width-344), height-16, width-16, height-60));
     getChild<LLPanel>("selection_surface")->setShape(LLRect(16, 230, llmin(350,width-16), 138));
@@ -95,6 +100,8 @@ void LLPanelFinalverse::submit()
 void LLPanelFinalverse::refreshExperience()
 {
     mSimple = gSavedSettings.getBOOL("FinalverseExperienceEnabled");
+    const bool lumi = llfinalverseWorldServices().citizen_interactive;
+    if (lumi != mLumiAvailable) { mLumiAvailable = lumi; layout(); }
     auto root = gViewerWindow->getRootView();
     root->getChild<LLPanel>("status_bar_container")->setVisible(!mSimple);
     root->getChild<LLPanel>("topinfo_bar_container")->setVisible(!mSimple);

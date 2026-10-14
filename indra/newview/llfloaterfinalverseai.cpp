@@ -98,7 +98,7 @@ bool LLFloaterFinalverseAI::postBuild()
     getChild<LLButton>("recipe_load")->setCommitCallback([this](LLUICtrl*, const LLSD&) { loadRecipe(); });
     getChild<LLButton>("recipe_save")->setCommitCallback([this](LLUICtrl*, const LLSD&) { saveRecipe(); });
     getChild<LLButton>("recipe_remix")->setCommitCallback([this](LLUICtrl*, const LLSD&) { LLFloaterReg::showInstance("finalverse_recipe", mRecipe); });
-    show("Ask about the world, select an owned object to edit, or stand on clear ground to create Lumi's home. Every change needs your approval.");
+    show("Inspect nearby objects or describe a place. Review the plan before building. Every world change needs your approval.");
     busy(false);
     return true;
 }
@@ -107,6 +107,12 @@ void LLFloaterFinalverseAI::openRecipe()
     openRequest("", false);
     auto self = dynamic_cast<LLFloaterFinalverseAI*>(LLFloaterReg::findInstance("finalverse_ai"));
     if (self && !self->mBusy) self->loadRecipe();
+}
+void LLFloaterFinalverseAI::openNearby()
+{
+    openRequest("", false);
+    auto self = dynamic_cast<LLFloaterFinalverseAI*>(LLFloaterReg::findInstance("finalverse_ai"));
+    if (self && !self->mBusy) self->run("inspect");
 }
 bool LLFloaterFinalverseAI::previewRecipe(const LLSD& recipe)
 {
@@ -158,6 +164,8 @@ void LLFloaterFinalverseAI::openRequest(const std::string& text, bool citizen, b
     self->busy(false);
     self->getChild<LLLineEditor>("request")->setFocus(true);
     if (gSavedSettings.getBOOL("FinalverseUXMetrics")) LL_INFOS("FinalverseUX") << "ai_open_ms=" << timer.getElapsedTimeF64().value()*1000 << LL_ENDL;
+    const auto services = llfinalverseWorldServices();
+    if (citizen && !services.citizen_interactive) { self->show(llfinalverseCitizenUnavailable(services)); return; }
     if (submit) self->run(citizen ? "citizen_say" : "plan");
 }
 void LLFloaterFinalverseAI::renderActivity()
@@ -175,24 +183,34 @@ void LLFloaterFinalverseAI::show(const std::string& text, const std::string& det
 void LLFloaterFinalverseAI::busy(bool active, bool mutation)
 {
     mBusy = active; mMutation = active && mutation;
+    const auto services = llfinalverseWorldServices();
     for (const char* name : {"ask", "inspect", "history", "citizen_inspect", "citizen_pause", "citizen_resume", "citizen_cancel", "citizen_undo"}) getChild<LLButton>(name)->setEnabled(!active);
     // Human overrides can interrupt reasoning without waiting for the model.
-    for (const char* name : {"citizen_pause", "citizen_cancel"}) getChild<LLButton>(name)->setEnabled(!mMutation);
+    for (const char* name : {"citizen_pause", "citizen_cancel"}) getChild<LLButton>(name)->setEnabled(!mMutation && services.citizen_interactive);
     const bool citizen = getChild<LLCheckBoxCtrl>("citizen_mode")->get();
+    getChild<LLButton>("ask")->setEnabled(!active && (citizen ? services.citizen_interactive : services.canPlan()));
+    for (const char* name : {"inspect", "history"}) getChild<LLButton>(name)->setEnabled(!active && services.world);
+    for (const char* name : {"citizen_inspect", "citizen_resume", "citizen_undo"}) getChild<LLButton>(name)->setEnabled(!active && services.citizen_interactive);
     getChild<LLButton>("build")->setVisible(!citizen);
-    getChild<LLButton>("build")->setEnabled(!active && mPrepared.has("plan_id"));
+    getChild<LLButton>("build")->setEnabled(!active && services.canPlan() && mPrepared.has("plan_id"));
     getChild<LLButton>("citizen_approve")->setVisible(citizen);
-    getChild<LLButton>("citizen_approve")->setEnabled(!active && mCitizenPrepared.has("plan_id"));
+    getChild<LLButton>("citizen_approve")->setEnabled(!active && services.citizen_interactive && services.canPlan() && mCitizenPrepared.has("plan_id"));
     for (const char* name : {"citizen_inspect", "citizen_pause", "citizen_resume", "citizen_cancel", "citizen_undo"}) getChild<LLButton>(name)->setVisible(citizen);
     for (const char* name : {"recipe_load", "recipe_save", "recipe_remix"}) getChild<LLButton>(name)->setVisible(!citizen);
-    getChild<LLButton>("recipe_load")->setEnabled(!active);
+    getChild<LLButton>("recipe_load")->setEnabled(!active && services.canCompose());
     getChild<LLButton>("recipe_save")->setEnabled(!active && mRecipe.isMap());
-    getChild<LLButton>("recipe_remix")->setEnabled(!active && mRecipe.isMap());
+    getChild<LLButton>("recipe_remix")->setEnabled(!active && services.canCompose() && mRecipe.isMap());
     getChild<LLButton>("undo")->setLabel(citizen ? "Save recipe" : "Undo last");
     getChild<LLButton>("undo")->setEnabled(!active && (citizen ? mRecipe.isMap() : !mLastPlan.empty()));
     getChild<LLButton>("cancel")->setEnabled(!mMutation);
-    getChild<LLLineEditor>("request")->setEnabled(!active);
-    getChild<LLCheckBoxCtrl>("citizen_mode")->setEnabled(!active);
+    getChild<LLLineEditor>("request")->setEnabled(!active && (!citizen || services.citizen_interactive));
+    getChild<LLCheckBoxCtrl>("citizen_mode")->setEnabled(!active && services.citizen_interactive);
+    getChild<LLCheckBoxCtrl>("citizen_mode")->setToolTip(services.citizen_interactive ? "Use your authorized citizen relay." : llfinalverseCitizenUnavailable(services));
+}
+void LLFloaterFinalverseAI::draw()
+{
+    if (mServicesRefresh.getElapsedTimeF32() >= .5f) { busy(mBusy, mMutation); mServicesRefresh.reset(); }
+    LLFloater::draw();
 }
 void LLFloaterFinalverseAI::cancel()
 {
@@ -218,13 +236,18 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
     if (operation != "citizen_approve") mCitizenPrepared = LLSD();
     busy(false);
     auto region = gAgent.getRegion();
-    if (!region) { show("Enter MutSea Harbor first."); return; }
+    if (!region) { show("Enter a world first."); return; }
     const std::string capability = region->getCapability("FinalverseWorld");
     if (capability.empty()) { show("This region has not enabled Finalverse world actions."); return; }
     const LLUUID region_id = region->getRegionID();
     const std::string prompt = getChild<LLLineEditor>("request")->getText();
     if (operation == "plan" && (prompt.empty() || prompt.size() > 2048)) { show("Enter a request of up to 2048 characters."); return; }
     const bool citizen = operation.compare(0, 8, "citizen_") == 0;
+    const auto services = llfinalverseWorldServices();
+    if (citizen && !services.citizen_interactive) { show(llfinalverseCitizenUnavailable(services)); return; }
+    if (operation == "recipe" && !services.canCompose()) { show("Composed places are unavailable here. You can still inspect the world and use creator tools."); return; }
+    if (services.recovery && (operation == "plan" || operation == "commit" || operation == "undo" || operation == "citizen_approve" || operation == "citizen_undo"))
+    { show("World changes are paused for recovery. Use Nearby or History to inspect what happened."); return; }
     if (citizen && operation == "citizen_say" && (prompt.empty() || prompt.size() > 2048)) { show("Enter a message for Lumi of up to 2048 characters."); return; }
     LLSD body; body["op"] = citizen ? "citizen" : (operation == "plan" || operation == "recipe") ? "inspect" : operation;
     if (citizen) { body["command"] = operation.substr(8); body["text"] = prompt; }
