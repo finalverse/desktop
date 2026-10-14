@@ -27,18 +27,22 @@ bool llfinalverseValidateVisualBenchmark(const LLSD& spec, std::string& error)
         "CAM_Garden", "CAM_Pavilion", "CAM_Waterfront", "CAM_Sunset"};
     const bool quick = spec.has("quick_mode") && spec["quick_mode"].isBoolean() && spec["quick_mode"].asBoolean();
     const bool staging = spec.has("staging_review") && spec["staging_review"].isBoolean() && spec["staging_review"].asBoolean();
+    const bool hero = spec.has("hero_review") && spec["hero_review"].isBoolean() && spec["hero_review"].asBoolean();
     const LLUUID harbor("a9d44538-26ca-4586-a8a9-e551722ffa15");
-    const bool fixture = spec["region_id"].isUUID() && (staging ?
+    const bool fixture = spec["region_id"].isUUID() && (hero ?
+        spec["grid_login_uri"].asString() == "http://127.0.0.1:18099/" &&
+            spec["region_id"].asUUID() == LLUUID("38bfc868-034e-4a29-acd6-5ff203e96e57") : staging ?
         spec["grid_login_uri"].asString() == "http://127.0.0.1:18095/" &&
             !spec["region_id"].asUUID().isNull() && spec["region_id"].asUUID() != harbor :
         spec["grid_login_uri"].asString() == "http://127.0.0.1:18094/" && spec["region_id"].asUUID() == harbor);
     if (!spec.isMap() || !spec["schema"].isInteger() || spec["schema"].asInteger() != 1 ||
-        !fixture || (spec.has("staging_review") && !spec["staging_review"].isBoolean()) ||
+        !fixture || (hero && staging) || (spec.has("hero_review") && !spec["hero_review"].isBoolean()) ||
+        (spec.has("staging_review") && !spec["staging_review"].isBoolean()) ||
         !spec["output_dir"].isString() || spec["output_dir"].asString().empty() ||
         !std::filesystem::path(spec["output_dir"].asString()).is_absolute() ||
         !number(spec["warmup_seconds"], quick ? 2. : 10., quick ? 10. : 60.) ||
         !number(spec["sample_seconds"], quick ? 3. : 10., quick ? 10. : 60.) ||
-        !spec["views"].isArray() || spec["views"].size() < 1 || spec["views"].size() > (staging ? 3 : 8))
+        !spec["views"].isArray() || spec["views"].size() < 1 || spec["views"].size() > ((staging || hero) ? 3 : 8))
     {
         error = "Expected schema 1, the loopback Phase 4B fixture, region UUID, absolute output path, 10–60 second windows and one to eight canonical cameras.";
         return false;
@@ -47,7 +51,7 @@ bool llfinalverseValidateVisualBenchmark(const LLSD& spec, std::string& error)
     // Staging is one bounded passive review, not a second interaction queue.
     // The launcher pins this UUID to its private account; the runner also
     // verifies the actual grid and live region before touching the camera.
-    if (staging && (quick || spec.has("interaction")))
+    if ((staging || hero) && (quick || spec.has("interaction")))
     {
         error = "Staging review requires a normal warm start and at most three passive cameras.";
         return false;

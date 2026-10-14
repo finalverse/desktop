@@ -210,7 +210,7 @@ public:
         result["cached_objects"] = count; // Cached viewer objects, not authoritative simulator population.
         result["captured_utc"] = LLDate::now();
         result["avatar"] = avatarState();
-        for (const char* key : {"RenderFarClip", "RenderShadowDetail", "RenderShadowResolutionScale",
+        for (const char* key : {"RenderFarClip", "RenderVolumeLODFactor", "RenderShadowDetail", "RenderShadowResolutionScale",
             "RenderDeferredSSAO", "RenderFSAAType", "RenderFSAASamples", "RenderAnisotropic",
             "RenderAnisotropicLevel", "RenderReflectionProbeDetail", "RenderReflectionsEnabled",
             "RenderTonemapType", "RenderExposure", "RenderAvatarMaxNonImpostors", "TextureMemory"})

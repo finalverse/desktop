@@ -152,6 +152,24 @@ template<> template<> void object_t::test<13>()
     spec["interaction"]["expected_position"][0] = -1.;
     ensure("bench remains within fixture", !llfinalverseValidateVisualBenchmark(spec, error));
 }
+template<> template<> void object_t::test<15>()
+{
+    std::string error;
+    const LLSD camera = spec["views"][0]; spec["views"] = LLSD::emptyArray(); spec["views"].append(camera);
+    spec["hero_review"] = true; spec["grid_login_uri"] = "http://127.0.0.1:18099/";
+    spec["region_id"] = LLUUID("38bfc868-034e-4a29-acd6-5ff203e96e57");
+    ensure("named hero fixture passive review", llfinalverseValidateVisualBenchmark(spec, error));
+    spec["region_id"] = LLUUID::generateNewID();
+    ensure("hero region cannot be substituted", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["region_id"] = LLUUID("38bfc868-034e-4a29-acd6-5ff203e96e57"); spec["quick_mode"] = true;
+    ensure("hero cannot enter quick interaction queue", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec.erase("quick_mode"); spec["staging_review"] = true;
+    ensure("fixture modes cannot mix", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec.erase("staging_review"); spec["hero_review"] = "true";
+    ensure("hero flag must be a native boolean", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["hero_review"] = true; spec["grid_login_uri"] = "http://127.0.0.1:18098/";
+    ensure("hero cannot cross to the existing island", !llfinalverseValidateVisualBenchmark(spec, error));
+}
 template<> template<> void object_t::test<14>()
 {
     std::string error;

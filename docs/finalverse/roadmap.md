@@ -12,6 +12,8 @@ Grounded shoreline creation, saved recipe replay and one combined island review 
 
 The subsequent [guided creation and discovery slice](phase4b/experience-discovery.md) closes the per-world/account Lumi availability gap: authenticated metadata, honest citizen controls, first-creation presets and direct Nearby inspection. It passed three native role/world sessions and one combined macOS UI check. The product gates above remain open.
 
+The [reusable coastal arrival](art/coastal-arrival-validation.md) adds two original assets, a compact versioned arrival place and explicit new island v0.2.0. Native walking/canopy collision/Sit/Stand and a combined near/far local rendering sample pass. The existing worlds remain intact; premium art/circulation, public onboarding/study and release performance still gate 4B acceptance.
+
 ## Current plan — 2026-10-08
 
 Phase 2 world creation and Phase 3 persistent Lumi are implemented development slices; Phase 4A has passed packaged macOS engineering acceptance. Its UI is retained. The Phase 0 ordering below is historical, not the current execution plan.
