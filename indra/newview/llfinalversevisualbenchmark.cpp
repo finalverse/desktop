@@ -94,6 +94,12 @@ bool llfinalverseValidateVisualBenchmark(const LLSD& spec, std::string& error)
     for (S32 index = 0; index < spec["views"].size(); ++index)
     {
         const LLSD& view = spec["views"][index];
+        if (view.has("environment") && (!hero || quick || !view["environment"].isMap() ||
+            !view["environment"]["sky"].isMap() || !view["environment"]["water"].isMap()))
+        {
+            error = "Per-camera local lighting previews require the named passive hero fixture and native sky/water maps.";
+            return false;
+        }
         const auto name = view["name"].asString();
         if (!names.count(name) || !seen.insert(name).second || !position(view["position"]) ||
             !position(view["focus"]) || !number(view["fov"], .3, 1.5))

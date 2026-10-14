@@ -4,6 +4,8 @@
 
 **Phase 4B remains open.** The user continued the final art, onboarding, world-template and controlled performance gates after the historical [2026-10-12 closure checkpoint](phase4b-closure-20261012.md). That checkpoint records earlier evidence; it does not constitute current product acceptance.
 
+The [connected coastal court](art/coastal-court-validation.md) now supplies explicit world v0.3.0, native full-route/return/Sit/Stand proof, one combined Day/Golden Hour/Night review, a focused actual-shadow check and bounded six-account native concurrency evidence. MutSea completes the chosen wardrobe and dry home before account activation; unsupported choices fail preflight and failed identities stay inactive. Public signup/choices/admission, premium landscape and Night readability, continuous LOD transitions and sustained/device/cold-cache load remain open. No acquisition/public release gate is closed by these local checks.
+
 Part of 4B.1 was delivered with it:
 - PlaceTemplate and WorldTemplate provisioning;
 - newcomer account → Genesis appearance provisioning.

@@ -159,6 +159,24 @@ public:
         }
         if (!std::isfinite(dt) || dt <= 0.) { resetSample(); return; }
         const LLSD& view = mSpec["views"][mView];
+        if (view.has("environment") && mEnvironmentView != mView)
+        {
+            LLSD sky_data = view["environment"]["sky"], water_data = view["environment"]["water"];
+            auto sky_rules = LLSettingsSky::validationList(), water_rules = LLSettingsWater::validationList();
+            const auto sky_validation = LLSettingsBase::settingValidation(sky_data, sky_rules);
+            const auto water_validation = LLSettingsBase::settingValidation(water_data, water_rules);
+            if (!sky_validation["success"].asBoolean() || !water_validation["success"].asBoolean())
+            {
+                fail("Native environment validation rejected the per-camera preview.");
+                return;
+            }
+            auto& environment = LLEnvironment::instance();
+            environment.setEnvironment(LLEnvironment::ENV_LOCAL, LLSettingsVOSky::buildSky(sky_data), LLSettingsVOWater::buildWater(water_data));
+            environment.setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLSettingsBase::Seconds(0.), true);
+            environment.updateEnvironment(LLSettingsBase::Seconds(0.), true);
+            mEnvironmentView = mView;
+            resetSample();
+        }
         auto* camera = LLViewerCamera::getInstance();
         const auto origin = gAgent.getRegion()->getOriginGlobal();
         camera->lookAt(gAgent.getPosAgentFromGlobal(origin + ll_vector3d_from_sd(view["position"])),
@@ -373,7 +391,7 @@ private:
     LLSD mSpec, mReport;
     fs::path mOutput;
     bool mLoaded = false, mDone = false;
-    S32 mView = 0, mObjectCount = -1, mWidth = 0, mHeight = 0;
+    S32 mView = 0, mEnvironmentView = -1, mObjectCount = -1, mWidth = 0, mHeight = 0;
     double mWarmup = 0., mSampleTime = 0.;
     std::vector<double> mFrames;
     std::string mPath;

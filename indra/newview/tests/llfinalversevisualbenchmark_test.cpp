@@ -170,6 +170,21 @@ template<> template<> void object_t::test<15>()
     spec["hero_review"] = true; spec["grid_login_uri"] = "http://127.0.0.1:18098/";
     ensure("hero cannot cross to the existing island", !llfinalverseValidateVisualBenchmark(spec, error));
 }
+template<> template<> void object_t::test<16>()
+{
+    std::string error;
+    const LLSD camera = spec["views"][0]; spec["views"] = LLSD::emptyArray(); spec["views"].append(camera);
+    spec["views"][0]["environment"]["sky"] = LLSD::emptyMap();
+    spec["views"][0]["environment"]["water"] = LLSD::emptyMap();
+    ensure("per-camera preview cannot enter legacy interaction fixture", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["hero_review"] = true; spec["grid_login_uri"] = "http://127.0.0.1:18099/";
+    spec["region_id"] = LLUUID("38bfc868-034e-4a29-acd6-5ff203e96e57");
+    ensure("named passive hero permits per-camera native lighting maps", llfinalverseValidateVisualBenchmark(spec, error));
+    spec["views"][0]["environment"]["water"] = "bad";
+    ensure("malformed per-camera environment is refused", !llfinalverseValidateVisualBenchmark(spec, error));
+    spec["views"][0]["environment"]["water"] = LLSD::emptyMap(); spec["quick_mode"] = true;
+    ensure("lighting cannot bypass the quick check's environment preservation", !llfinalverseValidateVisualBenchmark(spec, error));
+}
 template<> template<> void object_t::test<14>()
 {
     std::string error;
