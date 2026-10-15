@@ -14,9 +14,10 @@ struct LLFinalverseServices
 {
     bool world = false, checking = false, known = false, recovery = false;
     bool compose = false, citizen_present = false, citizen_interactive = false;
+    bool server_planning = false;
     std::string citizen_state;
     bool canCompose() const { return known && compose && !recovery; }
-    bool canPlan() const { return world && !recovery; }
+    bool canPlan() const { return world && !checking && !recovery; }
 };
 // Session-bound discovery is presentation only; native policy remains authority.
 LLFinalverseServices llfinalverseParseServices(const LLSD& result, const std::string& region, const std::string& actor);

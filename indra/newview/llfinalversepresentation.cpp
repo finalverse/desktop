@@ -82,6 +82,7 @@ LLFinalverseServices llfinalverseParseServices(const LLSD& result, const std::st
     services.world = services.known = true;
     services.recovery = result["recovery_required"].asBoolean();
     services.compose = result["compose_places"].asBoolean();
+    services.server_planning = result["server_planning"].isBoolean() && result["server_planning"].asBoolean();
     services.citizen_present = citizen["present"].asBoolean();
     services.citizen_interactive = citizen["can_interact"].asBoolean();
     services.citizen_state = state;

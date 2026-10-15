@@ -31,6 +31,7 @@ private:
     LLUUID mPlanSelection;
     std::string mHumanText;
     std::string mTechnicalText;
+    bool mActivityDirty = false;
     std::string mLastPlan;
     LLTimer mServicesRefresh;
 };

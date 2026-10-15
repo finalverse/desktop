@@ -96,4 +96,17 @@ template<> template<> void object_t::test<9>()
     ensure("recovery keeps inspection but pauses changes", result.world && !result.canCompose() && !result.canPlan());
 }
 
+template<> template<> void object_t::test<10>()
+{
+    LLSD reply = servicesReply();
+    ensure("legacy fixture keeps local planner", !llfinalverseParseServices(reply, "region", "actor").server_planning);
+    reply["server_planning"] = true;
+    ensure("authenticated region advertises server planner", llfinalverseParseServices(reply, "region", "actor").server_planning);
+    auto checking = llfinalverseParseServices(reply, "region", "actor"); checking.checking = true;
+    ensure("first discovery cannot race into the local planner", !checking.canPlan());
+    ensure("different actor cannot select planner route", !llfinalverseParseServices(reply, "region", "other").server_planning);
+    reply["server_planning"] = "true";
+    ensure("string cannot select server planner", !llfinalverseParseServices(reply, "region", "actor").server_planning);
+}
+
 }
