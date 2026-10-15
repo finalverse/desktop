@@ -57,10 +57,14 @@ struct CompareAttributes
 {
     bool operator()(const LLStringTableEntry* const lhs, const LLStringTableEntry* const rhs) const
     {
+        // Null sorts before real names and never before itself. A missing
+        // interned attribute name is a normal lookup, not an ordering cycle.
+        if (lhs == rhs)
+            return false;
         if (lhs == NULL)
             return true;
         if (rhs == NULL)
-            return true;
+            return false;
 
         return strcmp(lhs->mString, rhs->mString) < 0;
     }

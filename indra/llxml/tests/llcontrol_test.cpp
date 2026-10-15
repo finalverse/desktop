@@ -31,6 +31,7 @@
 #include "stringize.h"
 
 #include "../llcontrol.h"
+#include "../llxmlnode.h"
 
 #include "../test/lltut.h"
 #include <memory>
@@ -151,4 +152,27 @@ namespace tut
         ensure("listener fired on changed setting", mListenerFired);
     }
 
+    // Finalverse regression: current libc++ checks strict weak ordering even
+    // on a normal lookup of a name absent from the interned string table.
+    template<> template<>
+    void control_group_t::test<5>()
+    {
+        LLStringTableEntry alpha("alpha"), beta("beta"), same_alpha("alpha");
+        CompareAttributes less;
+        const LLStringTableEntry* keys[] = {nullptr, &alpha, &beta, &same_alpha};
+        for (auto a : keys)
+        {
+            ensure("attribute ordering is irreflexive", !less(a, a));
+            for (auto b : keys)
+            {
+                ensure("attribute ordering is asymmetric", !(less(a, b) && less(b, a)));
+                for (auto c : keys)
+                    ensure("attribute ordering is transitive", !less(a, b) || !less(b, c) || less(a, c));
+            }
+        }
+        LLXMLAttribList attributes;
+        attributes.emplace(&alpha, LLXMLNodePtr());
+        ensure("missing interned name is a safe lookup", attributes.find(nullptr) == attributes.end());
+        ensure("equal names share a key", !attributes.emplace(&same_alpha, LLXMLNodePtr()).second);
+    }
 }
