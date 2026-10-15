@@ -101,15 +101,19 @@ versioned, provenance-recorded Lumi package. No extra character roster was added
 | Hosted co-building | Real model composition created 147 approved native parts. Exact part IDs, transforms, scales, link parents, ownership and semantics were verified over external UDP. |
 | Restart and renewal | Native certificate hook reported verified TLS and preserved data with the creation present. Native/runtime restarts retained the completed goal, memory, WorldLine and all 147 parts. |
 | Co-building Undo after restart | Authenticated citizen Undo succeeded. A separate read-only external login verified every recorded part ID absent, the original completed goal retained with its active plan cleared, and an undone WorldLine entry. Lumi's embodiment remained. |
-| Final combined Mac review | Blocked: the native UI tool reported a locked Mac. The isolated login-screen app was stopped before protocol fallback, and the retained fixture was undone through the authenticated backend. No new GUI pass or screenshot is claimed. |
+| Final combined Mac review | Passed after the Mac was unlocked: entered hosted Harbor, obtained Lumi's grounded identity response, requested a reading-nook preview, reviewed its parts/permissions, approved Build together, observed the rendered nook, then used Undo creation and observed its removal with Lumi's acknowledgement. Native PostgreSQL counts were 423 before, 570 after building and 423 after Undo. Private before/after screenshots were saved. |
 
 Private evidence is stored outside Git in the dated hosted-Lumi development
 directory and backend operations receipts. Credentials, account/session files,
 database URLs and private operator inventories are excluded from these documents.
-The previous private viewer's approved world-operation/Undo behavior was checked
-in the preceding milestone. This increment's new hosted controls still need one
-combined native interaction check when the Mac is accessible; backend acceptance
-does not substitute for that GUI pass. Avoid repeating broad avatar screenshots.
+The combined native check used the isolated private Mac application/profile and
+the actual hosted pilot, without a local runtime/gateway fallback. Evidence files
+are `mac-hosted-lumi-built.png` and `mac-hosted-lumi-undone.png` in the dated
+private evidence directory. The isolated viewer was logged out and exited after
+the check, and its temporary source-specific entry allowance was closed. This
+checks the existing operator account; fresh invited-user onboarding and a clean
+distribution artifact remain separate release gates. Broad avatar screenshots
+were not repeated.
 
 ## Product boundary and next gate
 

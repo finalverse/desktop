@@ -18,6 +18,13 @@ verified for this release. A Linux server image is not a Linux viewer build.
 | Invited fresh account can provision appearance, enter the hosted world and use authorized Create/Undo without local developer services | Operator-provisioned pilot login and world operations are verified; self-service public acquisition remains gated. |
 | Hosted AI isolation, controller ownership and recovery under multiple real users | One explicitly configured Lumi controller; bounded budgets and restart behavior are tested. General public co-builder access is not implemented. |
 
+The combined hosted-Lumi Mac interaction gate has now passed: identity,
+reviewable co-building, explicit approval, a rendered 147-part reading nook and
+visible Undo with acknowledgement. Native counts returned from 570 to the
+423-part baseline. See [acceptance evidence](hosted-lumi-and-placement.md).
+This verifies the operator pilot and does not replace fresh-user onboarding or
+clean release packaging.
+
 Next release target is an **invited Mac beta** after these concrete gates pass.
 Package a clean app without private account/session/profile/log files; publish
 only that signed/notarized artifact and checksum/source links through an explicit
