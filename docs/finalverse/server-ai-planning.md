@@ -74,9 +74,21 @@ could upload a missing font glyph while setting activity text, acquiring a
 non-coroutine-aware GL mutex. Activity layout and control refresh now run in the
 main draw loop; network continuations update presentation state. World-operation
 HTTP requests also disable automatic retries, preventing a dropped response from
-replaying a mutation. The corrected universal app builds successfully and its three focused test
-suites pass. Its final GUI Apply/Undo review is pending a Mac unlock; it is not
-yet claimed as visually accepted.
+replaying a mutation. The corrected universal app builds successfully and its
+three focused test suites pass.
+
+The rebuilt Mac app then completed the real remote interaction: Ask AI generated
+one `Native UI Test Marker` proposal in 27.9 seconds; the native preview showed a
+single 0.6-meter box and enabled Apply only after placement/permission checks.
+Explicit Apply returned the committed result, the marker arrived in the viewer,
+and History displayed its intent and committed WorldLine entries. Undo returned
+“Undone. The previous world state was restored.” PostgreSQL independently
+confirmed 422 → 423 → 422 parts and marker count 0 → 1 → 0. The preview, History
+and Undo text rendered without the previous font/GL coroutine assertion.
+Private review evidence is retained outside Git in the development verification
+bundle (`mac-ui-committed.png`, `mac-ui-history.png`, `mac-ui-undone.png`). This is
+a functional approval/undo check, not a claim of directional-placement quality
+or a premium-art/performance review.
 
 The private review app contains preserved unrelated viewer work and is not a
 distribution artifact. Public signup and unrestricted grid access remain separate
