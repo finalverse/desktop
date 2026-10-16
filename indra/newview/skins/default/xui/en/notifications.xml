@@ -1468,6 +1468,17 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
    <tag>fail</tag>
 You need to enter either the Username or both the First and Last name of your avatar into the Username field, then login again.
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="FinalverseAvatarNameRequired"
+   type="alertmodal">
+Enter the avatar First Last name from your MutSea account, separated by a space.
+An avatar UUID or email address is not a viewer login name.
+
+Use Sign up to create an account or Need help logging in to recover access.
+   <tag>fail</tag>
+  </notification>
   
   <notification
    icon="alertmodal.tga"

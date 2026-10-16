@@ -76,6 +76,12 @@
 #endif  // LL_WINDOWS
 
 #include "llsdserialize.h"
+#include <sstream>
+
+static bool finalverse_login_grid()
+{
+    return LLGridManager::getInstance()->getGrid() == "grid.mutsea.com";
+}
 
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 bool LLPanelLogin::sCapslockDidNotification = false;
@@ -736,7 +742,9 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
 {
     if (sInstance)
     {
-        bool show_server = gSavedSettings.getBOOL("ForceShowGrid");
+        // Keep the credential destination visible, including saved non-Finalverse
+        // choices. Never silently transfer saved credentials to another grid.
+        const bool show_server = true;
         LLComboBox* server_combo = sInstance->getChild<LLComboBox>("server_combo");
         if ( server_combo )
         {
@@ -875,8 +883,8 @@ void LLPanelLogin::loadLoginPage()
     {
         links->setVisible(system_grid);
     }
-    sInstance->getChildView("forgot_password_text")->setVisible(system_grid);
-    sInstance->getChildView("sign_btn")->setVisible(system_grid);
+    sInstance->getChildView("forgot_password_text")->setVisible(system_grid || finalverse_login_grid());
+    sInstance->getChildView("sign_btn")->setVisible(system_grid || finalverse_login_grid());
 
     if (!gSavedSettings.getBOOL("UseGridLoginPage") && gSavedSettings.getString("ForceLoginURL").empty())
     {
@@ -1011,6 +1019,17 @@ void LLPanelLogin::onClickConnect(bool commit_fields)
         std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
         std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 
+        if (finalverse_login_grid())
+        {
+            std::istringstream names(username);
+            std::string first, last, extra;
+            if (!(names >> first >> last) || (names >> extra))
+            {
+                LLNotificationsUtil::add("FinalverseAvatarNameRequired");
+                return;
+            }
+        }
+
         if(username.empty())
         {
             // user must type in something into the username field
@@ -1065,7 +1084,7 @@ void LLPanelLogin::onClickForgotPassword(void*)
 {
     if (sInstance )
     {
-        LLWeb::loadURLExternal(sInstance->getString( "forgot_password_url" ));
+        LLWeb::loadURLExternal(finalverse_login_grid() ? "https://mutsea.com/account/#reset" : sInstance->getString("forgot_password_url"));
     }
 }
 
@@ -1074,7 +1093,7 @@ void LLPanelLogin::onClickSignUp(void*)
 {
     if (sInstance)
     {
-        LLWeb::loadURLExternal(sInstance->getString("sign_up_url"));
+        LLWeb::loadURLExternal(finalverse_login_grid() ? "https://mutsea.com/account/#register" : sInstance->getString("sign_up_url"));
     }
 }
 

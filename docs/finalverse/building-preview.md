@@ -13,7 +13,7 @@ public archive URLs are in `autobuild.xml`.
 ```sh
 git clone https://github.com/finalverse/final_viewer.git
 cd final_viewer
-git checkout v0.4.0-preview.2
+git checkout v0.4.0-preview.3
 python3.13 -m venv .venv
 .venv/bin/pip install -r docs/finalverse/toolchain-python.lock
 export PATH="$PWD/.venv/bin:$PATH"
@@ -22,7 +22,7 @@ export CC=/usr/bin/clang CXX=/usr/bin/clang++
 export AUTOBUILD_CPU_COUNT=2 AUTOBUILD_ADDRSIZE=64 AUTOBUILD_BUILD_ID=54622
 ```
 
-Use the release's `Finalverse-0.4.0-preview.2-build-variables.txt` asset as
+Use the release's `Finalverse-0.4.0-preview.3-build-variables.txt` asset as
 `AUTOBUILD_VARIABLES_FILE`; its SHA-256 is recorded in provenance. This retains
 the exact inherited compiler flag input instead of assuming an unrecorded
 upstream Git revision. The same file is bundled under
@@ -126,11 +126,11 @@ paths (the output directory must not already exist):
 
 ```sh
 python scripts/finalverse/package_preview.py \
-  --version 0.4.0-preview.2 \
+  --version 0.4.0-preview.3 \
   --bundle "$PWD/build-darwin-universal/newview/RelWithDebInfo/Finalverse Preview.app" \
   --packages "$PWD/build-darwin-universal/packages" \
   --build-variables "$AUTOBUILD_VARIABLES_FILE" \
-  --third-party-source /absolute/Finalverse-0.4.0-preview.2-third-party-source.tar.gz \
+  --third-party-source /absolute/Finalverse-0.4.0-preview.3-third-party-source.tar.gz \
   --resource-probe "$PWD/build-darwin-universal/llcommon/RelWithDebInfo/finalverse_resource_probe" \
   --output /absolute/fresh-preview-output
 ```

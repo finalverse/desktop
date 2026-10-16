@@ -6,14 +6,14 @@ An AI-native persistent 3D world client, built incrementally on the mature
 open-source Second Life Viewer. Finalverse is the consumer experience;
 [MutSea](https://mutsea.com) is the authoritative spatial runtime behind it.
 
-**[Download the Mac developer preview](https://github.com/finalverse/final_viewer/releases/tag/v0.4.0-preview.2)** ·
+**[Download the Mac developer preview](https://github.com/finalverse/final_viewer/releases/tag/v0.4.0-preview.3)** ·
 **[Getting started](docs/finalverse/getting-started.md)** ·
 **[Native demos](docs/finalverse/demos.md)** ·
 **[Website](https://finalverse.com)**
 
-> Experimental prerelease for developers and invited testers. The Mac package
-> is ad hoc signed and **not notarized**. Downloading it does not grant access to
-> the private Harbor pilot. Public self-registration and GA support are not open.
+> Experimental prerelease with limited MutSea registration. The Mac package is
+> ad hoc signed and **not notarized**. Create your own world account separately;
+> downloading alone does not register you. GA support is not offered.
 
 ## What works today
 
@@ -42,23 +42,23 @@ baseline. [Screenshots, recap and verification scope](docs/finalverse/demos.md).
 
 1. Download the DMG and checksum from the GitHub release **Assets**.
 2. Follow [Mac installation and signing limitations](docs/finalverse/getting-started.md#2-install-and-open).
-3. Request your own Harbor invitation/account at
-   [info@finalverse.com](mailto:info@finalverse.com?subject=Finalverse%20preview%20world%20access).
-   The account shown in demos is a private fixture, not a shared login.
-4. Select Finalverse Harbor (Preview), then sign in only when the operator has
-   granted access. Other compatible grids have separate identities/capabilities.
+3. [Create your own MutSea account](https://mutsea.com/account/#register). Choose a
+   starter avatar and wait for Account ready. Save recovery codes after sign-in.
+4. Select **Finalverse Harbor (Preview)**, then use **First Last** and your chosen
+   password. An avatar UUID or email is not a viewer login. Existing profiles may
+   still select Second Life; its accounts are separate.
 5. Try “What objects are around me?” and a supported creation. Review before
    Apply; inspect History and use supported Undo.
 
 Existing Harbor users can [manage their account at MutSea](https://mutsea.com/account/)
 with the same avatar name/password: view home details, edit a web profile, change
-the world password and generate recovery codes. Email reset and public signup
+the world password and generate recovery codes. Email reset and MFA
 remain unavailable. [Account guide](https://github.com/finalverse/mutsea-o/blob/main/docs/mutsea/account-portal.md).
 
 Apple Silicon is the verified runtime. The executable also contains Intel code,
 but Intel hardware is not verified. No Linux/Windows/mobile download is included.
 Client downloads are hosted by **GitHub Releases**, independently of world hosting.
-Updates are manual. [Release notes and limitations](docs/finalverse/releases/0.4.0-preview.2.md).
+Updates are manual. [Release notes and limitations](docs/finalverse/releases/0.4.0-preview.3.md).
 
 ## Build and contribute
 

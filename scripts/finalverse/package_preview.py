@@ -62,7 +62,7 @@ def main():
     parser.add_argument("--resource-probe", type=Path, required=True,
                         help="Built finalverse_resource_probe native acceptance executable")
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--version", default="0.4.0-preview.2")
+    parser.add_argument("--version", default="0.4.0-preview.3")
     args = parser.parse_args()
     require(re.fullmatch(r"\d+\.\d+\.\d+-preview\.\d+", args.version), "Preview version required")
     require(not run("git", "status", "--porcelain", cwd=ROOT, text=True).stdout.strip(),
@@ -131,7 +131,7 @@ def main():
         "build_variables_sha256": sha(args.build_variables),
         "configuration": {"architectures": ["arm64", "x86_64"], "proprietary": False, "bugsplat": False,
             "updater": False, "voice_default": False, "libvlc_distribution": False},
-        "limits": ["invited world access", "one configured hosted Lumi controller", "experimental developer preview"],
+        "limits": ["limited preview world registration", "one configured hosted Lumi controller", "experimental developer preview"],
         "xcode": run("xcodebuild", "-version", text=True).stdout.strip(),
         "cmake": run("cmake", "--version", text=True).stdout.splitlines()[0],
         "python": sys.version.split()[0], "autobuild": version("autobuild"),
@@ -181,7 +181,7 @@ def main():
     provenance["resource_probe_sha256"] = sha(args.resource_probe)
     provenance["welcome_sha256"] = sha(welcome)
     (stage / "START-HERE.txt").write_text(source_note + "\nDrag Finalverse Preview.app to Applications.\n"
-        "Read https://finalverse.com/get-started for checksum/signing details and world invitation.\n"
+        "Read https://finalverse.com/get-started for checksum/signing details and world account registration.\n"
         "No public account or password is bundled. Do not disable Gatekeeper globally.\n")
     (stage / "Applications").symlink_to("/Applications", target_is_directory=True)
     run("git", "archive", "--format=tar.gz", f"--prefix=Finalverse-{args.version}-source/", "HEAD",
