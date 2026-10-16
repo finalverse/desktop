@@ -140,8 +140,11 @@ def main():
         magic = path.open("rb").read(4)
         if magic not in (b"\xca\xfe\xba\xbe", b"\xcf\xfa\xed\xfe", b"\xce\xfa\xed\xfe"):
             continue
-        linked = "\n".join(line for line in run("otool", "-L", str(path), text=True).stdout.splitlines()
-                           if line.startswith("\t"))
+        # otool-classic treats a trailing '(Alerts)' as an archive member.
+        # Inspect the exact open file through stdin so valid helper names work.
+        with path.open("rb") as binary:
+            inspected = run("otool", "-L", "/dev/stdin", stdin=binary, text=True).stdout
+        linked = "\n".join(line for line in inspected.splitlines() if line.startswith("\t"))
         require(not any(prefix in linked for prefix in ("/Users/", "/home/", "/opt/homebrew/", "/usr/local/")),
                 "Bundle links a nonportable developer library")
     run("codesign", "--force", "--deep", "--sign", "-", str(app))
