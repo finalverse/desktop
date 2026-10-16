@@ -177,6 +177,12 @@ public:
     /// Return the url of the resident profile web site for the selected grid
     std::string getWebProfileURL() { return getWebProfileURL(mGrid); }
 
+    /// Empty means use the bundled discovery cards. Non-system URLs must be
+    /// approved by the selected grid's local configuration, never its label.
+    std::string getDestinationGuideURL(const std::string& grid);
+    std::string getDestinationGuideURL() { return getDestinationGuideURL(mGrid); }
+    bool isDestinationGuideURLAllowed(const std::string& url);
+
 
     //@}
 
@@ -236,6 +242,7 @@ public:
     std::string mGridFile;
     LLSD mGridList;
     bool mIsInProductionGrid;
+    bool mUnsupportedGridChoice = false;
 };
 
 const S32 MAC_ADDRESS_BYTES = 6;

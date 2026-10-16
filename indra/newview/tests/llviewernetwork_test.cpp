@@ -30,6 +30,7 @@
 #include "../test/lltut.h"
 #include "../../llxml/llcontrol.h"
 #include "llfile.h"
+#include "llsdserialize.h"
 
 namespace
 {
@@ -94,6 +95,8 @@ std::string LLControlGroup::getString(std::string_view name)
         return gLoginPage;
     else if (name == "CurrentGrid")
         return gCurrentGrid;
+    else if (name == "DestinationGuideURL")
+        return "https://secondlife.com/destinations/whats-hot-now?ctx=viewer";
     return "";
 }
 
@@ -465,6 +468,57 @@ namespace tut
         LLGridManager::getInstance()->initialize("");
         ensure("unknown explicit grid clears supplied credentials", gUserLoginInfo.size() == 0);
         ensure("unknown explicit grid disables saved automatic login", !gAutoLogin);
+        ensure_equals("unsupported grid uses discovery fallback", LLGridManager::getInstance()->getDestinationGuideURL(), std::string());
+    }
+
+    template<> template<>
+    void viewerNetworkTestObject::test<9>()
+    {
+        LLSD grids;
+        auto& grid = grids["local.mutsea.example"];
+        grid["keyname"] = "local.mutsea.example";
+        grid["label"] = "MutSea";
+        grid["login_uri"] = LLSD::emptyArray();
+        grid["login_uri"].append("https://grid.example/login");
+        grid["login_uri"].append("http://127.0.0.1:18094/");
+        grid["destination_guide_url"] = "https://finalverse.example/discover";
+        grid["destination_guide_origins"] = LLSD::emptyArray();
+        grid["destination_guide_origins"].append("https://finalverse.example");
+        grid["destination_guide_origins"].append("https://secondlife.com");
+        grid["system_grid"] = true; // Must not grant browser/application trust.
+        llofstream file(TEST_FILENAME);
+        LLSDSerialize::toXML(grids, file); file.close();
+        auto manager = LLGridManager::getInstance();
+        manager->initialize(TEST_FILENAME); manager->setGridChoice("local.mutsea.example");
+        ensure("external grid cannot self-declare system trust", !manager->isSystemGrid());
+        ensure_equals("explicit approved consumer discovery", manager->getDestinationGuideURL(), std::string("https://finalverse.example/discover"));
+        for (const std::string url : {"https://grid.example/discover", "https://GRID.example:443/discover", "https://finalverse.example/discover?q=harbor", "http://127.0.0.1:18094/discover"})
+            ensure("approved destination " + url, manager->isDestinationGuideURLAllowed(url));
+        for (const std::string url : {"", "file:///etc/passwd", "javascript:alert(1)", "secondlife:///app/teleport", "https://other.example/discover", "http://grid.example/discover", "http://127.0.0.1:18095/discover", "http://localhost:18094/discover", "https://user@grid.example/discover", "https://grid.example@evil.example/discover", "https://grid.example.evil.example/discover", "https://grid.example:65536/discover", "https://grid.example:0/discover", "https://grid.example./discover", "https://grid..example/discover", "https://grid.example/\\evil", "https://grid.example/%xy", "https://grid.example/\n", "https://secondlife.com/discover", "https://maps.secondlife.com/discover"})
+            ensure("rejected destination " + url, !manager->isDestinationGuideURLAllowed(url));
+        ensure_equals("unknown grid uses bundled content", manager->getDestinationGuideURL("missing.example"), std::string());
+        manager->setGridChoice("Agni");
+        ensure("system grid alias retains trust", manager->isSystemGrid());
+        ensure_equals("system discovery retained", manager->getDestinationGuideURL(), std::string("https://secondlife.com/destinations/whats-hot-now?ctx=viewer"));
+    }
+
+    template<> template<>
+    void viewerNetworkTestObject::test<10>()
+    {
+        // Missing and inherited product URLs must never become the external
+        // grid fallback, even when the operator explicitly listed SL's origin.
+        for (const std::string url : {"", "https://secondlife.com/destinations", "https://unapproved.example/", "not a URL"})
+        {
+            LLSD grids;
+            auto& grid = grids["grid.example"];
+            grid["keyname"] = "grid.example";
+            grid["destination_guide_url"] = url;
+            grid["destination_guide_origins"].append("https://secondlife.com");
+            llofstream file(TEST_FILENAME); LLSDSerialize::toXML(grids, file); file.close();
+            auto manager = LLGridManager::getInstance();
+            manager->initialize(TEST_FILENAME); manager->setGridChoice("grid.example");
+            ensure_equals("unsupported discovery uses native fallback", manager->getDestinationGuideURL(), std::string());
+        }
     }
 
 }

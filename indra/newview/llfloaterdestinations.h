@@ -29,15 +29,25 @@
 #define LL_FLOATER_DESTINATIONS_H
 
 #include "llfloater.h"
+#include "llviewermedia.h"
+#include "lltimer.h"
 
 class LLFloaterDestinations:
-    public LLFloater
+    public LLFloater, public LLViewerMediaObserver
 {
     friend class LLFloaterReg;
 private:
     LLFloaterDestinations(const LLSD& key);
     ~LLFloaterDestinations();
     bool postBuild() override;
+    void onOpen(const LLSD& key) override;
+    void draw() override;
+    void handleMediaEvent(LLPluginClassMedia* media, EMediaEvent event) override;
+    void showFallback();
+    std::string mGrid;
+    LLTimer mLoadTimer;
+    bool mLoading = false;
+    bool mSystemGrid = false;
 };
 
 #endif

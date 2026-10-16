@@ -1350,6 +1350,7 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
                     };
                     for (MediaCookieInstance mci : media_cookie_instances)
                     {
+                        if (std::string(mci.floater_name) == "destinations" && !LLGridManager::getInstance()->isSystemGrid()) continue;
                         LLFloater *floaterp = LLFloaterReg::findInstance(mci.floater_name);
                         if (floaterp)
                         {

@@ -4,15 +4,17 @@ The active Phase 4B candidate preserves the Phase 4A facade and Phase 3 persiste
 
 | Component | Local source | Branch |
 |---|---|---|
-| Finalverse viewer | `~/Finalverse/dev/worktrees/viewer-ai-world` | `codex/starter-library-foundation` |
-| MutSea with world operations | `~/Finalverse/dev/worktrees/mutsea-worldops` | `codex/starter-library-foundation` |
+| Finalverse viewer | `~/Finalverse/dev/worktrees/viewer-ai-world` | `codex/phase4b-destinations-import` |
+| MutSea with world operations | `~/Finalverse/dev/worktrees/mutsea-worldops` | `codex/phase4b-destinations-import` |
 | AI planner gateway | `~/Finalverse/services/ai-gateway` | `codex/persistent-ai-citizens` |
 | Agent Runtime | `~/Finalverse/services/agent-runtime` | `main` (independent new service) |
 | Finalverse Studio authoring seed | `~/Finalverse/studio` | `main` (no remote) |
 
 ## Current isolated Phase 4B test
 
-The running loopback grid is `http://127.0.0.1:18094/`, alias `MutSeaCitizens`, container `mutsea-finalverse-phase4b-20261008`. Its data and configuration are separate clones of the preserved Phase 3 fixture. Use the ordinary account **MutSea FirstLook**; its private credential file is `~/Finalverse/dev/phase4b/firstlook-account.json`. The Phase 3 Developer account is reserved as a different-client observer during acceptance; simultaneous logins must use different accounts.
+The running loopback grid is `http://127.0.0.1:18094/`, alias `MutSeaCitizens`, container `mutsea-finalverse-phase4b-pg-20261009`. Its native persistent services now use a dedicated PostgreSQL 16.14 container, `mutsea-phase4b-postgres-20261009`, on a private network with no published database port. The SQLite predecessor `mutsea-finalverse-phase4b-20261008` remains stopped and intact for rollback. Use the ordinary account **MutSea FirstLook**; its private credential file is `~/Finalverse/dev/phase4b/firstlook-account.json`. Its isolated test password was rotated on October 9; use this current file rather than an older receipt/config. The Phase 3 Developer account remains the citizen controller; simultaneous logins must use different accounts. PostgreSQL account **MutSea PgProvision** is a separate appearance observer, with its private file under `~/Finalverse/dev/phase4b/postgresql/`.
+
+The earlier published starter-library branches were fast-forwarded to `main` and pushed: viewer `de1a355f44`, MutSea `f28e7bff67`. Current Phase 4B work proceeds on the candidate branches above. Native PostgreSQL configuration, migration/backup limits and rollback are documented in the server's `docs/mutsea/postgresql.md`. The separate agent-runtime memory database and Finalverse journals are independent stores; this cutover does not make all state one SQL transaction.
 
 The packaged candidate is `~/Finalverse/dev/phase4b/Finalverse FirstLook.app`, profile `~/Finalverse/dev/phase4b/profile-fresh-retest`. Launch after closing an existing candidate:
 
@@ -23,9 +25,9 @@ open --env CFFIXED_USER_HOME="$HOME/Finalverse/dev/phase4b/profile-fresh-retest"
   --set RememberPassword false --set RememberUser false
 ```
 
-Enter the password from the private account file. Development acceptance also uses a private one-session settings file; do not copy it into Git or distribute it. The historical Phase 4A app remains intact. Appearance/save findings and limits are in [avatar-appearance-audit.md](art/avatar-appearance-audit.md).
+Enter the password from the private account file. Development acceptance also uses a private one-session settings file with `--sessionsettings`; do not copy it into Git or distribute it, and do not substitute the persistent `--settings` flag. Avoid `secondlife://` start links when automatically logging into MutSea: that scheme can select Linden's built-in grid despite `--grid`. Select the known loopback grid and enter its world first, or use a verified grid-specific location scheme. The historical Phase 4A app remains intact. Appearance/save findings and limits are in [avatar-appearance-audit.md](art/avatar-appearance-audit.md).
 
-Current original procedural Starter Library packages are under `~/Finalverse/studio/exports/starter-v0.1`: pavilion, bench, coastal tree, beacon and lantern. They have Blender sources, glTF/Collada payloads, semantic/hash/budget manifests and pass the offline validator. They are authoring seeds; live Harbor import, LOD/collision review, rigged avatars and public provisioning remain pending.
+Current original procedural Starter Library packages are under `~/Finalverse/studio/exports/starter-v0.1`: pavilion, bench, coastal tree, beacon and lantern. They have Blender sources, glTF/Collada payloads, semantic/hash/budget manifests and pass the offline validator. The lantern now passed an approved native mesh import, semantics, live viewer rendering, server restart and guarded Undo, including a new import/restart/Undo on PostgreSQL. This is a bounded first importer; broader Harbor import, useful LOD/collision refinement, rigged avatars and public provisioning remain pending.
 
 Recommended gateway repository name: **`ai-gateway`**, under the Finalverse organization (`finalverse/ai-gateway`). It currently has no remote; no GitHub repository or push is claimed. The existing viewer repository remains `finalverse/final_viewer`.
 
@@ -41,7 +43,7 @@ python3.13 -m venv "$HOME/Finalverse/dev/tooling/viewer-venv"
 "$HOME/Finalverse/dev/tooling/viewer-venv/bin/pip" install -r docs/finalverse/toolchain-python.lock
 export PATH="$HOME/Finalverse/dev/tooling/viewer-venv/bin:$PATH"
 export AUTOBUILD_VARIABLES_FILE="$HOME/Finalverse/dev/baseline-macos/tooling/variables"
-export AUTOBUILD_CPU_COUNT=5 AUTOBUILD_ADDRSIZE=64 AUTOBUILD_BUILD_ID=262810010
+export AUTOBUILD_CPU_COUNT=2 AUTOBUILD_ADDRSIZE=64 AUTOBUILD_BUILD_ID=262810010
 export PYTHON="$HOME/Finalverse/dev/tooling/viewer-venv/bin/python"
 export CC=/usr/bin/clang CXX=/usr/bin/clang++
 autobuild configure -c RelWithDebInfoOS -- \
@@ -103,7 +105,7 @@ curl --noproxy '*' --fail --silent http://127.0.0.1:18092/get_grid_info
 
 Wait for MutSea's console to report startup completion before logging in. To stop normally, attach as described below, enter `shutdown`, and wait for the container to exit. Avoid forced termination during world writes. Restart using `docker start`; never remove its volume to simulate a restart.
 
-For a **fresh separate** installation, `deploy/standalone/configure.py --output /private/new-config --host 127.0.0.1 --port <unused-port>` creates private standalone files and a generated account. It refuses nonempty output. Enable `[FinalverseWorld]` as the module README describes and use independent data storage. The checked-in `deploy/standalone/compose.yaml` is the TLS/LAN deployment template, not the loopback 18092 fixture; do not run it unchanged for this local test.
+For a **fresh separate** installation, first provision PostgreSQL and a private database JSON. `deploy/standalone/configure.py --output /private/new-config --host 127.0.0.1 --port <unused-port> --database-config /private/database.json` creates private standalone files and a generated account. It refuses nonempty output and defaults to PostgreSQL without silent SQLite fallback. The explicit `--database sqlite` option remains for independent legacy fixtures. Enable `[FinalverseWorld]` as the module README describes and use independent data storage. The checked-in `deploy/standalone/compose.yaml` plus PostgreSQL network overlay is the TLS/LAN deployment template, not the loopback fixture; do not run it unchanged for this local test.
 
 ## Run the gateway
 

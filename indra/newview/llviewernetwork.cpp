@@ -33,6 +33,8 @@
 #include "llsecapi.h"
 #include "lltrans.h"
 #include "llweb.h"
+#include <regex>
+#include <cctype>
 
 
 /// key used to store the grid, and the name attribute in the grid data
@@ -190,6 +192,7 @@ void LLGridManager::initialize(const std::string& grid_file)
     // if the actual grid name is specified from the command line,
     // set it as the 'selected' grid.
     std::string cmd_line_grid = gSavedSettings.getString("CmdLineGridChoice");
+    bool unsupported_grid_choice = false;
     if(!cmd_line_grid.empty())
     {
         // try to find the grid assuming the command line parameter is
@@ -197,6 +200,7 @@ void LLGridManager::initialize(const std::string& grid_file)
         mGrid = getGrid(cmd_line_grid);
         if(mGrid.empty())
         {
+            unsupported_grid_choice = true;
             LL_WARNS("GridManager")<<"Unknown grid '"<<cmd_line_grid<<"'"<<LL_ENDL;
             // Credentials supplied for an explicit grid must never fall back to another grid.
             gSavedSettings.setLLSD("UserLoginInfo", LLSD());
@@ -241,6 +245,7 @@ void LLGridManager::initialize(const std::string& grid_file)
     updateIsInProductionGrid();
 
     setGridChoice(mGrid);
+    mUnsupportedGridChoice = unsupported_grid_choice;
 }
 
 LLGridManager::~LLGridManager()
@@ -409,6 +414,7 @@ void LLGridManager::setGridChoice(const std::string& grid)
     {
         LL_INFOS("GridManager")<<"setting "<<grid_name<<LL_ENDL;
         mGrid = grid_name;
+        mUnsupportedGridChoice = false;
         gSavedSettings.setString("CurrentGrid", grid_name);
 
         updateIsInProductionGrid();
@@ -416,6 +422,7 @@ void LLGridManager::setGridChoice(const std::string& grid)
     else
     {
         // the grid was not in the list of grids.
+        mUnsupportedGridChoice = true;
         LL_WARNS("GridManager")<<"unknown grid "<<grid<<LL_ENDL;
     }
 }
@@ -567,6 +574,99 @@ std::string LLGridManager::getWebProfileURL(const std::string& grid)
     return web_profile_url;
 }
 
+namespace
+{
+// Intentionally narrower than a general browser URL parser: no userinfo,
+// escaped host, whitespace, backslash, ambiguous port or opaque scheme.
+struct DestinationOrigin
+{
+    std::string scheme, host;
+    unsigned port = 0;
+    bool valid = false;
+};
+
+DestinationOrigin destinationOrigin(const std::string& url)
+{
+    static const std::regex pattern(R"(^(https|http)://([A-Za-z0-9.-]+|\[::1\])(?::([0-9]{1,5}))?(/[^\s\\]*)?$)");
+    std::smatch parts;
+    DestinationOrigin result;
+    if (url.size() > 4096 || !std::regex_match(url, parts, pattern)) return result;
+    for (unsigned char c : url) if (c < 32 || c == 127) return result;
+    // Reject malformed escaping even in the path/query.
+    for (size_t i = 0; i < url.size(); ++i)
+    {
+        if (url[i] == '%' && (i + 2 >= url.size() ||
+            !std::isxdigit(static_cast<unsigned char>(url[i + 1])) ||
+            !std::isxdigit(static_cast<unsigned char>(url[i + 2])))) return result;
+    }
+    result.scheme = parts[1]; result.host = parts[2];
+    LLStringUtil::toLower(result.host);
+    if (result.host != "[::1]")
+    {
+        if (result.host.size() > 253) return result;
+        size_t start = 0;
+        while (start < result.host.size())
+        {
+            size_t end = result.host.find('.', start);
+            if (end == std::string::npos) end = result.host.size();
+            const size_t length = end - start;
+            if (!length || length > 63 || result.host[start] == '-' || result.host[end - 1] == '-') return result;
+            start = end + 1;
+        }
+        if (result.host.back() == '.') return result;
+    }
+    result.port = parts[3].matched ? std::stoul(parts[3]) : (result.scheme == "https" ? 443 : 80);
+    result.valid = result.port > 0 && result.port <= 65535;
+    return result;
+}
+
+bool sameDestinationOrigin(const DestinationOrigin& a, const DestinationOrigin& b)
+{
+    return a.valid && b.valid && a.scheme == b.scheme && a.host == b.host && a.port == b.port;
+}
+
+bool allowedDestination(const LLSD& config, const std::string& url)
+{
+    const auto candidate = destinationOrigin(url);
+    if (!candidate.valid) return false;
+    const std::string sl = "secondlife.com";
+    if (candidate.host == sl ||
+        (candidate.host.size() > sl.size() && candidate.host.compare(candidate.host.size() - sl.size() - 1, sl.size() + 1, "." + sl) == 0)) return false;
+    const bool loopback = candidate.host == "localhost" || candidate.host == "127.0.0.1" || candidate.host == "[::1]";
+    if (candidate.scheme != "https" && !loopback) return false;
+    for (auto login = config[GRID_LOGIN_URI_VALUE].beginArray(); login != config[GRID_LOGIN_URI_VALUE].endArray(); ++login)
+        if (sameDestinationOrigin(candidate, destinationOrigin(login->asString()))) return true;
+    // Additional HTTPS origins require an explicit local grids.xml entry.
+    // A grid-info response is not imported into this allowlist.
+    if (candidate.scheme == "https")
+        for (auto origin = config["destination_guide_origins"].beginArray(); origin != config["destination_guide_origins"].endArray(); ++origin)
+        {
+            const std::string value = origin->asString();
+            const auto approved = destinationOrigin(value);
+            // Entries represent origins only, not paths or wildcard domains.
+            const auto end = value.find('/', value.find("://") + 3);
+            if (end == std::string::npos && sameDestinationOrigin(candidate, approved)) return true;
+        }
+    return false;
+}
+}
+
+std::string LLGridManager::getDestinationGuideURL(const std::string& grid)
+{
+    const std::string name = getGrid(grid);
+    if (name.empty()) return "";
+    if (mUnsupportedGridChoice && name == mGrid) return "";
+    if (isSystemGrid(name)) return gSavedSettings.getString("DestinationGuideURL");
+    const auto& config = mGridList[name];
+    const std::string url = config["destination_guide_url"].asString();
+    return allowedDestination(config, url) ? url : "";
+}
+
+bool LLGridManager::isDestinationGuideURLAllowed(const std::string& url)
+{
+    return !mUnsupportedGridChoice && (isSystemGrid() || (mGridList.has(mGrid) && allowedDestination(mGridList[mGrid], url)));
+}
+
 void LLGridManager::getLoginIdentifierTypes(LLSD& idTypes)
 {
     idTypes = mGridList[mGrid][GRID_LOGIN_IDENTIFIER_TYPES];
@@ -644,12 +744,9 @@ bool LLGridManager::isInProductionGrid()
 bool LLGridManager::isSystemGrid(const std::string& grid)
 {
     std::string grid_name = getGrid(grid);
-
-    return (   !grid_name.empty()
-            && mGridList.has(grid)
-            && mGridList[grid].has(GRID_IS_SYSTEM_GRID_VALUE)
-            && mGridList[grid][GRID_IS_SYSTEM_GRID_VALUE].asBoolean()
-            );
+    // Only immutable built-in grids are system grids. A local/remote label or
+    // system_grid field on an external definition cannot grant browser trust.
+    return grid_name == MAINGRID || grid_name == BETAGRID;
 }
 
 // build a slurl for the given region within the selected grid

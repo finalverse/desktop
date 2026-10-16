@@ -29,6 +29,8 @@
 #include "llfloatermarketplace.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
+#include "llviewernetwork.h"
+#include "llnotificationsutil.h"
 
 LLFloaterMarketplace::LLFloaterMarketplace(const LLSD& key)
     :   LLFloaterWebContent(key)
@@ -41,6 +43,12 @@ LLFloaterMarketplace::~LLFloaterMarketplace()
 
 void LLFloaterMarketplace::onOpen(const LLSD& key)
 {
+    if (!LLGridManager::getInstance()->isSystemGrid())
+    {
+        LLNotificationsUtil::add("FinalverseGridServiceUnavailable", LLSD().with("SERVICE", "Marketplace"));
+        closeFloater();
+        return;
+    }
     Params params(key);
 
     if (!params.validateBlock())
@@ -69,6 +77,11 @@ bool LLFloaterMarketplace::postBuild()
 {
     if (!LLFloaterWebContent::postBuild())
         return false;
+    if (!LLGridManager::getInstance()->isSystemGrid())
+    {
+        mWebBrowser->setTrustedContent(false);
+        return true;
+    }
 
     mWebBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
     std::string url = gSavedSettings.getString("MarketplaceURL");
@@ -83,6 +96,7 @@ bool LLFloaterMarketplace::postBuild()
 
 void LLFloaterMarketplace::openMarketplace()
 {
+    if (!LLGridManager::getInstance()->isSystemGrid()) return;
     std::string url = gSavedSettings.getString("MarketplaceURL");
     if (mCurrentURL != url)
     {
@@ -92,6 +106,7 @@ void LLFloaterMarketplace::openMarketplace()
 
 void LLFloaterMarketplace::openMarketplaceURL(const std::string& url)
 {
+    if (!LLGridManager::getInstance()->isSystemGrid()) return;
     if (mCurrentURL != url)
     {
         mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);

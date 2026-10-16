@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <notifications>
+  <notification name="FinalverseGridServiceUnavailable" type="alertmodal">
+[SERVICE] is not available on this grid yet. Use Explore to discover the connected world. Your grid operator manages accounts and community services.
+    <usetemplate name="okbutton" yestext="OK"/>
+  </notification>
     <global name="skipnexttime">
 
 		Don&apos;t show me this again

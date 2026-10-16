@@ -40,6 +40,7 @@
 #include "llurlhistory.h"
 #include "llviewermedia.h"
 #include "llviewerhelp.h"
+#include "llviewernetwork.h"
 
 
 LLFloaterHelpBrowser::LLFloaterHelpBrowser(const LLSD& key)
@@ -75,6 +76,14 @@ void LLFloaterHelpBrowser::buildURLHistory()
 void LLFloaterHelpBrowser::onOpen(const LLSD& key)
 {
     gSavedSettings.setBOOL("HelpFloaterOpen", true);
+    if (!LLGridManager::getInstance()->isSystemGrid())
+    {
+        mBrowser->setTrustedContent(false);
+        mBrowser->setErrorPageURL("");
+        getChildView("open_browser")->setEnabled(false);
+        mBrowser->navigateToLocalPage("help-offline", "index.html");
+        return;
+    }
 
     std::string topic = key.asString();
     mBrowser->navigateTo(LLViewerHelp::instance().getURL(topic));

@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
+#include "llviewernetwork.h"
 #include "llmediactrl.h"
 #include "lluictrlfactory.h"
 #include "llviewercontrol.h"
@@ -85,6 +86,12 @@ LLFloaterSearch::~LLFloaterSearch()
 
 void LLFloaterSearch::onOpen(const LLSD& tokens)
 {
+    if (!LLGridManager::getInstance()->isSystemGrid())
+    {
+        closeFloater();
+        LLFloaterReg::showInstance("destinations");
+        return;
+    }
     initiateSearch(tokens);
     mWebBrowser->setFocus(true);
 }
