@@ -2298,7 +2298,10 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
 #ifndef LL_RELEASE_FOR_DOWNLOAD
         std::string message = error_string +
             "\n\n\nThis is a developer-only notification!\nThis notification won't be present in Release for download build";
-        OSMessageBox(message, LLTrans::getString("MBFatalError"), OSMB_OK);
+        // Startup can fail before the translation table is loaded.
+        std::string title;
+        if (!LLTrans::findString(title, "MBFatalError")) title = "Finalverse Error";
+        OSMessageBox(message, title, OSMB_OK);
 #endif
 
         gDebugInfo["FatalMessage"] = error_string;

@@ -13,16 +13,16 @@ public archive URLs are in `autobuild.xml`.
 ```sh
 git clone https://github.com/finalverse/final_viewer.git
 cd final_viewer
-git checkout v0.4.0-preview.1
+git checkout v0.4.0-preview.2
 python3.13 -m venv .venv
 .venv/bin/pip install -r docs/finalverse/toolchain-python.lock
 export PATH="$PWD/.venv/bin:$PATH"
 export PYTHON="$PWD/.venv/bin/python"
 export CC=/usr/bin/clang CXX=/usr/bin/clang++
-export AUTOBUILD_CPU_COUNT=2 AUTOBUILD_ADDRSIZE=64 AUTOBUILD_BUILD_ID=54621
+export AUTOBUILD_CPU_COUNT=2 AUTOBUILD_ADDRSIZE=64 AUTOBUILD_BUILD_ID=54622
 ```
 
-Use the release's `Finalverse-0.4.0-preview.1-build-variables.txt` asset as
+Use the release's `Finalverse-0.4.0-preview.2-build-variables.txt` asset as
 `AUTOBUILD_VARIABLES_FILE`; its SHA-256 is recorded in provenance. This retains
 the exact inherited compiler flag input instead of assuming an unrecorded
 upstream Git revision. The same file is bundled under
@@ -41,7 +41,7 @@ autobuild configure -c RelWithDebInfoOS -- \
   -DVIEWER_CHANNEL="Finalverse Preview"
 autobuild build -c RelWithDebInfoOS --no-configure
 cmake --build build-darwin-universal --config RelWithDebInfo \
-  --target BUILD_TESTS --parallel 2
+  --target BUILD_TESTS finalverse_resource_probe --parallel 2
 ctest --test-dir build-darwin-universal -C RelWithDebInfo \
   -j2 --timeout 120 --output-on-failure
 ```
@@ -102,3 +102,40 @@ swift scripts/finalverse/demo_recap.swift \
 
 It labels two authentic captures as a still-image recap and adds no synthetic
 world behavior. The WebVTT source is alongside the captures.
+
+
+## Protected resource reads (preview.2 and later)
+
+The native `finalverse_resource_probe` acceptance tool uses the viewer's actual
+`LLFile` reader to read the required settings, strings, colors and CA bundle. Run
+it against a staged bundle and a mounted read-only image; the packager now
+requires `--resource-probe /absolute/build/llcommon/RelWithDebInfo/finalverse_resource_probe`
+and performs those checks itself, including XML parsing and identical resource
+hashes after mounting. A successful Python read or a writable-copy launch alone
+is insufficient to accept a package.
+
+On October 16 the old reader was also reproduced against a real macOS
+AppTranslocation nullfs mount: all eight reads failed with EROFS before the fix
+and all eight passed afterward. This protected mount differs from an ordinary
+read-only APFS disk image; both cases belong in release acceptance. The native
+probe is a test tool and is not bundled into the client. Never remove quarantine
+or weaken Gatekeeper to make a test pass.
+
+With a clean committed source tree and a rebuilt bundle, package with absolute
+paths (the output directory must not already exist):
+
+```sh
+python scripts/finalverse/package_preview.py \
+  --version 0.4.0-preview.2 \
+  --bundle "$PWD/build-darwin-universal/newview/RelWithDebInfo/Finalverse Preview.app" \
+  --packages "$PWD/build-darwin-universal/packages" \
+  --build-variables "$AUTOBUILD_VARIABLES_FILE" \
+  --third-party-source /absolute/Finalverse-0.4.0-preview.2-third-party-source.tar.gz \
+  --resource-probe "$PWD/build-darwin-universal/llcommon/RelWithDebInfo/finalverse_resource_probe" \
+  --output /absolute/fresh-preview-output
+```
+
+The dependency source archive may be reused only when its pinned dependency
+versions are unchanged. The packager records its hash. Keep the unit-test log,
+protected-mount probe results and actual installed-app startup evidence with the
+release verification receipt; packaging success does not substitute for launch.

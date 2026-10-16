@@ -425,7 +425,13 @@ inline int decode_access_mode(std::ios_base::openmode omode)
 
 inline int decode_open_mode(std::ios_base::openmode omode)
 {
-    int flags = O_CREAT | decode_access_mode(omode);
+    int flags = decode_access_mode(omode);
+    // Input-only opens must not request creation. In particular, macOS's
+    // read-only AppTranslocation nullfs rejects O_CREAT even for existing files.
+    if (omode & LLFile::out)
+    {
+        flags |= O_CREAT;
+    }
     if (omode & LLFile::app)
     {
         flags |= O_APPEND;

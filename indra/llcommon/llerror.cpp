@@ -1671,9 +1671,9 @@ namespace LLError
     {
         // Files Are missing, likely can't localize.
         const std::string error_string =
-            "Second Life viewer couldn't access some of the files it needs and will be closed."
-            "\n\nPlease reinstall viewer from  https://secondlife.com/support/downloads/ and "
-            "contact https://support.secondlife.com if issue persists after reinstall.";
+            "Finalverse could not read files required to start and will close."
+            "\n\nPlease reinstall from https://github.com/finalverse/final_viewer/releases "
+            "and report persistent problems at https://github.com/finalverse/final_viewer/issues.";
         sHandler("Missing Files", error_string, ERROR_MISSING_FILES);
     }
 

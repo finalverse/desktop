@@ -296,4 +296,29 @@ namespace tut
         ensure("LLFile::remove() failed for Unicode directory", rc == 0);
         ensure("Unicode test directory should not exist after removal", !LLFile::exists(testdir_unicode));
     }
+    template<> template<>
+    void llfile_test_object_t::test<6>()
+    {
+        // Input-only opens must never create files. O_CREAT also makes existing
+        // resources unreadable on macOS's read-only AppTranslocation nullfs.
+        LLFile::mkdir(testdir);
+        const auto missing = testdir / "missing-input.dat";
+        LLFile::remove(missing);
+        for (auto mode : {LLFile::in, LLFile::in | LLFile::binary, LLFile::in | LLFile::ate})
+        {
+            std::error_code ec;
+            LLFile file(missing, mode, ec);
+            const bool opened = (bool)file;
+            file.close();
+            const bool created = LLFile::exists(missing);
+            if (created) LLFile::remove(missing);
+            ensure("input-only open must fail for a missing file", !opened);
+            ensure("input-only open must report no such file", ec == std::errc::no_such_file_or_directory);
+            ensure("input-only open must not create a missing file", !created);
+        }
+        std::error_code ec;
+        ensure("getContents on a missing file is empty", LLFile::getContents(missing, ec).empty());
+        ensure("getContents preserves the missing-file error", ec == std::errc::no_such_file_or_directory);
+        ensure("getContents does not create its input", !LLFile::exists(missing));
+    }
 } // namespace tut

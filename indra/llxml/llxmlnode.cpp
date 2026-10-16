@@ -656,10 +656,16 @@ bool LLXMLNode::updateNode(
 // static
 bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXMLNode* defaults_tree)
 {
-    std::string xml = LLFile::getContents(filename);
-    if (xml.empty())
+    std::error_code ec;
+    std::string xml = LLFile::getContents(filename, ec);
+    if (ec)
     {
-        LL_WARNS("XMLNode") << "no XML file: " << filename << LL_ENDL;
+        LL_WARNS("XMLNode") << "Cannot read XML file: " << filename
+                            << " (" << ec.message() << ")" << LL_ENDL;
+    }
+    else if (xml.empty())
+    {
+        LL_WARNS("XMLNode") << "Empty XML file: " << filename << LL_ENDL;
     }
     else if (parseBuffer(xml.data(), xml.size(), node, defaults_tree))
     {

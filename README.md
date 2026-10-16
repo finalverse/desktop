@@ -6,7 +6,7 @@ An AI-native persistent 3D world client, built incrementally on the mature
 open-source Second Life Viewer. Finalverse is the consumer experience;
 [MutSea](https://mutsea.com) is the authoritative spatial runtime behind it.
 
-**[Download the Mac developer preview](https://github.com/finalverse/final_viewer/releases/tag/v0.4.0-preview.1)** ·
+**[Download the Mac developer preview](https://github.com/finalverse/final_viewer/releases/tag/v0.4.0-preview.2)** ·
 **[Getting started](docs/finalverse/getting-started.md)** ·
 **[Native demos](docs/finalverse/demos.md)** ·
 **[Website](https://finalverse.com)**
@@ -58,7 +58,7 @@ remain unavailable. [Account guide](https://github.com/finalverse/mutsea-o/blob/
 Apple Silicon is the verified runtime. The executable also contains Intel code,
 but Intel hardware is not verified. No Linux/Windows/mobile download is included.
 Client downloads are hosted by **GitHub Releases**, independently of world hosting.
-Updates are manual. [Release notes and limitations](docs/finalverse/releases/0.4.0-preview.1.md).
+Updates are manual. [Release notes and limitations](docs/finalverse/releases/0.4.0-preview.2.md).
 
 ## Build and contribute
 

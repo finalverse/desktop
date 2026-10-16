@@ -8,8 +8,8 @@ available.
 
 ## 1. Download from GitHub
 
-Open the [v0.4.0-preview.1 release](https://github.com/finalverse/final_viewer/releases/tag/v0.4.0-preview.1).
-Choose `Finalverse-0.4.0-preview.1-mac-universal.dmg` and `SHA256SUMS.txt` from
+Open the [v0.4.0-preview.2 release](https://github.com/finalverse/final_viewer/releases/tag/v0.4.0-preview.2).
+Choose `Finalverse-0.4.0-preview.2-mac-universal.dmg` and `SHA256SUMS.txt` from
 **Assets**. GitHub serves the installer; the world server does not host downloads.
 Source and dependency/build provenance are provided alongside the installer.
 
@@ -23,7 +23,7 @@ Verify the downloaded disk image before opening it:
 
 ```sh
 cd "$HOME/Downloads"
-shasum -a 256 Finalverse-0.4.0-preview.1-mac-universal.dmg
+shasum -a 256 Finalverse-0.4.0-preview.2-mac-universal.dmg
 ```
 
 Compare the complete hash with the matching line in the release's
@@ -115,6 +115,7 @@ compensation, not unlimited restoration of arbitrary changes by other users.
 | Symptom | First check |
 |---|---|
 | macOS blocks opening | Verify the GitHub asset/hash and read the signing limitation above. |
+| Missing Files / cannot load `settings_files.xml` in preview.1 | Install preview.2 or later. It fixes input-only reads on macOS's protected AppTranslocation mount. Replace the app; keep your profile. |
 | Login refused or 503 | Confirm your invitation, endpoint and access window with the operator. |
 | Already logged in | Close the other client and wait for its normal logout; never share one account between viewer and probes. |
 | Lumi or Create unavailable | Check that this world/account advertises and authorizes the service. |
@@ -128,4 +129,4 @@ screenshot. Redact passwords, account email, capability URLs, session tokens,
 private chat and unrelated desktop content. Do not attach an entire profile.
 
 See [actual demo evidence](demos.md), [source/build instructions](building-preview.md)
-and the [release boundary](releases/0.4.0-preview.1.md).
+and the [release boundary](releases/0.4.0-preview.2.md).
