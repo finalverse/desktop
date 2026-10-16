@@ -2,19 +2,84 @@
 
 # Finalverse Viewer
 
-Finalverse is evolving the mature open-source Second Life Viewer into an AI-native persistent 3D world client. This is an incremental transformation: world streaming, avatars, communication, inventory, editing and rendering remain the bootstrap runtime.
+An AI-native persistent 3D world client, built incrementally on the mature
+open-source Second Life Viewer. Finalverse is the consumer experience;
+[MutSea](https://mutsea.com) is the authoritative spatial runtime behind it.
 
-The current milestone establishes Finalverse product identity, artwork, native menus, independent settings/cache directories and desktop packaging. AI world actions and the World Kernel are planned; they are not implemented by rebranding.
+**[Download the Mac developer preview](https://github.com/finalverse/final_viewer/releases/tag/v0.4.0-preview.1)** ·
+**[Getting started](docs/finalverse/getting-started.md)** ·
+**[Native demos](docs/finalverse/demos.md)** ·
+**[Website](https://finalverse.com)**
 
-Start with [the architecture and measured baseline](docs/finalverse/README.md), [branding and verification](docs/finalverse/rebranding.md), and [building on macOS](docs/finalverse/upstream-baseline.md). Windows and Linux source/packaging paths are retained; current runtime verification is on macOS through Rosetta.
+> Experimental prerelease for developers and invited testers. The Mac package
+> is ad hoc signed and **not notarized**. Downloading it does not grant access to
+> the private Harbor pilot. Public self-registration and GA support are not open.
 
-Use an account on the grid you select. Finalverse does not replace grid identity, permissions, inventory or server authority. The default welcome page is bundled locally; grid-provided login pages can be enabled with `UseGridLoginPage`. Updates are manual until a trusted Finalverse update service exists.
+## What works today
 
-## Contributing and provenance
+The client preserves world streaming, avatars, movement, chat, inventory,
+permissions, object editing and the existing renderer. The Finalverse facade
+adds a simpler entry point for Explore, Create, Lumi, Friends and Me.
 
-Use [the project issue tracker](https://github.com/finalverse/final_viewer/issues) for Finalverse feedback. Keep changes small, tested and compatible with upstream. Preserve source copyrights, the [LGPL license](LICENSE), [third-party notices](indra/newview/licenses-mac.txt), and [artwork attribution](doc/LICENSE-logos.txt).
+On a world that advertises the relevant authenticated capabilities, Create can
+inspect structured scene data, propose bounded actions, preview native placement
+and permissions, apply an approved operation, inspect WorldLine and undo it.
+Recipes support Save, Load and Remix. Primitive placement resolves the person's
+native heading and terrain rather than model-generated coordinates.
 
-Inherited code is authored by Linden Lab and upstream contributors. Finalverse branding modifications and newly created artwork are recorded in [the branding provenance ledger](indra/newview/branding/README.md). This is an independent fork, not the official Second Life client.
+Hosted Lumi co-building routes through private server-side AI services and
+PostgreSQL persistence. It retains explicit controller policy and human approval;
+the model never receives arbitrary world-write authority. Current hosting has
+one configured Lumi controller, not a public multi-user citizen service.
+
+![Lumi’s reading nook rendered in the native Mac client](docs/finalverse/media/hosted-lumi-built.png)
+
+Actual acceptance: a 147-part reading nook appeared after approval and was
+removed through guarded Undo; native counts returned from 570 to the 423-part
+baseline. [Screenshots, recap and verification scope](docs/finalverse/demos.md).
+
+## Install, enter a world, and try it
+
+1. Download the DMG and checksum from the GitHub release **Assets**.
+2. Follow [Mac installation and signing limitations](docs/finalverse/getting-started.md#2-install-and-open).
+3. Request your own Harbor invitation/account at
+   [info@finalverse.com](mailto:info@finalverse.com?subject=Finalverse%20preview%20world%20access).
+   The account shown in demos is a private fixture, not a shared login.
+4. Select Finalverse Harbor (Preview), then sign in only when the operator has
+   granted access. Other compatible grids have separate identities/capabilities.
+5. Try “What objects are around me?” and a supported creation. Review before
+   Apply; inspect History and use supported Undo.
+
+Apple Silicon is the verified runtime. The executable also contains Intel code,
+but Intel hardware is not verified. No Linux/Windows/mobile download is included.
+Client downloads are hosted by **GitHub Releases**, independently of world hosting.
+Updates are manual. [Release notes and limitations](docs/finalverse/releases/0.4.0-preview.1.md).
+
+## Build and contribute
+
+- [Build/package this preview](docs/finalverse/building-preview.md)
+- [Architecture and migration record](docs/finalverse/README.md)
+- [Hosted placement/Lumi acceptance](docs/finalverse/hosted-lumi-and-placement.md)
+- [MutSea server source](https://github.com/finalverse/mutsea-o)
+- [Issues](https://github.com/finalverse/final_viewer/issues)
+
+Keep fixes incremental, compatible and testable. Report the release tag,
+platform, reproduction steps and relevant evidence. Redact credentials, session
+and capability URLs, private conversations and unrelated desktop content.
+
+## License and provenance
+
+Inherited viewer code is authored by Linden Lab and upstream contributors under
+[LGPL 2.1](LICENSE), with file-specific notices preserved. Finalverse is an
+independent fork, not the official Second Life client. Preserve
+[source notices](doc/LICENSE-source.txt), [third-party notices](indra/newview/licenses-mac.txt),
+[artwork attribution](doc/LICENSE-logos.txt) and the
+[Finalverse branding ledger](indra/newview/branding/README.md).
+
+The release supplies corresponding viewer source, dependency/build provenance
+and bundled notices. Brand assets retain their recorded rights; this repository
+is not a blanket trademark or third-party asset license. See the
+[distribution audit](docs/finalverse/licensing-audit.md).
 
 <details><summary>Verbatim upstream README retained for provenance</summary>
 

@@ -39,3 +39,35 @@ Produce exact source/build/dependency revisions, artifact hashes, bundled notice
 ## Phase 1 provenance additions
 
 The user supplied existing Finalverse logo/icon and Lumi materials. [branding/README.md](../../indra/newview/branding/README.md) and the asset manifest record their provenance and hashes; pixels remain unchanged and no new artwork authorship/license is asserted. Confirm applicable asset rights before redistribution. The format-packaging script is LGPL-2.1-only. Existing source licenses, contributor lists and third-party notices remain. The inherited viewer is explicitly credited on the local welcome page and About screen. Product support and update identity are separated from grid/service identity, and the server continues to use MutSea branding. This documents the changes; it does not close the binary SBOM, redistribution, trademark or signing gates above.
+
+
+## October 16 developer-preview distribution scope
+
+The preview packaging path is [package_preview.py](../../scripts/finalverse/package_preview.py).
+It stages a separate app from the full development build, copies the root
+license, inherited source/logo notices and actual dependency license directory,
+and emits a build inventory and source/build provenance. Proprietary paths,
+BugSplat and automatic updates are disabled. The optional libVLC library, codec
+plugins and media plugin are removed from the staged app until their complete
+corresponding-source inventory is accepted. Voice defaults off and is not
+preview-certified. These are explicit preview exclusions, not subsystem rewrites.
+
+The release carries the exact viewer source commit and build-variable input,
+plus pinned OpenAL/ALUT, Hunspell and Dullahan source with recursive submodules
+and a source manifest. The actual license text for the build dependency labelled
+`jpegencoderbasic: NONE` contains Adobe's BSD-style redistribution terms; retain
+that text rather than interpreting the manifest label as an absence of terms.
+All fetched license notices are retained even when a package is not shipped.
+The dependency JSON identifies itself as a build inventory, not a file-level
+claim that every installed package is distributed. CEF/Chromium notices remain
+in the actual package notices.
+
+The preview packager checks architectures, bundle symlinks, dynamic library
+paths and private/debug files before creating a disk image. Corresponding source
+and rebuild instructions accompany the binary; dependencies should remain
+replaceable under their applicable terms. Preserve file-specific licenses when
+modifying or redistributing any part. This engineering inventory does not
+resolve future proprietary builds, mobile-store terms or a final production
+legal/trademark review. Signing, notarization and runtime acceptance are separate
+from licensing. User-provided branding remains attributed in its existing
+manifest; no new ownership claim is made for inherited artwork.
