@@ -59,6 +59,14 @@ Request an invitation at [info@finalverse.com](mailto:info@finalverse.com?subjec
 An operator supplies your **own** account and an access window. Do not use the
 Pilot Builder account shown in demo screenshots. Its password is not public.
 
+Manage an existing Harbor account at [MutSea account management](https://mutsea.com/account/)
+using the same avatar first/last name and password as the viewer. View your home
+region, save a web profile, change your world password and generate private
+recovery codes. New passwords must be 12–16 printable ASCII characters for this
+preview's login field. Save codes before you need them; a reset invalidates the
+entire previous set. Email reset and public signup are not yet available.
+[Full account/recovery guide](https://github.com/finalverse/mutsea-o/blob/main/docs/mutsea/account-portal.md).
+
 The intended pilot login endpoint is `https://grid.mutsea.com/`. Select
 **Finalverse Harbor (Preview)** in the grid selector. A fresh profile already
 selects this grid; the picker is normally hidden. The inherited Mac shortcut

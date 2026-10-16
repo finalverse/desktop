@@ -50,6 +50,11 @@ baseline. [Screenshots, recap and verification scope](docs/finalverse/demos.md).
 5. Try “What objects are around me?” and a supported creation. Review before
    Apply; inspect History and use supported Undo.
 
+Existing Harbor users can [manage their account at MutSea](https://mutsea.com/account/)
+with the same avatar name/password: view home details, edit a web profile, change
+the world password and generate recovery codes. Email reset and public signup
+remain unavailable. [Account guide](https://github.com/finalverse/mutsea-o/blob/main/docs/mutsea/account-portal.md).
+
 Apple Silicon is the verified runtime. The executable also contains Intel code,
 but Intel hardware is not verified. No Linux/Windows/mobile download is included.
 Client downloads are hosted by **GitHub Releases**, independently of world hosting.
