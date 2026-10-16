@@ -79,6 +79,8 @@ def main():
     app = stage / "Finalverse Preview.app"
     run("ditto", "--norsrc", str(args.bundle), str(app))
     resources = app / "Contents/Resources"
+    welcome = resources / "skins/default/html/en-us/welcome/index.html"
+    require(f"v{args.version}" in welcome.read_text(), "Bundled welcome page has a stale preview version")
     # This first distributable preview omits the unclosed libVLC codec source
     # inventory. Keep the implementation/full development build unchanged.
     plugins = resources / "SLPlugin.app/Contents/Frameworks"
@@ -177,6 +179,7 @@ def main():
     provenance["portable_dynamic_links_checked"] = True
     provenance["startup_resources_sha256"] = startup_hashes
     provenance["resource_probe_sha256"] = sha(args.resource_probe)
+    provenance["welcome_sha256"] = sha(welcome)
     (stage / "START-HERE.txt").write_text(source_note + "\nDrag Finalverse Preview.app to Applications.\n"
         "Read https://finalverse.com/get-started for checksum/signing details and world invitation.\n"
         "No public account or password is bundled. Do not disable Gatekeeper globally.\n")
@@ -193,6 +196,8 @@ def main():
     try:
         require(verify_resources(mounted / app.name, args.resource_probe) == startup_hashes,
                 "Mounted image resources differ from the staged application")
+        require(sha(mounted / app.name / "Contents/Resources/skins/default/html/en-us/welcome/index.html") == provenance["welcome_sha256"],
+                "Mounted image welcome page differs from the staged application")
         run("codesign", "--verify", "--deep", "--strict", str(mounted / app.name))
     finally:
         run("hdiutil", "detach", str(mounted))
