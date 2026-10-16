@@ -214,8 +214,15 @@ namespace tut
         // grid file doesn't exist
         manager->initialize(TEST_FILENAME);
         // validate that some of the defaults are available.
+        ensure_equals("fresh install selects Finalverse", manager->getGrid(), std::string("grid.mutsea.com"));
+        ensure("Finalverse has no Linden browser trust", !manager->isSystemGrid());
+        std::vector<std::string> finalverse_uris;
+        manager->getLoginURIs(finalverse_uris);
+        ensure_equals("Finalverse has one login origin", finalverse_uris.size(), 1);
+        ensure_equals("Finalverse HTTPS login", finalverse_uris[0], std::string("https://grid.mutsea.com/"));
+        manager->setGridChoice("Agni"); // Remaining assertions exercise the inherited grid explicitly.
         std::map<std::string, std::string> known_grids = manager->getKnownGrids();
-        ensure_equals("Known grids is a string-string map of size 2", known_grids.size(), 2);
+        ensure_equals("Known grids includes the pinned Finalverse world", known_grids.size(), 3);
         ensure_equals("Agni has the right name and label",
                       known_grids[std::string("util.agni.lindenlab.com")],
                       std::string("Second Life Main Grid (Agni)"));
@@ -228,7 +235,7 @@ namespace tut
         ensure_equals("id for agni",
                       std::string("Agni"),
                       LLGridManager::getInstance()->getGridId("util.agni.lindenlab.com"));
-        ensure_equals("update url base for Agni", // relies on agni being the default
+        ensure_equals("update url base for Agni",
                       std::string("https://update.secondlife.com/update"),
                       LLGridManager::getInstance()->getUpdateServiceURL());
         ensure_equals("label for agni",
@@ -285,8 +292,9 @@ namespace tut
         gridfile.close();
 
         LLGridManager::getInstance()->initialize(TEST_FILENAME);
+        LLGridManager::getInstance()->setGridChoice("Agni");
         std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();
-        ensure_equals("adding a grid via a grid file increases known grid size",4,
+        ensure_equals("adding a grid via a grid file increases known grid size",5,
                       known_grids.size());
 
         // Verify that Agni and Aditi were not overwritten
@@ -302,7 +310,7 @@ namespace tut
         ensure_equals("id for agni",
                       LLGridManager::getInstance()->getGridId("util.agni.lindenlab.com"),
                       std::string("Agni"));
-        ensure_equals("update url base for Agni", // relies on agni being the default
+        ensure_equals("update url base for Agni",
                       std::string("https://update.secondlife.com/update"),
                       LLGridManager::getInstance()->getUpdateServiceURL());
         ensure_equals("label for agni",
@@ -433,7 +441,7 @@ namespace tut
         ensure_equals("getLoginPage",
                       LLGridManager::getInstance()->getLoginPage(),
                       std::string("https://viewer-splash-v2.secondlife.com/"));
-        ensure_equals("update url base for Agni", // relies on agni being the default
+        ensure_equals("update url base for Agni",
                       std::string("https://update.secondlife.com/update"),
                       LLGridManager::getInstance()->getUpdateServiceURL());
         ensure("Is Agni a production grid", LLGridManager::getInstance()->isInProductionGrid());
@@ -519,6 +527,27 @@ namespace tut
             manager->initialize(TEST_FILENAME); manager->setGridChoice("grid.example");
             ensure_equals("unsupported discovery uses native fallback", manager->getDestinationGuideURL(), std::string());
         }
+    }
+
+    template<> template<>
+    void viewerNetworkTestObject::test<11>()
+    {
+        LLSD grids;
+        grids["grid.mutsea.com"]["keyname"] = "grid.mutsea.com";
+        grids["grid.mutsea.com"]["login_uri"].append("https://unrelated.example/");
+        llofstream file(TEST_FILENAME); LLSDSerialize::toXML(grids, file); file.close();
+        auto manager = LLGridManager::getInstance();
+        manager->initialize(TEST_FILENAME);
+        std::vector<std::string> uris;
+        manager->getLoginURIs(uris);
+        ensure_equals("local metadata cannot redirect pinned login", uris[0], std::string("https://grid.mutsea.com/"));
+        gCmdLineGridChoice = "Agni";
+        manager->initialize(TEST_FILENAME);
+        ensure_equals("explicit upstream grid remains selectable", manager->getGrid(), std::string("util.agni.lindenlab.com"));
+        gCmdLineGridChoice.clear();
+        gCurrentGrid = "util.aditi.lindenlab.com";
+        manager->initialize(TEST_FILENAME);
+        ensure_equals("existing grid choice survives", manager->getGrid(), std::string("util.aditi.lindenlab.com"));
     }
 
 }

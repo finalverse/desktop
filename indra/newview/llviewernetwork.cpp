@@ -68,6 +68,7 @@ const std::string GRID_APP_SLURL_BASE = "app_slurl_base";
 const std::string DEFAULT_LOGIN_PAGE = "https://viewer-splash-v2.secondlife.com/";
 
 const std::string MAIN_GRID_LOGIN_URI = "https://login.agni.lindenlab.com/cgi-bin/login.cgi";
+const std::string FINALVERSE_GRID = "grid.mutsea.com";
 
 const std::string SL_UPDATE_QUERY_URL = "https://update.secondlife.com/update";
 
@@ -134,6 +135,20 @@ void LLGridManager::initialize(const std::string& grid_file)
                   SL_UPDATE_QUERY_URL,
                   "https://my.secondlife-beta.com/",
                   "Aditi");
+
+    // A fresh Finalverse install must select its own world, without borrowing
+    // Linden service trust or requiring an operator's private grids.xml file.
+    // Load this pinned login origin before user entries so it cannot be replaced.
+    LLSD finalverse;
+    finalverse[GRID_VALUE] = FINALVERSE_GRID;
+    finalverse[GRID_LABEL_VALUE] = "Finalverse Harbor (Preview)";
+    finalverse[GRID_ID_VALUE] = "Finalverse";
+    finalverse[GRID_LOGIN_URI_VALUE].append("https://grid.mutsea.com/");
+    finalverse[GRID_LOGIN_IDENTIFIER_TYPES].append(CRED_IDENTIFIER_TYPE_AGENT);
+    finalverse[GRID_HELPER_URI_VALUE] = "";
+    finalverse[GRID_LOGIN_PAGE_VALUE] = ""; // bundled welcome; access is by invitation
+    finalverse[GRID_WEB_PROFILE_VALUE] = "";
+    addGrid(finalverse);
 
     LLSD other_grids;
     llifstream llsd_xml;
@@ -215,7 +230,7 @@ void LLGridManager::initialize(const std::string& grid_file)
     {
         // if a grid was not passed in via the command line, grab it from the CurrentGrid setting.
         // if there's no current grid, that's ok as it'll be either set by the value passed
-        // in via the login uri if that's specified, or will default to maingrid
+        // in via the login uri if that's specified, or will default to Finalverse
         std::string last_grid = gSavedSettings.getString("CurrentGrid");
         if ( ! getGrid(last_grid).empty() )
         {
@@ -230,9 +245,8 @@ void LLGridManager::initialize(const std::string& grid_file)
 
     if(mGrid.empty())
     {
-        // no grid was specified so default to maingrid
-        LL_INFOS("GridManager") << "Default grid to "<<MAINGRID<< LL_ENDL;
-        mGrid = MAINGRID;
+        LL_INFOS("GridManager") << "Default grid to "<<FINALVERSE_GRID<< LL_ENDL;
+        mGrid = FINALVERSE_GRID;
     }
 
     LLControlVariablePtr grid_control = gSavedSettings.getControl("CurrentGrid");
