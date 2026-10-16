@@ -9,6 +9,9 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import platform
+import sys
+from importlib.metadata import version
 import re
 import shutil
 import subprocess
@@ -105,7 +108,11 @@ def main():
         "configuration": {"architectures": ["arm64", "x86_64"], "proprietary": False, "bugsplat": False,
             "updater": False, "voice_default": False, "libvlc_distribution": False},
         "limits": ["invited world access", "one configured hosted Lumi controller", "experimental developer preview"],
-        "xcode": run("xcodebuild", "-version", text=True).stdout.strip()}
+        "xcode": run("xcodebuild", "-version", text=True).stdout.strip(),
+        "cmake": run("cmake", "--version", text=True).stdout.splitlines()[0],
+        "python": sys.version.split()[0], "autobuild": version("autobuild"),
+        "sdk": run("xcrun", "--show-sdk-version", text=True).stdout.strip(),
+        "runtime_verified_macos": platform.mac_ver()[0]}
     source_note = (f"Finalverse v{args.version}\nSource commit: {commit}\n"
         "Inherited viewer source is LGPL-2.1-only; preserve upstream notices.\n"
         f"Corresponding viewer source and dependency sources: https://github.com/finalverse/final_viewer/releases/tag/v{args.version}\n"

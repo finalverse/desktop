@@ -19,7 +19,7 @@ python3.13 -m venv .venv
 export PATH="$PWD/.venv/bin:$PATH"
 export PYTHON="$PWD/.venv/bin/python"
 export CC=/usr/bin/clang CXX=/usr/bin/clang++
-export AUTOBUILD_CPU_COUNT=2 AUTOBUILD_ADDRSIZE=64
+export AUTOBUILD_CPU_COUNT=2 AUTOBUILD_ADDRSIZE=64 AUTOBUILD_BUILD_ID=54621
 ```
 
 Use the release's `Finalverse-0.4.0-preview.1-build-variables.txt` asset as
