@@ -60,7 +60,9 @@ An operator supplies your **own** account and an access window. Do not use the
 Pilot Builder account shown in demo screenshots. Its password is not public.
 
 The intended pilot login endpoint is `https://grid.mutsea.com/`. Select
-**Finalverse Harbor (Preview)** in the grid selector. If your installation does
+**Finalverse Harbor (Preview)** in the grid selector. A fresh profile already
+selects this grid; the picker is normally hidden. The inherited Mac shortcut
+**⌘⇧G** shows the grid picker. Existing profiles retain their saved choice. If your installation does
 not show that grid, use the operator-supplied grid configuration; never enter
 Harbor credentials into a different grid. Other compatible grids use their own
 accounts and may not provide Finalverse AI capabilities.
