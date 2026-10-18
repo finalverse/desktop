@@ -3,6 +3,55 @@
 #include "llfinalversepresentation.h"
 #include <iomanip>
 #include <sstream>
+#include <set>
+#include <cmath>
+#include <map>
+
+std::string llfinalverseQuickAction(const std::string& text)
+{
+    std::string command(text); LLStringUtil::trim(command); LLStringUtil::toLower(command);
+    static const std::map<std::string,std::string> actions{
+        {"/world","world"}, {"/fps","first_person"}, {"/overview","overview"}, {"/bird","overview"},
+        {"/create","create"}, {"/worlds","destinations"}, {"/map","map"}, {"/inventory","inventory"},
+        {"/friends","friends"}, {"/me","profile"}, {"/help","help"}};
+    const auto found = actions.find(command);
+    return found == actions.end() ? std::string() : found->second;
+}
+
+LLSD llfinalverseFindActions(const std::string& query)
+{
+    struct Action { const char* id; const char* title; const char* keywords; };
+    static const Action actions[] = {
+        {"destinations", "World Library", "explore regions teleport samples confluence"},
+        {"map", "World map", "travel regions teleport geography"},
+        {"inventory", "Inventory", "assets objects items folders"},
+        {"friends", "Friends", "people social contacts"},
+        {"nearby", "Nearby people", "social avatars local"},
+        {"profile", "My profile", "me identity account"},
+        {"appearance", "Outfits and appearance", "me avatar clothing wardrobe body"},
+        {"chat", "Conversations", "chat messages text social"},
+        {"build", "Object editing", "create build tools move rotate scale"},
+        {"myenvironments", "Environment", "lighting sky water day night"},
+        {"snapshot", "Take a photo", "camera screenshot capture share"},
+        {"places", "Saved places", "landmarks favorites travel"},
+        {"view", "Camera controls", "orbit zoom focus view"},
+        {"move", "Movement controls", "walk fly navigation"},
+        {"preferences", "Settings", "preferences options display sound"},
+        {"performance", "Performance", "graphics fps rendering quality"}};
+    LLSD result = LLSD::emptyArray();
+    if (query.size() > 128) return result;
+    std::string filter(query); LLStringUtil::toLower(filter);
+    for (const auto& action : actions)
+    {
+        std::string haystack = std::string(action.title) + " " + action.keywords;
+        LLStringUtil::toLower(haystack);
+        std::istringstream tokens(filter); std::string token; bool matches = true;
+        while (tokens >> token) if (haystack.find(token) == std::string::npos) { matches = false; break; }
+        if (!matches) continue;
+        LLSD row; row["id"] = action.id; row["title"] = action.title; result.append(row);
+    }
+    return result;
+}
 
 std::string llfinalversePlanSummary(const LLSD& plan)
 {
@@ -97,4 +146,34 @@ std::string llfinalverseCitizenUnavailable(const LLFinalverseServices& services)
     if (services.citizen_state == "starting") return "Lumi is still connecting. You can explore while her tools become available.";
     if (services.citizen_state == "representation_recovery") return "Lumi's embodiment needs administrator recovery. You can still explore the world.";
     return "Lumi is not connected to this world. You can create your own place and explore.";
+}
+
+LLSD llfinalverseParseDestinations(const LLSD& result, const std::string& region, const std::string& actor)
+{
+    LLSD out = LLSD::emptyArray();
+    if (!result.isMap() || !result["schema_version"].isInteger() || result["schema_version"].asInteger() != 1 ||
+        result["region_id"].asString() != region || result["actor_id"].asString() != actor ||
+        !result["destinations"].isArray() || result["destinations"].size() > 64) return out;
+    std::set<std::string> ids;
+    for (const auto& d : llsd::inArray(result["destinations"]))
+    {
+        const auto id = d["region_id"].asString();
+        if (!LLUUID::validate(id) || LLUUID(id).isNull() || !ids.insert(id).second ||
+            !d["title"].isString() || d["title"].asString().empty() || d["title"].asString().size() > 320 ||
+            !d["online"].isBoolean() || !d["spawn"].isArray() || d["spawn"].size() != 3) continue;
+        bool valid = true;
+        for (S32 axis = 0; axis < 3; ++axis)
+        {
+            const auto& n = d["spawn"][axis]; const F64 value = n.asReal();
+            valid = valid && (n.isReal() || n.isInteger()) && std::isfinite(value) && value >= 1. && value <= (axis == 2 ? 4096. : 255.);
+        }
+        if (d["online"].asBoolean())
+        {
+            valid = valid && d["global_origin"].isArray() && d["global_origin"].size() == 2;
+            for (S32 axis = 0; axis < 2; ++axis)
+                valid = valid && d["global_origin"][axis].isInteger() && d["global_origin"][axis].asInteger() >= 0;
+        }
+        if (valid) out.append(d);
+    }
+    return out;
 }

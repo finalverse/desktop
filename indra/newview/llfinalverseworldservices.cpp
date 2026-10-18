@@ -34,7 +34,9 @@ LLFinalverseServices llfinalverseWorldServices()
         {
             LLCoreHttpUtil::HttpCoroutineAdapter adapter("FinalverseExperienceDiscovery", LLCore::HttpRequest::DEFAULT_POLICY_ID);
             auto request = std::make_shared<LLCore::HttpRequest>();
-            auto options = std::make_shared<LLCore::HttpOptions>(); options->setTimeout(5);
+            // Discovery is cheap and polled again later. Transport retries would
+            // turn a five-second check into a long wait behind stale region caps.
+            auto options = std::make_shared<LLCore::HttpOptions>(); options->setTimeout(5); options->setRetries(0);
             const LLSD reply = adapter.postJsonAndSuspend(request, capability, LLSD().with("op", "experience"), options);
             // A reply from the old region/session must never enable new controls.
             auto active = gAgent.getRegion();

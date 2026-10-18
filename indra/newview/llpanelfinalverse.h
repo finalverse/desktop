@@ -20,10 +20,12 @@ private:
     void layout();
     void setExperience(bool simple);
     void submit();
+    void setViewMode(const std::string& mode);
     LLTimer mRefresh;
     bool mSimple = true;
     bool mSelecting = false;
     bool mLumiAvailable = false;
+    std::string mViewMode = "world";
     // The native picker relies on a UI owner retaining the selection. Otherwise
     // LLViewerWindow's normal deselectUnused() cleanup releases it next frame.
     LLObjectSelectionHandle mSelection;

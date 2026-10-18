@@ -1,41 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater
- positioning="centered"
- legacy_header_height="25"
- can_minimize="true"
- can_close="true"
- can_resize="true"
- min_height="565"
- min_width="530"
- height="580"
- layout="topleft"
- name="Destinations"
- single_instance="true"
- help_topic="destinations"
- save_rect="false"
- save_visibility="true"
- title="DISCOVER"
- width="530">
-    <web_browser
-      top="25"
-      height="555"
-      width="530"
-      follows="all"
-      name="destination_guide_contents"
-      trusted_content="false"/>
-    <panel name="destination_fallback" left="0" top="25" width="530" height="555" follows="all" background_visible="true" bg_opaque_color="FinalverseBackground" bg_alpha_color="FinalverseBackground" visible="false">
-        <text name="discovery_heading" left="28" top="24" width="470" height="32" font="SansSerifLarge" text_color="FinalverseText">Find your place in Finalverse</text>
-        <text name="discovery_description" left="28" top="64" width="450" height="44" font="SansSerif" text_color="FinalverseSecondary" word_wrap="true">Explore the connected world. These starter places are suggestions; ask about what is available here.</text>
-        <button name="discover_harbor" label="MutSea Harbor" left="28" top="116" width="300" height="32" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" tool_tip="Ask about this place in the connected world" draw_focus_border="true"/>
-        <text name="harbor_description" left="28" top="153" width="450" height="26" font="SansSerifSmall" text_color="FinalverseSecondary" word_wrap="true">A waterfront starting place for creators, friends and AI citizens.</text>
-        <button name="discover_home" label="Lumi’s Home" left="28" top="186" width="300" height="32" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" tool_tip="Ask about this place in the connected world" draw_focus_border="true"/>
-        <text name="home_description" left="28" top="223" width="450" height="26" font="SansSerifSmall" text_color="FinalverseSecondary" word_wrap="true">Discover the home and memories of an AI citizen.</text>
-        <button name="discover_pavilion" label="Harbor Pavilion" left="28" top="256" width="300" height="32" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" tool_tip="Ask about this place in the connected world" draw_focus_border="true"/>
-        <text name="pavilion_description" left="28" top="293" width="450" height="26" font="SansSerifSmall" text_color="FinalverseSecondary" word_wrap="true">A shared place to meet, talk and build together.</text>
-        <button name="discover_workshop" label="Creator Workshop" left="28" top="326" width="300" height="32" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" tool_tip="Ask about this place in the connected world" draw_focus_border="true"/>
-        <text name="workshop_description" left="28" top="363" width="450" height="26" font="SansSerifSmall" text_color="FinalverseSecondary" word_wrap="true">Find space for your next idea.</text>
-        <button name="discover_dock" label="Sunset Dock" left="28" top="396" width="300" height="32" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" tool_tip="Ask about this place in the connected world" draw_focus_border="true"/>
-        <text name="dock_description" left="28" top="433" width="450" height="26" font="SansSerifSmall" text_color="FinalverseSecondary" word_wrap="true">Explore the waterfront and pause by the water.</text>
-        <button name="explore_current_world" label="Explore current world" left="28" top="482" width="300" height="36" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseAccent" label_color="FinalverseBackground" label_color_selected="FinalverseBackground" tool_tip="Open movement, map and nearby-world tools" draw_focus_border="true"/>
+<floater positioning="centered" legacy_header_height="25" can_minimize="true" can_close="true" can_resize="true" min_height="570" min_width="650" height="570" width="650" layout="topleft" name="Destinations" single_instance="true" help_topic="destinations" save_rect="false" save_visibility="true" title="WORLD LIBRARY">
+    <web_browser top="25" height="545" width="650" follows="all" name="destination_guide_contents" trusted_content="false"/>
+    <panel name="destination_fallback" left="0" top="25" width="650" height="545" follows="all" background_visible="true" bg_opaque_color="FinalverseBackground" bg_alpha_color="FinalverseBackground" visible="false">
+        <text name="discovery_heading" left="24" top="12" width="590" height="28" font="SansSerifLarge" text_color="FinalverseText">Worlds to explore. Ideas to make your own.</text>
+        <text name="library_status" left="24" top="46" width="590" height="34" font="SansSerif" text_color="FinalverseSecondary" word_wrap="true"/>
+        <scroll_list name="world_regions" left="24" top="86" width="590" height="110" draw_heading="true" multi_select="false" column_padding="10">
+            <column name="title" label="Destination" width="450"/><column name="status" label="Status" width="110"/>
+        </scroll_list>
+        <text name="region_detail" left="24" top="204" width="590" height="52" font="SansSerifSmall" text_color="FinalverseSecondary" word_wrap="true"/>
+        <button name="library_teleport" label="Teleport" left="24" top="266" width="170" height="30" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_disabled="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseAccent" label_color="FinalverseBackground" label_color_selected="FinalverseText" label_color_disabled="FinalverseSecondary" draw_focus_border="true"/>
+        <button name="library_refresh" label="Refresh" left="204" top="266" width="110" height="30" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_disabled="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" label_color_disabled="FinalverseSecondary" draw_focus_border="true"/>
+        <button name="confluence_ai" label="Open AI workspace" left="324" top="266" width="290" height="30" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_disabled="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" label_color_disabled="FinalverseSecondary" draw_focus_border="true"/>
+        <text name="creator_heading" left="24" top="310" width="590" height="24" font="SansSerifLarge" text_color="FinalverseText">Creator Library</text>
+        <text name="creator_help" left="24" top="338" width="590" height="34" font="SansSerifSmall" text_color="FinalverseSecondary" word_wrap="true">Save a built place from AI Create. Publish a free CC0 recipe or remix a published one. Purchases are not enabled.</text>
+        <scroll_list name="creator_releases" left="24" top="378" width="590" height="78" draw_heading="true" multi_select="false" column_padding="10">
+            <column name="title" label="Release" width="330"/><column name="status" label="Visibility" width="230"/>
+        </scroll_list>
+        <button name="release_publish" label="Publish free · CC0" left="24" top="468" width="190" height="30" tool_tip="Publish this immutable recipe for anyone to copy, remix and use under CC0. Native world permissions still apply." font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_disabled="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" label_color_disabled="FinalverseSecondary" draw_focus_border="true"/>
+        <button name="release_unpublish" label="Unpublish" left="224" top="468" width="130" height="30" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_disabled="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" label_color_disabled="FinalverseSecondary" draw_focus_border="true"/>
+        <button name="release_remix" label="Preview remix" left="364" top="468" width="150" height="30" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_disabled="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" label_color_disabled="FinalverseSecondary" draw_focus_border="true"/>
+        <button name="explore_current_world" label="Explore current world" left="24" top="510" width="280" height="28" font="SansSerif" image_unselected="Rounded_Rect" image_selected="Rounded_Rect" image_disabled="Rounded_Rect" image_pressed="Rounded_Rect" image_color="FinalverseSurface" label_color="FinalverseText" label_color_selected="FinalverseText" label_color_disabled="FinalverseSecondary" draw_focus_border="true"/>
     </panel>
 </floater>

@@ -2,7 +2,9 @@
 #include "../llviewerprecompiledheaders.h"
 #include "../llfinalversepresentation.h"
 #include "../llfinalverselegacyappearance.h"
+#include "../llfinalverseteleport.h"
 #include "../test/lltut.h"
+#include <set>
 namespace tut
 {
 struct finalverse_presentation_data {};
@@ -107,6 +109,55 @@ template<> template<> void object_t::test<10>()
     ensure("different actor cannot select planner route", !llfinalverseParseServices(reply, "region", "other").server_planning);
     reply["server_planning"] = "true";
     ensure("string cannot select server planner", !llfinalverseParseServices(reply, "region", "actor").server_planning);
+}
+
+template<> template<> void object_t::test<11>()
+{
+    LLSD reply, d; reply["schema_version"]=1; reply["region_id"]="region"; reply["actor_id"]="actor";
+    d["region_id"]="11111111-1111-4111-8111-111111111111"; d["title"]="Confluence"; d["online"]=true;
+    d["spawn"].append(128.); d["spawn"].append(116.); d["spawn"].append(24.); d["global_origin"].append(256000); d["global_origin"].append(256000);
+    reply["destinations"].append(d);
+    ensure_equals("real destination accepted",llfinalverseParseDestinations(reply,"region","actor").size(),1);
+    ensure_equals("old session refused",llfinalverseParseDestinations(reply,"region","other").size(),0);
+    reply["destinations"][0]["spawn"][0]=256.;
+    ensure_equals("out of region refused",llfinalverseParseDestinations(reply,"region","actor").size(),0);
+    reply["destinations"][0]=d;reply["destinations"][0]["online"]="true";
+    ensure_equals("typed availability required",llfinalverseParseDestinations(reply,"region","actor").size(),0);
+}
+
+template<> template<> void object_t::test<12>()
+{
+    ensure("source closure waits for an active MutSea handoff", llfinalverseDeferSourceDisable(false,true,true,true,0.));
+    ensure("short handshake delay is allowed", llfinalverseDeferSourceDisable(false,true,true,true,14.9));
+    ensure("timeout cannot hide a broken connection", !llfinalverseDeferSourceDisable(false,true,true,true,15.));
+    ensure("ordinary disconnect remains immediate", !llfinalverseDeferSourceDisable(false,true,true,false,0.));
+    ensure("destination or child disable remains immediate", !llfinalverseDeferSourceDisable(false,true,false,true,0.));
+    ensure("system grid behavior is preserved", !llfinalverseDeferSourceDisable(true,true,true,true,0.));
+    ensure("unadvertised grids are unchanged", !llfinalverseDeferSourceDisable(false,false,true,true,0.));
+}
+
+template<> template<> void object_t::test<13>()
+{
+    ensure_equals("explicit FPS shortcut", llfinalverseQuickAction("/fps"), "first_person");
+    ensure_equals("bird view alias", llfinalverseQuickAction(" /BIRD "), "overview");
+    ensure_equals("worlds opens native destination library", llfinalverseQuickAction("/worlds"), "destinations");
+    ensure_equals("inventory reuses inherited action", llfinalverseQuickAction("/inventory"), "inventory");
+    ensure("ordinary conversation is not executed locally", llfinalverseQuickAction("open my inventory").empty());
+    ensure("unknown slash command cannot invoke arbitrary action", llfinalverseQuickAction("/delete everything").empty());
+}
+
+template<> template<> void object_t::test<14>()
+{
+    auto results = llfinalverseFindActions("  NIGHT  lighting ");
+    ensure_equals("semantic keywords find native environment tools",results.size(),1);
+    ensure_equals("search maps to a fixed command",results[0]["id"].asString(),"myenvironments");
+    ensure_equals("outfit synonyms find existing appearance",llfinalverseFindActions("wardrobe")[0]["id"].asString(),"appearance");
+    ensure_equals("unknown tools cannot become executable",llfinalverseFindActions("delete all objects").size(),0);
+    ensure_equals("oversize search is bounded",llfinalverseFindActions(std::string(129,'a')).size(),0);
+    std::set<std::string> ids;
+    const auto catalog = llfinalverseFindActions("");
+    for (const auto& action : llsd::inArray(catalog)) ensure("unique fixed action identifiers",ids.insert(action["id"].asString()).second);
+    ensure("core tools remain discoverable",ids.count("inventory") && ids.count("preferences") && ids.count("destinations"));
 }
 
 }

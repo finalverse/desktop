@@ -81,6 +81,7 @@ void describe(std::ostringstream& text, const LLSD& value)
 
 bool LLFloaterFinalverseAI::postBuild()
 {
+    getChild<LLButton>("release_save")->setCommitCallback([this](LLUICtrl*, const LLSD&) { saveRelease(); });
     getChild<LLButton>("ask")->setCommitCallback([this](LLUICtrl*, const LLSD&) { run(getChild<LLCheckBoxCtrl>("citizen_mode")->get() ? "citizen_say" : "plan"); });
     getChild<LLButton>("inspect")->setCommitCallback([this](LLUICtrl*, const LLSD&) { run("inspect"); });
     getChild<LLButton>("build")->setCommitCallback([this](LLUICtrl*, const LLSD&) { run("commit"); });
@@ -156,6 +157,32 @@ void LLFloaterFinalverseAI::saveRecipe()
         if (self) LLNotificationsUtil::add("GenericAlert", LLSD().with("MESSAGE", saved ? "Recipe saved. Load it to preview a new place, or share the file with a friend." : error));
     }, LLFilePicker::FFSAVE_ALL, "finalverse-recipe-" + LLUUID::generateNewID().asString() + ".json");
 }
+void LLFloaterFinalverseAI::openPrepared(const LLSD& prepared)
+{
+    llassert(LLCoros::on_main_coro());
+    if (!prepared.isMap() || prepared["actor_id"].asString() != gAgent.getID().asString() || !LLUUID::validate(prepared["plan_id"].asString()) || !prepared["steps"].isArray()) return;
+    auto self = dynamic_cast<LLFloaterFinalverseAI*>(LLFloaterReg::showInstance("finalverse_ai"));
+    if (!self || self->mBusy) return;
+    self->mPrepared = prepared; self->mCitizenPrepared = LLSD(); self->mRecipe = LLSD();
+    self->getChild<LLCheckBoxCtrl>("citizen_mode")->set(false);
+    self->show(llfinalversePlanSummary(prepared) + "\n\n" + prepared["siting"].asString() + "\nReview this preview, then Apply to build it as yours."); self->busy(false);
+}
+void LLFloaterFinalverseAI::saveRelease()
+{
+    if (mBusy || mLastPlan.empty() || !gAgent.getRegion()) return;
+    const auto cap = gAgent.getRegion()->getCapability("FinalverseWorld"); if (cap.empty()) return;
+    const auto actor = gAgent.getID(); const auto region = gAgent.getRegion()->getRegionID(); const auto handle = getHandle();
+    LLSD body; body["op"] = "creator"; body["command"] = "save"; body["plan_id"] = mLastPlan;
+    std::string title = getChild<LLLineEditor>("request")->getText();
+    body["title"] = title.empty() ? "My creator place" : title.substr(0, 80);
+    busy(true, true); show("Saving your place recipe as a private Creator Library release…");
+    LLCoros::instance().launch("MutSeaSaveRelease", [handle, cap, actor, region, body]() {
+        const auto reply = post(cap, body); auto self = dynamic_cast<LLFloaterFinalverseAI*>(handle.get()); if (!self) return;
+        self->busy(false);
+        if (!gAgent.getRegion() || gAgent.getRegion()->getRegionID() != region || gAgent.getID() != actor) { self->show("Region changed. Open World Library to check whether the release was saved."); return; }
+        self->show(reply["ok"].asBoolean() ? "Private release saved. Open World Library to preview a remix or publish it as a free CC0 recipe. Your live scene remains yours." : reply["error"].asString());
+    });
+}
 void LLFloaterFinalverseAI::openRequest(const std::string& text, bool citizen, bool submit)
 {
     LLTimer timer;
@@ -217,6 +244,8 @@ void LLFloaterFinalverseAI::busy(bool active, bool mutation)
     for (const char* name : {"citizen_inspect", "citizen_pause", "citizen_resume", "citizen_cancel", "citizen_undo"}) getChild<LLButton>(name)->setVisible(citizen);
     for (const char* name : {"recipe_load", "recipe_save", "recipe_remix"}) getChild<LLButton>(name)->setVisible(!citizen);
     getChild<LLButton>("recipe_load")->setEnabled(!active && services.canCompose());
+    getChild<LLButton>("release_save")->setVisible(!citizen);
+    getChild<LLButton>("release_save")->setEnabled(!active && !mLastPlan.empty());
     getChild<LLButton>("recipe_save")->setEnabled(!active && mRecipe.isMap());
     getChild<LLButton>("recipe_remix")->setEnabled(!active && services.canCompose() && mRecipe.isMap());
     getChild<LLButton>("undo")->setLabel(citizen ? "Save recipe" : "Undo last");

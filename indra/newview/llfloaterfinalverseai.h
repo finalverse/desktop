@@ -12,6 +12,7 @@ public:
     void draw() override;
     static void openRequest(const std::string& text, bool citizen, bool submit = false);
     static void openRecipe();
+    static void openPrepared(const LLSD& prepared);
     static void openNearby();
     static bool previewRecipe(const LLSD& recipe);
 private:
@@ -22,6 +23,7 @@ private:
     void renderActivity();
     void loadRecipe();
     void saveRecipe();
+    void saveRelease();
     LLSD mRecipe;
     U32 mGeneration = 0;
     bool mBusy = false;

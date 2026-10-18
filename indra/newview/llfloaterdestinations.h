@@ -44,6 +44,17 @@ private:
     void draw() override;
     void handleMediaEvent(LLPluginClassMedia* media, EMediaEvent event) override;
     void showFallback();
+    void refreshLibrary();
+    void manageRelease(const std::string& command);
+    void renderLibrary();
+    LLSD mDestinations, mReleases, mPendingRemix;
+    bool mLibraryDirty = false, mLibraryBusy = false;
+    bool mLibraryRetry = false;
+    U32 mLibraryAttempts = 0;
+    LLTimer mLibraryRetryTimer;
+    U32 mLibraryGeneration = 0;
+    std::string mLibraryMessage, mLibraryCapability;
+    LLUUID mLibraryRegion;
     std::string mGrid;
     LLTimer mLoadTimer;
     bool mLoading = false;

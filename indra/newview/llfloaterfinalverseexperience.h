@@ -13,6 +13,8 @@ public:
     static void openPage(const std::string& page);
     static void executeCommand(const std::string& name);
 private:
+    void filterActions();
+    void openAction();
     void refreshServices();
     LLTimer mServicesRefresh;
 };

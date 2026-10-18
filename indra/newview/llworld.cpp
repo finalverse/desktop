@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llworld.h"
+#include "llfinalverseteleport.h"
 #include "llgroundplane.h"
 #include "llrender.h"
 
@@ -64,6 +65,11 @@
 #include <map>
 #include <cstring>
 
+
+namespace
+{
+std::map<LLHost, F32> sDeferredSourceDisables;
+}
 
 //
 // Globals
@@ -118,6 +124,7 @@ LLWorld::LLWorld() :
 
 void LLWorld::resetClass()
 {
+    sDeferredSourceDisables.clear();
     mHoleWaterObjects.clear();
     gObjectList.destroy();
     gSky.cleanup(); // references an object
@@ -306,6 +313,25 @@ void LLWorld::removeRegion(const LLHost &host)
     delete regionp; // Delete last to prevent use after free
 }
 
+namespace
+{
+void disableFinalverseRegion(const LLHost& host)
+{
+    auto current = gAgent.getRegion();
+    if (llfinalverseDeferSourceDisable(LLGridManager::getInstance()->isSystemGrid(),
+        current && !current->getCapability("FinalverseWorld").empty(),
+        current && current->getHost() == host,
+        gAgent.getTeleportState() == LLAgent::TELEPORT_MOVING, 0.))
+    {
+        sDeferredSourceDisables.emplace(host, gFrameTimeSeconds);
+        LL_INFOS("FinalverseTeleport") << "Deferring source disable until destination handoff or timeout" << LL_ENDL;
+        return;
+    }
+    LLWorld::getInstance()->removeRegion(host);
+    gMessageSystem->disableCircuit(host);
+}
+
+}
 
 LLViewerRegion* LLWorld::getRegion(const LLHost &host)
 {
@@ -683,6 +709,19 @@ static LLTrace::SampleStatHandle<> sNumActiveCachedObjects("numactivecachedobjec
 void LLWorld::updateRegions(F32 max_update_time)
 {
     LL_PROFILE_ZONE_SCOPED;
+    for (auto it = sDeferredSourceDisables.begin(); it != sDeferredSourceDisables.end(); )
+    {
+        auto current = gAgent.getRegion();
+        if (llfinalverseDeferSourceDisable(LLGridManager::getInstance()->isSystemGrid(),
+            current && !current->getCapability("FinalverseWorld").empty(),
+            current && current->getHost() == it->first,
+            gAgent.getTeleportState() == LLAgent::TELEPORT_MOVING, gFrameTimeSeconds - it->second))
+        { ++it; continue; }
+        const LLHost host = it->first;
+        it = sDeferredSourceDisables.erase(it);
+        removeRegion(host);
+        gMessageSystem->disableCircuit(host);
+    }
     LLTimer update_timer;
     mNumOfActiveCachedObjects = 0;
 
@@ -1211,9 +1250,7 @@ void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
     LLHost host = mesgsys->getSender();
 
     //LL_INFOS() << "Disabling simulator with message from " << host << LL_ENDL;
-    LLWorld::getInstance()->removeRegion(host);
-
-    mesgsys->disableCircuit(host);
+    disableFinalverseRegion(host);
 }
 
 

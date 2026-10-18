@@ -24,4 +24,11 @@ LLFinalverseServices llfinalverseParseServices(const LLSD& result, const std::st
 std::string llfinalverseCitizenUnavailable(const LLFinalverseServices& services);
 // Cached lightweight capability request, never a model call or world mutation.
 LLFinalverseServices llfinalverseWorldServices();
+// Read-only region destinations are accepted only for the active actor/session.
+LLSD llfinalverseParseDestinations(const LLSD& result, const std::string& region, const std::string& actor);
+// Explicit slash commands use only inherited local actions; never an LLM call.
+std::string llfinalverseQuickAction(const std::string& text);
+// Search only the curated local navigation/tool catalog, never a remote tool name.
+LLSD llfinalverseFindActions(const std::string& query);
+
 #endif

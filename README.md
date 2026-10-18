@@ -134,3 +134,9 @@ pull requests and more. See the [CONTRIBUTING][] and the [open source portal][] 
 [contributing]: https://github.com/secondlife/viewer/blob/main/CONTRIBUTING.md
 
 </details>
+
+## World Library and Confluence
+
+[Explore regions, save creator releases and preview remixes](docs/finalverse/world/world-library-and-confluence.md). New source builds include live destination discovery and native teleport; preview.3 users can use World Map to visit admitted regions. Free recipe publication is explicit; paid checkout is not enabled.
+
+[Direct views and local actions](docs/finalverse/ux/direct-views.md) add World, First person, Overview and Create to new source builds, plus object Focus, a searchable Actions surface, direct Worlds/Friends access and model-free navigation shortcuts.

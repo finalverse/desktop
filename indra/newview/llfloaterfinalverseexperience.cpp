@@ -9,11 +9,30 @@
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "lltextbox.h"
+#include "lllineeditor.h"
+#include "llscrolllistctrl.h"
 #include "llviewercontrol.h"
 #include <map>
 
+namespace
+{
+bool actionAvailable(const std::string& name)
+{
+    if (name == "friends" || name == "nearby") return true;
+    auto command = LLCommandManager::instance().getCommand(LLCommandId(name));
+    if (!command || !LLUICtrl::CommitCallbackRegistry::getValue(command->executeFunctionName())) return false;
+    auto enabled = LLUICtrl::EnableCallbackRegistry::getValue(command->isEnabledFunctionName());
+    return !enabled || (*enabled)(nullptr,command->isEnabledParameters());
+}
+}
+
 void LLFloaterFinalverseExperience::executeCommand(const std::string& name)
 {
+    if (name == "friends" || name == "nearby")
+    {
+        LLFloaterSidePanelContainer::showPanel("people","panel_people",LLSD().with("people_panel_tab_name",name == "friends" ? "friends_panel" : "nearby_panel"));
+        return;
+    }
     auto command = LLCommandManager::instance().getCommand(LLCommandId(name));
     if (!command) return;
     auto enabled = LLUICtrl::EnableCallbackRegistry::getValue(command->isEnabledFunctionName());
@@ -32,7 +51,7 @@ void LLFloaterFinalverseExperience::openPage(const std::string& page)
 }
 bool LLFloaterFinalverseExperience::postBuild()
 {
-    for (const auto& binding : {std::pair<const char*,const char*>{"movement","move"}, {"camera","view"}, {"map","map"}, {"places","places"}, {"share","snapshot"}, {"objects","build"}, {"inventory","inventory"}, {"environment","myenvironments"}, {"profile","profile"}, {"outfits","appearance"}, {"settings","preferences"}, {"conversations","chat"}, {"performance","performance"}})
+    for (const auto& binding : {std::pair<const char*,const char*>{"movement","move"}, {"camera","view"}, {"map","map"}, {"world_library","destinations"}, {"places","places"}, {"share","snapshot"}, {"inventory","inventory"}, {"profile","profile"}, {"outfits","appearance"}, {"settings","preferences"}, {"conversations","chat"}})
     {
         const std::string command(binding.second);
         getChild<LLButton>(binding.first)->setCommitCallback([command](LLUICtrl*, const LLSD&) { executeCommand(command); });
@@ -64,16 +83,59 @@ bool LLFloaterFinalverseExperience::postBuild()
         getChild<LLButton>("welcome_"+name)->setCommitCallback([name](LLUICtrl*,const LLSD&) { openPage(name); });
     }
     getChild<LLButton>("advanced")->setCommitCallback([this](LLUICtrl*,const LLSD&) { gSavedSettings.setBOOL("FinalverseExperienceEnabled",false); closeFloater(); });
+    getChild<LLLineEditor>("action_search")->setKeystrokeCallback([this](LLLineEditor*,void*) { filterActions(); },nullptr);
+    getChild<LLLineEditor>("action_search")->setCommitCallback([this](LLUICtrl*,const LLSD&) { openAction(); });
+    getChild<LLScrollListCtrl>("action_results")->setDoubleClickCallback([this] { openAction(); });
+    getChild<LLButton>("action_open")->setCommitCallback([this](LLUICtrl*,const LLSD&) { openAction(); });
     return true;
 }
 void LLFloaterFinalverseExperience::onOpen(const LLSD& key)
 {
     const std::string page = key.asString();
     for (const char* name : {"explore","create","friends","me","tools","welcome"}) getChild<LLPanel>(std::string(name)+"_page")->setVisible(page==name);
-    const std::map<std::string,std::string> titles{{"explore","Explore your world"},{"create","What will you create?"},{"friends","A world feels better together"},{"me","Your corner of Finalverse"},{"tools","Creator & developer tools"},{"welcome","Welcome to your living world"}};
+    getChild<LLPanel>("lumi_card")->setVisible(page != "tools");
+    getChild<LLTextBox>("intro")->setVisible(page != "tools");
+    const std::map<std::string,std::string> titles{{"explore","Explore your world"},{"create","What will you create?"},{"friends","A world feels better together"},{"me","Your corner of Finalverse"},{"tools","Find an action"},{"welcome","Welcome to your living world"}};
     auto title=titles.find(page);
     getChild<LLTextBox>("heading")->setText(title==titles.end()?"Finalverse":title->second);
     refreshServices();
+    if (page == "tools")
+    {
+        auto search = getChild<LLLineEditor>("action_search"); search->setText(std::string());
+        filterActions(); search->setFocus(true);
+    }
+}
+
+void LLFloaterFinalverseExperience::filterActions()
+{
+    auto list = getChild<LLScrollListCtrl>("action_results"); list->deleteAllItems();
+    const auto actions = llfinalverseFindActions(getChild<LLLineEditor>("action_search")->getText());
+    for (const auto& action : llsd::inArray(actions))
+    {
+        LLSD row; row["value"] = action["id"]; row["columns"][0]["column"] = "title"; row["columns"][0]["value"] = action["title"];
+        row["columns"][1]["column"] = "state"; row["columns"][1]["value"] = actionAvailable(action["id"].asString()) ? "" : "Unavailable";
+        list->addElement(row);
+    }
+    list->setCommentText("No matching action. Try inventory, outfits, lighting or map.");
+    list->selectFirstItem();
+    getChild<LLTextBox>("tools_description")->setText(std::string("Type to filter, then Return to open. Local tools: no AI call. Native permissions still apply."));
+}
+
+void LLFloaterFinalverseExperience::openAction()
+{
+    auto item = getChild<LLScrollListCtrl>("action_results")->getFirstSelected(); if (!item) return;
+    const auto id = item->getValue().asString();
+    if (!actionAvailable(id))
+    {
+        getChild<LLTextBox>("tools_description")->setText(std::string("This action is unavailable in the current context. Choose another action or return to World view."));
+        return;
+    }
+    // Never dispatch search text or server-provided command identifiers.
+    const auto actions = llfinalverseFindActions(std::string());
+    for (const auto& action : llsd::inArray(actions)) if (action["id"].asString() == id)
+    {
+        executeCommand(id); closeFloater(); return;
+    }
 }
 
 void LLFloaterFinalverseExperience::refreshServices()
@@ -105,5 +167,10 @@ void LLFloaterFinalverseExperience::refreshServices()
 void LLFloaterFinalverseExperience::draw()
 {
     if (mServicesRefresh.getElapsedTimeF32() >= .5f) { refreshServices(); mServicesRefresh.reset(); }
+    if (getChild<LLPanel>("tools_page")->getVisible())
+    {
+        auto selected = getChild<LLScrollListCtrl>("action_results")->getFirstSelected();
+        getChild<LLButton>("action_open")->setEnabled(selected && actionAvailable(selected->getValue().asString()));
+    }
     LLFloater::draw();
 }
