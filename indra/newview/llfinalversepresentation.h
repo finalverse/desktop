@@ -15,6 +15,7 @@ struct LLFinalverseServices
     bool world = false, checking = false, known = false, recovery = false;
     bool compose = false, citizen_present = false, citizen_interactive = false;
     bool server_planning = false;
+    bool earth_bridge = false;
     std::string citizen_state;
     bool canCompose() const { return known && compose && !recovery; }
     bool canPlan() const { return world && !checking && !recovery; }

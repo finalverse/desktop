@@ -190,6 +190,8 @@ namespace tut
             gCmdLineHelperURI.clear();
             gLoginPage.clear();
             gCurrentGrid.clear();
+            gUserLoginInfo = LLSD();
+            gAutoLogin = false;
         }
         ~viewerNetworkTest()
         {
@@ -550,4 +552,21 @@ namespace tut
         ensure_equals("existing grid choice survives", manager->getGrid(), std::string("util.aditi.lindenlab.com"));
     }
 
+    template<> template<>
+    void viewerNetworkTestObject::test<12>()
+    {
+        gCmdLineGridChoice = "Agni";
+        auto manager = LLGridManager::getInstance();
+        manager->initialize("");
+        gUserLoginInfo = LLSD::emptyArray();
+        gUserLoginInfo.append("Fixture");
+        gUserLoginInfo.append("Developer");
+        gUserLoginInfo.append("never-send-this-fixture");
+        gAutoLogin = true;
+        manager->setGridChoice("Agni");
+        ensure("same explicit grid retains supplied login", gUserLoginInfo.size() == 3);
+        manager->setGridChoice("Aditi");
+        ensure("startup grid change clears supplied credentials", gUserLoginInfo.size() == 0);
+        ensure("startup grid change disables automatic login", !gAutoLogin);
+    }
 }

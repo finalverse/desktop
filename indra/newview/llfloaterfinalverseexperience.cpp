@@ -51,6 +51,7 @@ void LLFloaterFinalverseExperience::openPage(const std::string& page)
 }
 bool LLFloaterFinalverseExperience::postBuild()
 {
+    getChild<LLButton>("create_earth")->setCommitCallback([](LLUICtrl*,const LLSD&){LLFloaterReg::showInstance("finalverse_earth");});
     for (const auto& binding : {std::pair<const char*,const char*>{"movement","move"}, {"camera","view"}, {"map","map"}, {"world_library","destinations"}, {"places","places"}, {"share","snapshot"}, {"inventory","inventory"}, {"profile","profile"}, {"outfits","appearance"}, {"settings","preferences"}, {"conversations","chat"}})
     {
         const std::string command(binding.second);
@@ -142,6 +143,7 @@ void LLFloaterFinalverseExperience::refreshServices()
 {
     const auto services = llfinalverseWorldServices();
     const bool citizen = services.citizen_interactive;
+    getChild<LLButton>("create_earth")->setEnabled(services.earth_bridge&&!services.recovery);
     getChild<LLIconCtrl>("lumi_portrait")->setValue(citizen || services.citizen_present ? "first_login_image" : "SL_Logo");
     getChild<LLTextBox>("lumi_name")->setText(std::string(citizen ? "Lumi · AI citizen" : services.citizen_present ? "Lumi · local citizen" : "Your first creation"));
     getChild<LLButton>("talk_lumi")->setLabel(citizen ? "Talk to Lumi" : "What’s nearby?");

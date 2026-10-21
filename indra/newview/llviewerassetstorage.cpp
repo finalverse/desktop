@@ -418,11 +418,6 @@ void LLViewerAssetStorage::capsRecvForRegion(const LLUUID& region_id, std::strin
     {
         LL_WARNS("ViewerAsset") << "region not found for region_id " << region_id << LL_ENDL;
     }
-    else
-    {
-        mViewerAssetUrl = regionp->getViewerAssetUrl();
-    }
-
     LLEventPumps::instance().obtain(pumpname).post(LLSD());
 }
 
@@ -534,13 +529,14 @@ void LLViewerAssetStorage::assetRequestCoro(
         }
 
         LL_INFOS_ONCE("ViewerAsset") << "capsRecv got event" << LL_ENDL;
-        LL_INFOS_ONCE("ViewerAsset") << "region " << gAgent.getRegion() << " mViewerAssetUrl " << mViewerAssetUrl << LL_ENDL;
     }
-    if (mViewerAssetUrl.empty() && gAgent.getRegion())
-    {
-        mViewerAssetUrl = gAgent.getRegion()->getViewerAssetUrl();
-    }
-    if (mViewerAssetUrl.empty())
+    // Capabilities belong to a region/login, not the lifetime of asset storage.
+    // A teleport may revoke the previous region's URL. Resolve it for each
+    // request, including after the capabilities wait above has yielded.
+    LLViewerRegion* region = gAgent.getRegion();
+    const std::string viewer_asset_url = region && region->capabilitiesReceived()
+        ? region->getViewerAssetUrl() : std::string();
+    if (viewer_asset_url.empty())
     {
         LL_WARNS_ONCE("ViewerAsset") << "asset request fails: caps received but no viewer asset cap found" << LL_ENDL;
         result_code = LL_ERR_NO_CAP;
@@ -548,7 +544,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, 0);
         return;
     }
-    std::string url = getAssetURL(mViewerAssetUrl, uuid,atype);
+    std::string url = getAssetURL(viewer_asset_url, uuid,atype);
     LL_DEBUGS("ViewerAsset") << "request url: " << url << LL_ENDL;
 
     LLCore::HttpRequest::policy_t httpPolicy(LLAppCoreHttp::AP_TEXTURE);

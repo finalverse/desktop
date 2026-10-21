@@ -426,6 +426,14 @@ void LLGridManager::setGridChoice(const std::string& grid)
 
     if(!grid_name.empty())
     {
+        // Startup locations can select another grid after initialization.
+        // Credentials supplied for an explicit grid must not follow that change.
+        if (grid_name != mGrid && !gSavedSettings.getString("CmdLineGridChoice").empty()
+            && gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
+        {
+            gSavedSettings.setLLSD("UserLoginInfo", LLSD());
+            gSavedSettings.setBOOL("AutoLogin", false);
+        }
         LL_INFOS("GridManager")<<"setting "<<grid_name<<LL_ENDL;
         mGrid = grid_name;
         mUnsupportedGridChoice = false;

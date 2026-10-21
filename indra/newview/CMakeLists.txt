@@ -188,6 +188,7 @@ set(viewer_SOURCE_FILES
     llflexibleobject.cpp
     llfloater360capture.cpp
     llfloaterfinalverseai.cpp
+    llfloaterfinalverseearth.cpp
     llfloaterfinalverserecipe.cpp
     llfinalverseworldrecipe.cpp
     llfloaterfinalverseexperience.cpp
@@ -883,6 +884,7 @@ set(viewer_HEADER_FILES
     llflexibleobject.h
     llfloater360capture.h
     llfloaterfinalverseai.h
+    llfloaterfinalverseearth.h
     llfloaterfinalverserecipe.h
     llfinalverseworldrecipe.h
     llfloaterfinalverseexperience.h

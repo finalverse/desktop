@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="finalverse_earth" title="EARTH → WORLD" width="560" height="560" layout="topleft" positioning="centered" save_rect="false" can_resize="false" bg_opaque_color="FinalverseBackground" bg_alpha_color="FinalverseBackground">
+  <text name="heading" left="20" top="34" width="520" height="28" font="SansSerifLarge" text_color="FinalverseText">Bring an idea into your world</text>
+  <text name="handoff_label" left="20" top="72" width="520" height="20" font="SansSerifSmall" text_color="FinalverseSecondary">Single-use Earth handoff · expires in five minutes</text>
+  <line_editor name="handoff" left="20" top="98" width="410" height="32" max_length_bytes="64" is_password="true" commit_on_focus_lost="false"/>
+  <button name="preview" label="Preview" left="440" top="98" width="100" height="32" font="SansSerif"/>
+  <text_editor name="review" left="20" top="148" width="520" height="270" font="SansSerif" read_only="true" word_wrap="true" border_visible="false" bg_readonly_color="FinalverseSurface" text_readonly_color="FinalverseText" max_length="24000"/>
+  <button name="reject" label="Reject" left="20" top="432" width="120" height="34" font="SansSerif"/>
+  <button name="commit" label="Approve &amp; create" left="152" top="432" width="240" height="34" font="SansSerif"/>
+  <button name="undo" label="Undo" left="404" top="432" width="136" height="34" font="SansSerif"/>
+  <line_editor name="plan_id" left="20" top="486" width="300" height="30" label="Native plan ID for later inspection" max_length_bytes="36" commit_on_focus_lost="false"/>
+  <button name="inspect" label="Inspect" left="330" top="486" width="96" height="30" font="SansSerif"/>
+  <button name="visit" label="Visit" left="436" top="486" width="104" height="30" font="SansSerif"/>
+  <button name="lumi" label="Ask Lumi to review · in her home region" left="20" top="528" width="520" height="24" font="SansSerifSmall"/>
+</floater>
