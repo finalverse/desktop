@@ -11,6 +11,11 @@ class LLPanelFinalverse : public LLPanel
 {
 public:
     LLPanelFinalverse();
+    ~LLPanelFinalverse() override;
+    static LLPanelFinalverse* instance() { return sInstance; }
+    void action(const std::string& name);
+    void command(const std::string& text);
+    bool selecting() const { return mSelecting; }
     bool postBuild() override;
     void reshape(S32 width, S32 height, bool called_from_parent = true) override;
     void draw() override;
@@ -19,12 +24,13 @@ private:
     void drawExperience();
     void layout();
     void setExperience(bool simple);
-    void submit();
     void setViewMode(const std::string& mode);
+    static LLPanelFinalverse* sInstance;
+    std::string mRegionName;
+    U64 mReadRevision = 0;
     LLTimer mRefresh;
     bool mSimple = true;
     bool mSelecting = false;
-    bool mLumiAvailable = false;
     std::string mViewMode = "world";
     // The native picker relies on a UI owner retaining the selection. Otherwise
     // LLViewerWindow's normal deselectUnused() cleanup releases it next frame.

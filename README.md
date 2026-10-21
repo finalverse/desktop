@@ -15,6 +15,20 @@ open-source Second Life Viewer. Finalverse is the consumer experience;
 > ad hoc signed and **not notarized**. Create your own world account separately;
 > downloading alone does not register you. GA support is not offered.
 
+## Scene workspace · source on main
+
+The native UI now uses a small collapsible launcher, an optional location chip,
+and a movable **Workspace** palette. **Chat** opens a resizable right-side
+conversation and live activity window for World AI, Lumi and nearby public chat.
+Camera modes, selection and world creation reuse the native tools; mutations
+still require review and approval. `Ctrl+Alt+Space` toggles scene controls;
+`Ctrl+Alt+C` toggles Conversation / Activity.
+
+![Compact native workspace](docs/finalverse/media/scene-workspace.png)
+
+[UI guide and privacy boundaries](docs/finalverse/scene-workspace.md). This source
+update is separate from the older packaged preview linked above.
+
 ## What works today
 
 The client preserves world streaming, avatars, movement, chat, inventory,

@@ -7,6 +7,34 @@
 #include <cmath>
 #include <map>
 
+void LLFinalverseMessageLog::session(const std::string& id)
+{
+    if (id != mSession) { clear(); mSession = id; }
+}
+void LLFinalverseMessageLog::clear()
+{
+    mEntries.clear(); mBytes = 0; ++mRevision;
+}
+void LLFinalverseMessageLog::append(const std::string& id, const std::string& channel,
+    const std::string& speaker, const std::string& text, const std::string& time)
+{
+    session(id);
+    if (id.empty() || (channel != "conversation" && channel != "activity") || text.empty()) return;
+    std::string safe = utf8str_truncate(text, 4096);
+    safe.erase(std::remove_if(safe.begin(), safe.end(), [](unsigned char c) {
+        return (c < 32 && c != '\n' && c != '\t') || c == 127;
+    }), safe.end());
+    if (safe.empty()) return;
+    LLSD entry;
+    entry["channel"] = channel;
+    entry["speaker"] = utf8str_truncate(speaker, 64);
+    entry["text"] = safe;
+    entry["time"] = utf8str_truncate(time, 16);
+    mEntries.push_back(entry); mBytes += safe.size(); ++mRevision;
+    while (mEntries.size() > 128 || mBytes > 65536)
+    { mBytes -= mEntries.front()["text"].asString().size(); mEntries.pop_front(); }
+}
+
 std::string llfinalverseQuickAction(const std::string& text)
 {
     std::string command(text); LLStringUtil::trim(command); LLStringUtil::toLower(command);

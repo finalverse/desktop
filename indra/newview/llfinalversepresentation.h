@@ -3,6 +3,25 @@
 #define LL_FINALVERSE_PRESENTATION_H
 #include "llsd.h"
 #include <string>
+#include <deque>
+
+// Ephemeral display history only: never sent as model context or written to disk.
+// A new native login clears the previous account's messages.
+class LLFinalverseMessageLog
+{
+public:
+    void session(const std::string& id);
+    void append(const std::string& id, const std::string& channel,
+                const std::string& speaker, const std::string& text, const std::string& time);
+    void clear();
+    const std::deque<LLSD>& entries() const { return mEntries; }
+    U64 revision() const { return mRevision; }
+private:
+    std::string mSession;
+    std::deque<LLSD> mEntries;
+    size_t mBytes = 0;
+    U64 mRevision = 0;
+};
 // Human-readable deterministic preview of validated steps. Never fabricates
 // recipes or hides deletions. Protocol identifiers belong in technical details.
 std::string llfinalversePlanSummary(const LLSD& plan);

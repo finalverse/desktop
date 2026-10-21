@@ -11,6 +11,8 @@ public:
     bool postBuild() override;
     void draw() override;
     static void openRequest(const std::string& text, bool citizen, bool submit = false);
+    static bool sendConversation(const std::string& text, bool citizen);
+    static bool conversationPending();
     static void openRecipe();
     static void openPrepared(const LLSD& prepared);
     static void openNearby();

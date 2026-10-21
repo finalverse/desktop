@@ -31,6 +31,7 @@
 #include "llfloaterimnearbychat.h"
 #include "llfloaterimnearbychat.h"
 #include "llnotificationhandler.h"
+#include "llfloaterfinalverseworkspace.h"
 #include "llnotifications.h"
 #include "lltoastnotifypanel.h"
 #include "llviewercontrol.h"
@@ -67,6 +68,8 @@ void LLTipHandler::initChannel()
 //--------------------------------------------------------------------------
 bool LLTipHandler::processNotification(const LLNotificationPtr& notification, bool should_log)
 {
+    if (!notification->canLogToIM())
+        llfinalverseMessage("activity", "Notification", notification->getMessage());
     if(mChannel.isDead())
     {
         return false;

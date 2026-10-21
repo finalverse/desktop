@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<floater name="finalverse_recipe" title="REMIX A PLACE" width="384" height="404" layout="topleft" positioning="centered" single_instance="true" save_rect="false" can_resize="false" bg_opaque_color="FinalverseBackground" bg_alpha_color="FinalverseBackground" bg_opaque_image="Rounded_Rect" bg_alpha_image="Rounded_Rect" bg_opaque_image_overlay="FinalverseBackground" bg_alpha_image_overlay="FinalverseBackground">
+<floater name="finalverse_recipe" title="REMIX A PLACE" width="384" height="404" layout="topleft" positioning="cascading" single_instance="true" save_rect="true" can_minimize="true" can_resize="false" bg_opaque_color="FinalverseBackground" bg_alpha_color="FinalverseBackground" bg_opaque_image="Rounded_Rect" bg_alpha_image="Rounded_Rect" bg_opaque_image_overlay="FinalverseBackground" bg_alpha_image_overlay="FinalverseBackground">
     <text name="heading" left="20" top="36" width="344" height="26" font="SansSerifLarge" text_color="FinalverseText">Make it yours</text>
     <text name="status" left="20" top="74" width="344" height="46" font="SansSerif" text_color="FinalverseSecondary" word_wrap="true"/>
     <line_editor name="title" left="20" top="126" width="344" height="32" font="SansSerif" max_length_bytes="240" label="Name your place" bg_color="FinalverseSurface" text_color="FinalverseText" use_bg_color="true"/>

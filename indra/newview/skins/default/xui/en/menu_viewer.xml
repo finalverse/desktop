@@ -4,6 +4,8 @@
  follows="left|top|right"
  name="Main Menu">
     <menu name="Finalverse" label="Finalverse" tear_off="true">
+      <menu_item_check name="FinalverseWorkspace" label="Scene controls" shortcut="control|alt|SPACE"><menu_item_check.on_click function="Floater.Toggle" parameter="finalverse_workspace"/><menu_item_check.on_check function="Floater.Visible" parameter="finalverse_workspace"/></menu_item_check>
+      <menu_item_check name="FinalverseConversation" label="Conversation / Activity" shortcut="control|alt|C"><menu_item_check.on_click function="Floater.Toggle" parameter="finalverse_conversation"/><menu_item_check.on_check function="Floater.Visible" parameter="finalverse_conversation"/></menu_item_check>
       <menu_item_call name="FinalverseCreate" label="Ask / Create…" shortcut="control|shift|K">
         <menu_item_call.on_click function="Floater.ToggleOrBringToFront" parameter="finalverse_ai" />
       </menu_item_call>

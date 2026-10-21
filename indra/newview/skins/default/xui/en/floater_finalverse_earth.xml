@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<floater name="finalverse_earth" title="EARTH → WORLD" width="560" height="560" layout="topleft" positioning="centered" save_rect="false" can_resize="false" bg_opaque_color="FinalverseBackground" bg_alpha_color="FinalverseBackground">
+<floater name="finalverse_earth" title="EARTH → WORLD" width="560" height="560" layout="topleft" positioning="cascading" save_rect="true" can_minimize="true" can_resize="false" bg_opaque_color="FinalverseBackground" bg_alpha_color="FinalverseBackground">
   <text name="heading" left="20" top="34" width="520" height="28" font="SansSerifLarge" text_color="FinalverseText">Bring an idea into your world</text>
   <text name="handoff_label" left="20" top="72" width="520" height="20" font="SansSerifSmall" text_color="FinalverseSecondary">Single-use Earth handoff · expires in five minutes</text>
   <line_editor name="handoff" left="20" top="98" width="410" height="32" max_length_bytes="64" is_password="true" commit_on_focus_lost="false"/>

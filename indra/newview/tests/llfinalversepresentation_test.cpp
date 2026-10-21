@@ -160,4 +160,36 @@ template<> template<> void object_t::test<14>()
     ensure("core tools remain discoverable",ids.count("inventory") && ids.count("preferences") && ids.count("destinations"));
 }
 
+template<> template<> void object_t::test<15>()
+{
+    LLFinalverseMessageLog log;
+    log.append("login-a", "conversation", "You", "Private first account message", "12:00");
+    ensure_equals("first login retains its message", log.entries().size(), size_t(1));
+    const U64 revision = log.revision();
+    log.session("login-b");
+    ensure("another login cannot see prior messages", log.entries().empty());
+    ensure("session change invalidates display", log.revision() > revision);
+    log.append("", "conversation", "You", "No active login", "12:01");
+    ensure("logged-out traffic is not retained", log.entries().empty());
+}
+template<> template<> void object_t::test<16>()
+{
+    LLFinalverseMessageLog log;
+    for (int n = 0; n < 300; ++n) log.append("session", "activity", "World", std::string(4096, 'x'), "12:00");
+    size_t bytes = 0; for (const auto& entry : log.entries()) bytes += entry["text"].asString().size();
+    ensure("world message floods are memory bounded", bytes <= 65536 && log.entries().size() <= 128);
+    log.clear();
+    ensure("clear removes display history", log.entries().empty());
+    log.append("session", "private-im", "Unknown", "Not an accepted stream", "12:01");
+    ensure("unknown streams are refused", log.entries().empty());
+}
+template<> template<> void object_t::test<17>()
+{
+    LLFinalverseMessageLog log;
+    log.append("session", "conversation", "World AI", std::string(4095, 'x') + "🌍", "12:00");
+    ensure_equals("truncation never splits a UTF-8 glyph", log.entries().back()["text"].asString(), std::string(4095, 'x'));
+    log.append("session", "activity", "World", "safe\x1b[2J\nmessage", "12:01");
+    ensure("terminal control bytes are removed", log.entries().back()["text"].asString().find(char(27)) == std::string::npos);
+}
+
 }

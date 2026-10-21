@@ -11,6 +11,7 @@
 #include "llsdutil.h"
 #include "llfinalversepresentation.h"
 #include "llappviewer.h"
+#include "llfloaterfinalverseworkspace.h"
 #include <sstream>
 
 bool LLFloaterFinalverseEarth::postBuild()
@@ -84,7 +85,10 @@ void LLFloaterFinalverseEarth::run(const std::string& action)
             self->mStatus.clear();self->mPlan.clear();self->getChild<LLTextEditor>("review")->setText(std::string("Your world session changed. Reopen the experience in the destination region before taking another action."));self->buttons();return;
         }
         if(reply["ok"].isBoolean()&&reply["ok"].asBoolean()&&reply["result"].isMap()&&(action=="lumi"||reply["result"]["fsip"].isMap())) {
-            if(action=="lumi")self->getChild<LLTextEditor>("review")->setText("Lumi · experience review\n\n"+reply["result"]["answer"].asString()+"\n\nThis conversation grants no world-edit permission. Inspect the proposal and approve separately.");
+            if(action=="lumi") {
+                llfinalverseMessage("conversation", "Lumi", reply["result"]["answer"].asString());
+                self->getChild<LLTextEditor>("review")->setText("Lumi · experience review\n\n"+reply["result"]["answer"].asString()+"\n\nThis conversation grants no world-edit permission. Inspect the proposal and approve separately.");
+            }
             else self->render(reply["result"]);
         }
         else {
@@ -103,6 +107,7 @@ void LLFloaterFinalverseEarth::render(const LLSD& result)
 {
     const LLSD f=result["fsip"];if(!f.isMap())return;
     mPlan=result["plan_id"].asString();mStatus=f["status"].asString();mDestination=f["destination"];
+    llfinalverseMessage("activity", "Earth → World", f["title"].asString()+" · "+mStatus+(result.has("receipt_sync")?" · receipt "+result["receipt_sync"].asString():""));
     getChild<LLLineEditor>("plan_id")->setText(mPlan);
     std::ostringstream text;
     text<<f["title"].asString()<<"\n"<<(f["layout"].asString()=="virtual"?"Virtual world · no geographic binding":"Schematic exhibition · archival source evidence")<<"\n\n";

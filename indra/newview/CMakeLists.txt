@@ -192,6 +192,7 @@ set(viewer_SOURCE_FILES
     llfloaterfinalverserecipe.cpp
     llfinalverseworldrecipe.cpp
     llfloaterfinalverseexperience.cpp
+    llfloaterfinalverseworkspace.cpp
     llpanelfinalverse.cpp
     llfinalversepresentation.cpp
     llfinalverseworldservices.cpp
@@ -888,6 +889,7 @@ set(viewer_HEADER_FILES
     llfloaterfinalverserecipe.h
     llfinalverseworldrecipe.h
     llfloaterfinalverseexperience.h
+    llfloaterfinalverseworkspace.h
     llpanelfinalverse.h
     llfinalversepresentation.h
     llfinalversevisualbenchmark.h

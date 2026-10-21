@@ -23,6 +23,12 @@
     <key>Type</key><string>Boolean</string>
     <key>Value</key><integer>0</integer>
   </map>
+  <key>FinalverseShowLocation</key>
+  <map><key>Comment</key><string>Show the compact scene location chip.</string><key>Persist</key><integer>1</integer><key>Type</key><string>Boolean</string><key>Value</key><integer>1</integer></map>
+  <key>FinalverseShowSelection</key>
+  <map><key>Comment</key><string>Show contextual selection controls.</string><key>Persist</key><integer>1</integer><key>Type</key><string>Boolean</string><key>Value</key><integer>1</integer></map>
+  <key>FinalverseDockCollapsed</key>
+  <map><key>Comment</key><string>Collapse the scene launcher to its workspace button.</string><key>Persist</key><integer>1</integer><key>Type</key><string>Boolean</string><key>Value</key><integer>0</integer></map>
   <key>FinalverseExperienceEnabled</key>
   <map>
     <key>Comment</key><string>Use the compact Finalverse world-first HUD. Advanced controls remain available in Tools.</string>

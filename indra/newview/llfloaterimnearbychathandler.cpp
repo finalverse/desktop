@@ -32,6 +32,7 @@
 
 #include "llchatitemscontainerctrl.h"
 #include "llfirstuse.h"
+#include "llfloaterfinalverseworkspace.h"
 #include "llfloaterscriptdebug.h"
 #include "llhints.h"
 #include "llfloaterimnearbychat.h"
@@ -604,6 +605,10 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
         }
     }
     nearby_chat->addMessage(chat_msg, true, args);
+    // Mirror only the already-filtered nearby stream. Muted messages, private
+    // IMs, direct control messages and hidden script errors never enter this view.
+    llfinalverseMessage(chat_msg.mSourceType == CHAT_SOURCE_AGENT ? "conversation" : "activity",
+                       chat_msg.mFromName.empty() ? "System" : chat_msg.mFromName, chat_msg.mText);
 
     if (chat_msg.mSourceType == CHAT_SOURCE_AGENT
         && chat_msg.mFromID.notNull()

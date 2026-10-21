@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Finalverse contributors. SPDX-License-Identifier: LGPL-2.1-only
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterfinalverseai.h"
+#include "llfloaterfinalverseworkspace.h"
 #include "llfinalversepresentation.h"
 #include "llfinalverseworldrecipe.h"
 #include "llviewermenufile.h"
@@ -200,6 +201,23 @@ void LLFloaterFinalverseAI::openRequest(const std::string& text, bool citizen, b
     if (citizen && !services.citizen_interactive) { self->show(llfinalverseCitizenUnavailable(services)); return; }
     if (submit) self->run(citizen ? "citizen_say" : "plan");
 }
+bool LLFloaterFinalverseAI::sendConversation(const std::string& text, bool citizen)
+{
+    auto self = LLFloaterReg::getTypedInstance<LLFloaterFinalverseAI>("finalverse_ai");
+    if (!self || self->mBusy)
+    { llfinalverseMessage("activity", "AI", "A request is still running. Wait for its result before sending another."); return false; }
+    if (citizen && !llfinalverseWorldServices().citizen_interactive)
+    { llfinalverseMessage("activity", "Lumi", llfinalverseCitizenUnavailable(llfinalverseWorldServices())); return false; }
+    self->getChild<LLCheckBoxCtrl>("citizen_mode")->set(citizen);
+    self->getChild<LLLineEditor>("request")->setText(text);
+    self->run(citizen ? "citizen_say" : "plan");
+    return self->mBusy;
+}
+bool LLFloaterFinalverseAI::conversationPending()
+{
+    auto self = dynamic_cast<LLFloaterFinalverseAI*>(LLFloaterReg::findInstance("finalverse_ai"));
+    return self && self->mBusy;
+}
 void LLFloaterFinalverseAI::renderActivity()
 {
     llassert(LLCoros::on_main_coro());
@@ -210,6 +228,7 @@ void LLFloaterFinalverseAI::show(const std::string& text, const std::string& det
     // Network continuations run on fibers. Text layout may upload a missing
     // font glyph and acquire a non-coroutine-aware GL mutex, so draw owns it.
     mHumanText = text; mTechnicalText = details; mActivityDirty = true;
+    llfinalverseMessage("activity", "World AI", text);
 }
 void LLFloaterFinalverseAI::draw()
 {
@@ -293,6 +312,8 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
     if (services.recovery && (operation == "plan" || operation == "commit" || operation == "undo" || operation == "citizen_approve" || operation == "citizen_undo"))
     { show("World changes are paused for recovery. Use Nearby or History to inspect what happened."); return; }
     if (citizen && operation == "citizen_say" && (prompt.empty() || prompt.size() > 2048)) { show("Enter a message for Lumi of up to 2048 characters."); return; }
+    if (operation == "plan" || operation == "citizen_say")
+        llfinalverseMessage("conversation", citizen ? "You → Lumi" : "You → World AI", prompt);
     LLSD body; body["op"] = citizen ? "citizen" : (operation == "plan" || operation == "recipe") ? "inspect" : operation;
     if (citizen) { body["command"] = operation.substr(8); body["text"] = prompt; }
     if (auto object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject()) body["selected_id"] = object->getID().asString();
@@ -302,6 +323,7 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
     const LLHandle<LLFloater> handle = getHandle();
     busy(true, operation == "commit" || operation == "undo" || operation == "citizen_approve" || operation == "citizen_undo");
     const LLSD recipe = mRecipe;
+    const LLUUID actor_id = gAgentID, login_session = gAgentSessionID;
     const bool server_planning = services.server_planning;
     if (server_planning && (operation == "plan" || operation == "recipe"))
     {
@@ -310,24 +332,26 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
         else body["request"] = prompt;
     }
     show(operation == "recipe" ? "Replaying your recipe and checking placement…" : operation == "plan" ? "Looking around and planning…" : operation == "citizen_say" ? "Lumi is considering your message… You can pause or cancel while she thinks." : "Waiting for the world service…");
-    LLCoros::instance().launch("FinalverseWorld", [handle, generation, region_id, capability, operation, body, prompt, recipe, server_planning]()
+    LLCoros::instance().launch("FinalverseWorld", [handle, generation, region_id, capability, operation, body, prompt, recipe, server_planning, actor_id, login_session]()
     {
         auto current = [&]() -> LLFloaterFinalverseAI*
         {
             auto self = dynamic_cast<LLFloaterFinalverseAI*>(handle.get());
             if (!self || self->mGeneration != generation) return nullptr;
-            if (!gAgent.getRegion() || gAgent.getRegion()->getRegionID() != region_id)
-            { self->mPrepared = LLSD(); self->mCitizenPrepared = LLSD(); self->mLastPlan.clear(); self->busy(false); self->show("Your region changed. Please inspect and plan again."); return nullptr; }
+            if (gAgentID != actor_id || gAgentSessionID != login_session || !gAgent.getRegion() ||
+                gAgent.getRegion()->getRegionID() != region_id || gAgent.getRegion()->getCapability("FinalverseWorld") != capability)
+            { self->mPrepared = LLSD(); self->mCitizenPrepared = LLSD(); self->mLastPlan.clear(); self->busy(false); self->show("Your world session changed. Please inspect and plan again."); return nullptr; }
             return self;
         };
         // Recipe replay has no inference context. Going directly to prepare
         // avoids a redundant inspection racing the inherited 100 ms throttle.
         LLSD reply = operation == "recipe" && !server_planning ? LLSD() : post(capability, body);
         auto self = current(); if (!self) return;
-        if (reply.has("error")) { self->mPrepared = LLSD(); self->mCitizenPrepared = LLSD(); self->busy(false); self->show(reply["error"].asString()); return; }
+        if (reply.has("error")) { self->mPrepared = LLSD(); self->mCitizenPrepared = LLSD(); self->busy(false); self->show(reply["error"].asString()); llfinalverseMessage("conversation", "System", "Request failed: " + reply["error"].asString()); return; }
         if (operation.compare(0, 8, "citizen_") == 0)
         {
             const LLSD result = reply["result"];
+            llfinalverseMessage("conversation", "Lumi", result["answer"].asString());
             std::string recipe_error;
             if (llfinalverseValidateRecipe(result["world_spec"], recipe_error)) self->mRecipe = result["world_spec"];
             self->mCitizenPrepared = LLSD();
@@ -376,7 +400,8 @@ void LLFloaterFinalverseAI::run(const std::string& operation)
             else { request["request"] = prompt; request["world_context"] = modelContext(reply["result"]); }
             LLSD generated = server_planning ? reply["result"] : post(operation == "recipe" ? "http://127.0.0.1:18765/v1/world/spec/plan" : "http://127.0.0.1:18765/v1/world/plan", request);
             self = current(); if (!self) return;
-            if (generated.has("error")) { self->busy(false); self->show(generated["error"].asString()); return; }
+            if (generated.has("error")) { self->busy(false); self->show(generated["error"].asString()); llfinalverseMessage("conversation", "System", "Request failed: " + generated["error"].asString()); return; }
+            llfinalverseMessage("conversation", "World AI", generated["answer"].asString());
             std::string recipe_error;
             self->mRecipe = llfinalverseValidateRecipe(generated["world_spec"], recipe_error) ? generated["world_spec"] : LLSD();
             self->mPrepared = LLSD();
