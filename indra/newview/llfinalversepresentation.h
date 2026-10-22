@@ -51,4 +51,9 @@ std::string llfinalverseQuickAction(const std::string& text);
 // Search only the curated local navigation/tool catalog, never a remote tool name.
 LLSD llfinalverseFindActions(const std::string& query);
 
+
+
+// Pure display projection of authenticated canonical session pages. No execution.
+LLSD llfinalverseSessionPage(const LLSD& state, const LLSD& page, std::string& error);
+
 #endif

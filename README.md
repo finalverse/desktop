@@ -15,6 +15,15 @@ open-source Second Life Viewer. Finalverse is the consumer experience;
 > ad hoc signed and **not notarized**. Create your own world account separately;
 > downloading alone does not register you. GA support is not offered.
 
+## Confluence continuity · v0.7 integration branch
+
+`codex/confluence-v07` adds explicit shared Earth sessions and original source
+artifacts to the native Conversation window. CLI, Web and Viewer replay the same
+authorized session; chat grants cannot approve or edit a world. See the
+[integration and privacy guide](docs/finalverse/confluence-continuity.md).
+This R&D branch is not a new downloadable release; shared-session Lumi and the
+remaining acceptance gates are still open.
+
 ## Scene workspace · source on main
 
 The native UI now uses a small collapsible launcher, an optional location chip,

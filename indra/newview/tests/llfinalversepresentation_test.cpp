@@ -192,4 +192,43 @@ template<> template<> void object_t::test<17>()
     ensure("terminal control bytes are removed", log.entries().back()["text"].asString().find(char(27)) == std::string::npos);
 }
 
+LLSD sharedPage()
+{
+    LLSD page,event;
+    page["protocol_version"]="1.0"; page["session"]["id"]="11111111-2222-4333-8444-555555555555";
+    page["session"]["mode"]="chat"; page["session"]["title"]="Synthetic session";
+    page["cursor"]=1; page["artifacts"]=LLSD::emptyArray();
+    event["protocol_version"]="1.0"; event["session_id"]=page["session"]["id"];
+    event["sequence"]=1; event["request_id"]="fixture"; event["type"]="message.started";
+    event["data"]["user_text"]="Synthetic question"; event["data"]["model"]="fixture model";
+    page["events"].append(event); return page;
+}
+template<> template<> void object_t::test<18>()
+{
+    std::string error; auto page=sharedPage(); auto state=llfinalverseSessionPage(LLSD(),page,error);
+    ensure("valid shared session replays",error.empty());
+    ensure_equals("human and AI entries",state["messages"].size(),2);
+    page["events"][0]["type"]="message.delta"; page["events"][0]["sequence"]=2;
+    page["events"][0]["data"]["text"]="Synthetic answer";page["cursor"]=2;
+    state=llfinalverseSessionPage(state,page,error);
+    ensure_equals("stream delta updates the existing response",state["messages"][1]["text"].asString(),"Synthetic answer");
+    ensure_equals("canonical cursor retained",state["cursor"].asInteger(),2);
+}
+template<> template<> void object_t::test<19>()
+{
+    std::string error;auto page=sharedPage();auto state=llfinalverseSessionPage(LLSD(),page,error);
+    ensure("duplicate replay refused",llfinalverseSessionPage(state,page,error).isUndefined()&&!error.empty());
+    page["session"]["id"]="aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+    ensure("another session cannot enter this display",llfinalverseSessionPage(state,page,error).isUndefined());
+    page=sharedPage();page["session"]["mode"]="code";
+    ensure("local code history never enters a shared spatial view",llfinalverseSessionPage(LLSD(),page,error).isUndefined());
+}
+template<> template<> void object_t::test<20>()
+{
+    std::string error; auto page=sharedPage();page["events"][0]["data"]["user_text"]=std::string(4096,'x');
+    LLSD state;for(S32 n=1;n<=200;++n){page["events"][0]["sequence"]=n;page["cursor"]=n;state=llfinalverseSessionPage(state,page,error);ensure("bounded pages remain valid",error.empty());}
+    size_t bytes=0;for(const auto& entry:llsd::inArray(state["messages"]))bytes+=entry["text"].asString().size();
+    ensure("display bounded independently of durable history",bytes<=65536&&state["messages"].size()<=128);
+}
+
 }

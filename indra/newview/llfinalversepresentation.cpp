@@ -206,3 +206,65 @@ LLSD llfinalverseParseDestinations(const LLSD& result, const std::string& region
     }
     return out;
 }
+
+LLSD llfinalverseSessionPage(const LLSD& state, const LLSD& page, std::string& error)
+{
+    error.clear();
+    const std::string id = page["session"]["id"].asString();
+    if (page["protocol_version"].asString() != "1.0" || !LLUUID::validate(id) ||
+        page["session"]["mode"].asString() == "code" || !page["events"].isArray() ||
+        page["events"].size() > 32 || (!state["session_id"].asString().empty() && state["session_id"].asString() != id))
+    { error = "Incompatible shared session. Reconnect explicitly."; return LLSD(); }
+    LLSD next = state;
+    next["session_id"] = id; next["title"] = utf8str_truncate(page["session"]["title"].asString(), 120);
+    next["status"] = page["session"]["status"]; next["permissions"] = page["permissions"];
+    if (!next["messages"].isArray()) next["messages"] = LLSD::emptyArray();
+    if (!next["activity"].isArray()) next["activity"] = LLSD::emptyArray();
+    S32 cursor = state["cursor"].asInteger();
+    for (const auto& event : llsd::inArray(page["events"]))
+    {
+        if (event["protocol_version"].asString() != "1.0" || event["session_id"].asString() != id ||
+            !event["sequence"].isInteger() || event["sequence"].asInteger() != cursor + 1 || cursor >= 4096)
+        { error = "Session event gap or replay. Reconnect and replay from the source."; return LLSD(); }
+        ++cursor;
+        const std::string type = event["type"].asString(), request = event["request_id"].asString();
+        if (type == "message.started")
+        {
+            LLSD human, ai;
+            human["request"] = ai["request"] = request;
+            human["role"] = "human"; human["speaker"] = "Human";
+            human["text"] = utf8str_truncate(event["data"]["user_text"].asString(), 4096);
+            ai["role"] = "ai"; ai["speaker"] = utf8str_truncate(event["data"]["model"].asString(), 128); ai["text"] = "";
+            next["messages"].append(human); next["messages"].append(ai);
+        }
+        else if (type == "message.delta")
+        {
+            for (S32 i = next["messages"].size() - 1; i >= 0; --i)
+                if (next["messages"][i]["request"].asString() == request && next["messages"][i]["role"].asString() == "ai")
+                { next["messages"][i]["text"] = utf8str_truncate(next["messages"][i]["text"].asString() + event["data"]["text"].asString(), 32000); break; }
+        }
+        else if (type == "confluence.participant_message")
+        {
+            for (S32 i = 0; i < next["messages"].size(); ++i)
+                if (next["messages"][i]["request"].asString() == request && next["messages"][i]["role"].asString() == "human")
+                    next["messages"][i]["speaker"] = "Avatar " + event["data"]["agent_id"].asString();
+        }
+        else
+        {
+            LLSD activity; activity["type"] = type; activity["sequence"] = cursor;
+            next["activity"].append(activity);
+        }
+    }
+    if (!page["cursor"].isInteger() || page["cursor"].asInteger() != cursor)
+    { error = "Incorrect session replay cursor."; return LLSD(); }
+    next["cursor"] = cursor;
+    S32 bytes = 0;
+    for (const auto& message : llsd::inArray(next["messages"])) bytes += message["text"].asString().size();
+    while (next["messages"].size() > 128 || bytes > 65536)
+    { bytes -= next["messages"][0]["text"].asString().size(); next["messages"].erase(0); }
+    while (next["activity"].size() > 64) next["activity"].erase(0);
+    if (!page["artifacts"].isArray() || page["artifacts"].size() > 8)
+    { error = "Artifact reference budget exceeded."; return LLSD(); }
+    next["artifacts"] = page["artifacts"];
+    return next;
+}

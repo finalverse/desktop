@@ -23,6 +23,15 @@ public:
     void onOpen(const LLSD& key) override;
 private:
     void send();
+    bool remote(const std::string& action, const std::string& value = "");
+    std::string mRemoteAction, mQueuedAction, mQueuedValue;
+    bool mArtifactView = false, mLinked = false, mNetworkBusy = false, mSharedDirty = false;
+    LLSD mShared, mArtifactPreview;
+    LLUUID mLinkedActor, mLinkedRegion, mLinkedSession, mComposerSession;
+    U64 mNetworkGeneration = 0;
+    LLTimer mReplay;
+    S32 mReadFailures = 0;
+    bool mRecovering = false;
     bool mActivity = false;
     U64 mRevision = 0;
     LLTimer mRefresh;
