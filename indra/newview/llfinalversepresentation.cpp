@@ -240,9 +240,12 @@ LLSD llfinalverseSessionPage(const LLSD& state, const LLSD& page, std::string& e
         }
         else if (type == "message.delta")
         {
-            for (S32 i = next["messages"].size() - 1; i >= 0; --i)
-                if (next["messages"][i]["request"].asString() == request && next["messages"][i]["role"].asString() == "ai")
-                { next["messages"][i]["text"] = utf8str_truncate(next["messages"][i]["text"].asString() + event["data"]["text"].asString(), 32000); break; }
+            for (auto it = next["messages"].endArray(); it != next["messages"].beginArray();)
+            {
+                LLSD& message = *--it;
+                if (message["request"].asString() == request && message["role"].asString() == "ai")
+                { message["text"] = utf8str_truncate(message["text"].asString() + event["data"]["text"].asString(), 32000); break; }
+            }
         }
         else if (type == "confluence.participant_message")
         {
@@ -259,7 +262,7 @@ LLSD llfinalverseSessionPage(const LLSD& state, const LLSD& page, std::string& e
     if (!page["cursor"].isInteger() || page["cursor"].asInteger() != cursor)
     { error = "Incorrect session replay cursor."; return LLSD(); }
     next["cursor"] = cursor;
-    S32 bytes = 0;
+    size_t bytes = 0;
     for (const auto& message : llsd::inArray(next["messages"])) bytes += message["text"].asString().size();
     while (next["messages"].size() > 128 || bytes > 65536)
     { bytes -= next["messages"][0]["text"].asString().size(); next["messages"].erase(0); }

@@ -2443,6 +2443,7 @@ endif ()
 
 if (LL_TESTS)
   add_executable(finalverse_ground_plane_test tests/llgroundplane_test.cpp)
+  add_dependencies(BUILD_TESTS finalverse_ground_plane_test)
   add_test(NAME finalverse_ground_plane COMMAND finalverse_ground_plane_test)
   # To add a viewer unit test, just add the test .cpp file below
   # This creates a separate test project per file listed.

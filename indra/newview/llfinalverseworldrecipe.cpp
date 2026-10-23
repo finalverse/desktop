@@ -52,9 +52,10 @@ LLSD llfinalverseReadRecipe(const std::string& filename, std::string& error)
 {
     try
     {
-        if (!std::filesystem::is_regular_file(std::filesystem::symlink_status(fsyspath(filename))))
+        const std::filesystem::path path = fsyspath(filename);
+        if (!std::filesystem::is_regular_file(std::filesystem::symlink_status(path)))
             throw std::runtime_error("Not a regular file");
-        std::ifstream input(fsyspath(filename), std::ios::binary);
+        std::ifstream input(path, std::ios::binary);
         char data[4097]; input.read(data, sizeof(data));
         if (input.gcount() < 1 || input.gcount() > 4096 || input.bad()) throw std::runtime_error("Invalid size");
         LLSD recipe = LlsdFromJson(boost::json::parse(std::string_view(data, input.gcount())));
