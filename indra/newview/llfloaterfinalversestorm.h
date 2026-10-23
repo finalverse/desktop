@@ -14,12 +14,13 @@ public:
     void onOpen(const LLSD& key) override;
     void onClose(bool app_quitting) override;
     void draw() override;
+
 private:
     struct Worker;
-    void stop();
-    std::unique_ptr<Worker> mWorker;
+    void                       stop();
+    std::unique_ptr<Worker>    mWorker;
     LLPointer<LLViewerTexture> mImage;
-    LLTimer mRefresh;
-    LLUUID mActor, mRegion, mSession;
+    LLTimer                    mRefresh;
+    LLUUID                     mActor, mRegion, mSession;
 };
 #endif
