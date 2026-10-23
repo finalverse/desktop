@@ -9,15 +9,14 @@ not another independently authenticated user's snapshot.
 Build FinalStorm's `runtime` package `finalstorm-desktop`, then launch this
 Desktop source build with `FINALSTORM_DESKTOP_LIBRARY` set to the absolute path
 of `libfinalstorm_desktop.dylib` (macOS) or `libfinalstorm_desktop.so` (Linux).
-Only an explicit regular file with ABI version 1 is loaded. This is a developer
+Only an explicit regular file with ABI version 2 is loaded. This is a developer
 preview, not a signed plugin distribution mechanism. Do not load untrusted code.
 Windows has a clear unavailable state; no Windows embedding acceptance is claimed.
 
 The exact header is vendored in `indra/newview/finalstorm/finalstorm_desktop.h`.
 Producer implementation: `finalverse/finalstorm` at
-`7adb7433db676956a30554826f37a7e0b07e064f` (ABI header unchanged from
-`c02074f8a1289ab9ba60280cffd6640abc56c7c7`). The header SHA-256 is
-`06e83042bd66126a512e0a94d6478844d748621aaeaacf43d1609ee6598111d8`.
+`5d42b10628d5102436c75731f507bfa0d811d61b`. The ABI 2 header SHA-256 is
+`a57028de5ab73da3f8fdbb7421b5e6f1b8fee8440a9a132a5f15c0429dae03bb`.
 Use the package's pinned release profile: stripping this cdylib with the pinned
 Rust 1.92 toolchain can produce an unaligned Mach-O string table on macOS 27.
 FinalStorm's macOS CI loads the actual library to catch that failure.
@@ -39,7 +38,16 @@ geometry cannot reuse stale buffers. Each object retains its MutSea UUID.
 The viewport follows the native camera. Use the existing movement/camera tools;
 Return to world closes it. Conversation opens the existing UI. No world write,
 policy decision, capability token or login credential is sent through the ABI.
-Material images/PBR, skinned avatars, HUDs/attachments, picking and SpatialDB
+The bridge also copies up to 16 decoded native base-color images, at most
+128×128 RGBA8 each. The existing async decoder supplies small retained raw
+levels; capture never waits for network or reads back the native GL texture.
+Unavailable images keep the per-face color. Native default texture mapping
+supplies offsets, repeats, rotation and animation. Media, planar mapping and
+PBR surfaces retain native fallback. Requests are bounded to 1 MiB of decoded
+images and 8 MiB including geometry and hex serialization. Changed decoded
+content changes the renderer's texture cache identity.
+
+Full PBR, skinned avatars, HUDs/attachments, picking and SpatialDB
 static composition are not implemented here. Native decoding and existing
 renderer remain the fallback for those features. Earth handoff and complete
 Living World acceptance remain separate gates.
@@ -52,7 +60,7 @@ binary/library hashes, native object/triangle/pixel counts and hardware backend,
 plus actual UI capture. Verify refresh, close/reopen and logout clearing. Keep
 private accounts, session files and capability addresses outside source control.
 
-On October 23 the actual arm64 Desktop at `8183487f2176c2c0821388182471121867b80f03`
+On October 23 ABI 1's actual arm64 Desktop at `8183487f2176c2c0821388182471121867b80f03`
 rendered 78 native mesh objects, including 68 linked children, on Apple M1 Metal
 with software rendering disabled. GPU-visible object IDs matched mesh IDs read
 by an independently authenticated native SDK observer in the same region. Live

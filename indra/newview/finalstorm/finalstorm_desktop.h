@@ -6,7 +6,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/* ABI 1. All handles belong to one caller thread, no overlapping operations.
+/* ABI 2 (desktop-scene/v2: bounded native decoded RGBA textures).
+ * All handles belong to one caller thread, no overlapping operations.
  * Callers own all buffers and must provide valid pointers for their lengths.
  * render writes tightly packed top-down RGBA8 sRGB and NUL-terminated JSON.
  * 0=success, -1=invalid input/budget/session, -2=GPU/internal failure.

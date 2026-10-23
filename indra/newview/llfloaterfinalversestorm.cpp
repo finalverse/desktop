@@ -7,16 +7,20 @@
 #include "llbutton.h"
 #include "llfloaterreg.h"
 #include "llimage.h"
+#include "lldrawable.h"
+#include "llface.h"
 #include "llsdjson.h"
 #include "lltextbox.h"
 #include "llviewercamera.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llviewertexture.h"
 #include "llvolume.h"
 #include "lltextureentry.h"
 #include <condition_variable>
 #include <filesystem>
 #include <mutex>
+#include <map>
 #include <thread>
 #if LL_DARWIN || LL_LINUX
 #include <dlfcn.h>
@@ -40,7 +44,7 @@ std::string captureNativeScene()
     if (!region)
         return {};
     LLSD root;
-    root["schema"] = "finalverse.desktop-scene/v1";
+    root["schema"] = "finalverse.desktop-scene/v2";
     root["actor"]  = gAgentID.asString();
     root["region"] = region->getRegionID().asString();
     auto camera    = LLViewerCamera::getInstance();
@@ -53,6 +57,59 @@ std::string captureNativeScene()
     root["camera"]["up"]       = vector(camera->getUpAxis().mV, 3);
     root["camera"]["fov"]      = camera->getView();
     root["objects"]            = LLSD::emptyArray();
+    root["textures"]           = LLSD::emptyArray();
+    std::map<LLUUID, bool> textureCopies;
+    auto                   copyTexture = [&](LLViewerTexture* image)
+    {
+        if (!image || (image->getType() != LLViewerTexture::FETCHED_TEXTURE && image->getType() != LLViewerTexture::LOD_TEXTURE))
+            return false; // Media surfaces and private capability URLs never cross the ABI.
+        const auto id    = image->getID();
+        auto       found = textureCopies.find(id);
+        if (found != textureCopies.end())
+            return found->second;
+        if (id.isNull() || textureCopies.size() >= 16)
+            return false;
+        textureCopies[id] = false;
+        auto fetched      = static_cast<LLViewerFetchedTexture*>(image);
+        // Ask the existing asynchronous decoder for a small retained level.
+        // Never wait for a network fetch or read back the native GL texture.
+        fetched->forceToSaveRawImage(MAX_DISCARD_LEVEL, 2.f);
+        LLPointer<LLImageRaw> raw = fetched->getSavedRawImage();
+        if (!raw)
+            return false;
+        LLSD texture;
+        texture["id"] = id.asString();
+        std::string hex;
+        {
+            LLImageDataLock lock(raw);
+            const int       width = raw->getWidth(), height = raw->getHeight(), components = raw->getComponents();
+            if (!raw->getData() || width < 1 || height < 1 || width > 4096 || height > 4096 || components < 1 || components > 4)
+                return false;
+            const int w = llmin(width, 128), h = llmin(height, 128);
+            texture["width"]  = w;
+            texture["height"] = h;
+            hex.reserve(w * h * 8);
+            constexpr char digits[] = "0123456789abcdef";
+            for (int y = 0; y < h; ++y)
+                for (int x = 0; x < w; ++x)
+                {
+                    const auto pixel  = raw->getData() + ((y * height / h) * width + x * width / w) * components;
+                    const U8   rgba[] = { pixel[0], pixel[components < 3 ? 0 : 1], pixel[components < 3 ? 0 : 2],
+                                          U8(components == 2   ? pixel[1]
+                                             : components == 4 ? pixel[3]
+                                                               : 255) };
+                    for (auto channel : rgba)
+                    {
+                        hex.push_back(digits[channel >> 4]);
+                        hex.push_back(digits[channel & 15]);
+                    }
+                }
+        }
+        texture["rgba_hex"] = hex;
+        root["textures"].append(texture);
+        textureCopies[id] = true;
+        return true;
+    };
     int vertices = 0, indices = 0, faces = 0;
     for (int i = 0; i < gObjectList.getNumObjects() && root["objects"].size() < 256; ++i)
     {
@@ -81,16 +138,28 @@ std::string captureNativeScene()
             out["normals"]   = LLSD::emptyArray();
             out["uvs"]       = LLSD::emptyArray();
             out["indices"]   = LLSD::emptyArray();
+            auto te          = object->getTE(f);
+            auto nativeFace  = object->mDrawable ? object->mDrawable->getFace(f) : nullptr;
+            // Legacy default UV mapping includes native TE offsets, rotation,
+            // repeats and animation. PBR and planar projection use native fallback.
+            const bool mapped =
+                te && !te->getGLTFRenderMaterial() && te->getTexGen() == LLTextureEntry::TEX_GEN_DEFAULT && nativeFace && face.mTexCoords;
+            auto image = mapped ? object->getTEImage(f) : nullptr;
+            if (image && copyTexture(image))
+                out["texture"] = image->getID().asString();
             for (int v = 0; v < face.mNumVertices; ++v)
             {
                 out["positions"].append(vector(face.mPositions[v].getF32ptr(), 3));
                 out["normals"].append(vector(face.mNormals[v].getF32ptr(), 3));
                 if (face.mTexCoords)
-                    out["uvs"].append(vector(face.mTexCoords[v].mV, 2));
+                {
+                    const auto uv = mapped ? nativeFace->surfaceToTexture(face.mTexCoords[v], face.mPositions[v], face.mNormals[v])
+                                           : face.mTexCoords[v];
+                    out["uvs"].append(vector(uv.mV, 2));
+                }
             }
             for (int v = 0; v < face.mNumIndices; ++v)
                 out["indices"].append(int(face.mIndices[v]));
-            auto           te    = object->getTE(f);
             const LLColor4 color = te ? te->getColor() : LLColor4::white;
             out["color"]         = vector(color.mV, 4);
             vertices += face.mNumVertices;
@@ -144,7 +213,7 @@ struct LLFloaterFinalverseStorm::Worker
         auto  create  = library ? reinterpret_cast<decltype(&fs_desktop_create)>(dlsym(library, "fs_desktop_create")) : nullptr;
         auto  render  = library ? reinterpret_cast<decltype(&fs_desktop_render)>(dlsym(library, "fs_desktop_render")) : nullptr;
         auto  destroy = library ? reinterpret_cast<decltype(&fs_desktop_destroy)>(dlsym(library, "fs_desktop_destroy")) : nullptr;
-        void* context = abi && create && render && destroy && abi() == 1 ? create(WIDTH, HEIGHT) : nullptr;
+        void* context = abi && create && render && destroy && abi() == 2 ? create(WIDTH, HEIGHT) : nullptr;
         if (!context)
         {
             auto result    = std::make_unique<Result>();
