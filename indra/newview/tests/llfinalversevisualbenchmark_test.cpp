@@ -2,6 +2,8 @@
 #include "../llviewerprecompiledheaders.h"
 #include "../llfinalversevisualbenchmark.h"
 #include "../test/lltut.h"
+#include "fsyspath.h"
+#include <filesystem>
 #include <limits>
 namespace tut
 {
@@ -13,7 +15,7 @@ struct visual_benchmark_data
         spec["schema"] = 1;
         spec["grid_login_uri"] = "http://127.0.0.1:18094/";
         spec["region_id"] = LLUUID("a9d44538-26ca-4586-a8a9-e551722ffa15");
-        spec["output_dir"] = "/tmp/new-finalverse-benchmark";
+        spec["output_dir"] = fsyspath(std::filesystem::temp_directory_path() / "new-finalverse-benchmark").string();
         spec["warmup_seconds"] = 15.; spec["sample_seconds"] = 15.;
         for (const char* name : {"CAM_Arrival", "CAM_Harbor", "CAM_Lumi", "CAM_LumiHome",
             "CAM_Garden", "CAM_Pavilion", "CAM_Waterfront", "CAM_Sunset"})
