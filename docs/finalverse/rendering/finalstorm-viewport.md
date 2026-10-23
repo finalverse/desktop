@@ -1,7 +1,7 @@
 # FinalStorm native viewport (source preview)
 
 The existing Desktop can host FinalStorm in a floater opened from Explore →
-FinalStorm preview. Native world login, UDP/capability networking, object cache,
+FinalStorm preview, the action finder, `/storm`, or Command–Option–F on macOS. Native world login, UDP/capability networking, object cache,
 camera controls, interaction, conversation UI and existing world renderer remain
 in place. The bridge renders a copy of current-session decoded native geometry,
 not another independently authenticated user's snapshot.
