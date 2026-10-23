@@ -138,8 +138,36 @@ std::string captureNativeScene()
             out["normals"]   = LLSD::emptyArray();
             out["uvs"]       = LLSD::emptyArray();
             out["indices"]   = LLSD::emptyArray();
-            auto te          = object->getTE(f);
-            auto nativeFace  = object->mDrawable ? object->mDrawable->getFace(f) : nullptr;
+            // Procedural volume buffers may contain unused vertices or zero/
+            // unnormalized normals. Export referenced nondegenerate triangles,
+            // normalize the native normals as its shader does, and reconstruct
+            // missing normals from the actual triangle geometry.
+            std::vector<int>       remap(face.mNumVertices, -1), used;
+            std::vector<LLVector3> geometricNormals(face.mNumVertices);
+            for (int t = 0; t + 2 < face.mNumIndices; t += 3)
+            {
+                const int a = face.mIndices[t], b = face.mIndices[t + 1], c = face.mIndices[t + 2];
+                if (a >= face.mNumVertices || b >= face.mNumVertices || c >= face.mNumVertices)
+                    continue;
+                const LLVector3 p0(face.mPositions[a].getF32ptr()), p1(face.mPositions[b].getF32ptr()), p2(face.mPositions[c].getF32ptr());
+                auto            normal = (p1 - p0) % (p2 - p0);
+                if (!normal.isFinite() || normal.lengthSquared() <= 1e-16f)
+                    continue;
+                for (int index : { a, b, c })
+                {
+                    geometricNormals[index] += normal;
+                    if (remap[index] < 0)
+                    {
+                        remap[index] = used.size();
+                        used.push_back(index);
+                    }
+                    out["indices"].append(remap[index]);
+                }
+            }
+            if (out["indices"].size() < 3)
+                continue;
+            auto te         = object->getTE(f);
+            auto nativeFace = object->mDrawable ? object->mDrawable->getFace(f) : nullptr;
             // Legacy default UV mapping includes native TE offsets, rotation,
             // repeats and animation. PBR and planar projection use native fallback.
             const bool mapped =
@@ -147,10 +175,19 @@ std::string captureNativeScene()
             auto image = mapped ? object->getTEImage(f) : nullptr;
             if (image && copyTexture(image))
                 out["texture"] = image->getID().asString();
-            for (int v = 0; v < face.mNumVertices; ++v)
+            bool validNormals = true;
+            for (int v : used)
             {
                 out["positions"].append(vector(face.mPositions[v].getF32ptr(), 3));
-                out["normals"].append(vector(face.mNormals[v].getF32ptr(), 3));
+                LLVector3 normal(face.mNormals[v].getF32ptr());
+                if (!normal.isFinite() || normal.lengthSquared() < 1e-12f)
+                    normal = geometricNormals[v];
+                if (!normal.isFinite() || normal.normalize() < 1e-6f)
+                {
+                    validNormals = false;
+                    break;
+                }
+                out["normals"].append(vector(normal.mV, 3));
                 if (face.mTexCoords)
                 {
                     const auto uv = mapped ? nativeFace->surfaceToTexture(face.mTexCoords[v], face.mPositions[v], face.mNormals[v])
@@ -158,12 +195,12 @@ std::string captureNativeScene()
                     out["uvs"].append(vector(uv.mV, 2));
                 }
             }
-            for (int v = 0; v < face.mNumIndices; ++v)
-                out["indices"].append(int(face.mIndices[v]));
+            if (!validNormals)
+                continue;
             const LLColor4 color = te ? te->getColor() : LLColor4::white;
             out["color"]         = vector(color.mV, 4);
-            vertices += face.mNumVertices;
-            indices += face.mNumIndices;
+            vertices += used.size();
+            indices += out["indices"].size();
             ++faces;
             item["faces"].append(out);
         }
@@ -248,6 +285,8 @@ struct LLFloaterFinalverseStorm::Worker
                                        report,
                                        sizeof(report)) == 0;
             result->report    = result->ok ? report : "FinalStorm refused this frame. The native world view remains available.";
+            if (!result->ok && report[0])
+                LL_WARNS_ONCE("FinalStormDesktop") << "Native frame validation: " << report << LL_ENDL;
             {
                 std::lock_guard<std::mutex> lock(mutex);
                 ready = std::move(result);
