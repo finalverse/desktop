@@ -9,6 +9,9 @@ on:
 jobs:
   cla:
     name: Check CLA
+    # The upstream signature store belongs to Second Life. Finalverse source
+    # licenses are checked independently; no upstream agreement is signed here.
+    if: github.repository_owner == 'secondlife'
     runs-on: ubuntu-latest
     steps:
       - name: CLA Assistant
