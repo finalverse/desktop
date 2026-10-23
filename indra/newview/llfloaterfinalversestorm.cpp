@@ -117,7 +117,7 @@ void LLFloaterFinalverseStorm::onClose(bool) {stop();}
 void LLFloaterFinalverseStorm::onOpen(const LLSD&) {mRefresh.reset();}
 void LLFloaterFinalverseStorm::draw()
 {
-    auto region=gAgent.getRegion();
+    auto region=(gDisconnected||LLAppViewer::instance()->logoutRequestSent())?nullptr:gAgent.getRegion();
     const auto actor=gAgentID,session=gAgent.getSessionID(),regionID=region?region->getRegionID():LLUUID::null;
     if(actor.isNull()||!region||actor!=mActor||regionID!=mRegion||session!=mSession) {
         stop();mActor=actor;mRegion=regionID;mSession=session;
@@ -125,6 +125,7 @@ void LLFloaterFinalverseStorm::draw()
         if(region&&!actor.isNull()&&path&&*path) {mWorker=std::make_unique<Worker>(path);mRefresh.setTimerExpirySec(0);}
         getChild<LLTextBox>("status")->setText(std::string(!region?"Enter a world to view it with FinalStorm.":mWorker?"Starting FinalStorm with your current native session…":"FinalStorm preview is not configured for this source build. Return to the native world view."));
     }
+    if(isMinimized()) {LLFloater::draw();return;}
     if(mWorker) {
         std::unique_ptr<Worker::Result> result;
         {std::lock_guard<std::mutex> lock(mWorker->mutex);result=std::move(mWorker->ready);}
