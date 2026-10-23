@@ -2,6 +2,11 @@
 
 Status: initial engineering audit, not distribution clearance. Audit date: 2026-10-07.
 
+The [2026-10-23 Firestorm evaluation](firestorm-evaluation.md) records the
+owner-requested alternative review and the approved CLA workflow ownership fix.
+Both foundations retain LGPL 2.1 obligations. The current open configuration
+continues while actual binary/dependency distribution checks remain required.
+
 ## Source provenance
 
 The root [LICENSE](../../LICENSE) and [doc/LGPL-license.txt](../../doc/LGPL-license.txt) contain LGPL 2.1. [doc/LICENSE-source.txt](../../doc/LICENSE-source.txt) describes inherited Linden code, while source headers such as [llviewerobject.h](../../indra/newview/llviewerobject.h) specify LGPL version 2.1 only. Preserve these headers, contributor notices and file-specific licenses. Do not relabel inherited C++ as newly authored Finalverse code or apply a blanket permissive license to the fork.

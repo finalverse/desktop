@@ -109,6 +109,11 @@ and bundled notices. Brand assets retain their recorded rights; this repository
 is not a blanket trademark or third-party asset license. See the
 [distribution audit](docs/finalverse/licensing-audit.md).
 
+[Firestorm foundation evaluation](docs/finalverse/firestorm-evaluation.md)
+compares the alternative's inherited LGPL terms, service policy and dependency
+choices. Firestorm remains an OpenSim compatibility option; switching clients
+does not remove inherited source-license obligations.
+
 <details><summary>Verbatim upstream README retained for provenance</summary>
 
 <picture>
