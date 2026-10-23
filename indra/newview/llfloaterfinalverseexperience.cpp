@@ -51,6 +51,7 @@ void LLFloaterFinalverseExperience::openPage(const std::string& page)
 }
 bool LLFloaterFinalverseExperience::postBuild()
 {
+    getChild<LLButton>("finalstorm")->setCommitCallback([](LLUICtrl*,const LLSD&){LLFloaterReg::showInstance("finalverse_storm");});
     getChild<LLButton>("create_earth")->setCommitCallback([](LLUICtrl*,const LLSD&){LLFloaterReg::showInstance("finalverse_earth");});
     for (const auto& binding : {std::pair<const char*,const char*>{"movement","move"}, {"camera","view"}, {"map","map"}, {"world_library","destinations"}, {"places","places"}, {"share","snapshot"}, {"inventory","inventory"}, {"profile","profile"}, {"outfits","appearance"}, {"settings","preferences"}, {"conversations","chat"}})
     {

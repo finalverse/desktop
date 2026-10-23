@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="finalverse_storm" title="FINALSTORM · NATIVE WORLD" width="680" height="500" layout="topleft" positioning="cascading" save_rect="true" can_minimize="true" can_resize="false">
+ <text name="heading" left="20" top="36" width="640" height="24" font="SansSerifLarge">Your world, rendered with FinalStorm</text>
+ <panel name="viewport" left="20" top="74" width="640" height="360" background_visible="true" bg_alpha_color="Black"/>
+ <text name="status" left="20" top="442" width="640" height="20" font="SansSerifSmall">Enter a world to begin.</text>
+ <button name="world" label="Return to world" left="20" top="468" width="160" height="26"/>
+ <button name="conversation" label="Conversation" left="192" top="468" width="160" height="26"/>
+ <text left="364" top="474" width="296" height="18" font="SansSerifSmall">Source preview · native camera controls</text>
+</floater>

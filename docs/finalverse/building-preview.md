@@ -139,3 +139,5 @@ The dependency source archive may be reused only when its pinned dependency
 versions are unchanged. The packager records its hash. Keep the unit-test log,
 protected-mount probe results and actual installed-app startup evidence with the
 release verification receipt; packaging success does not substitute for launch.
+
+The optional [FinalStorm viewport](rendering/finalstorm-viewport.md) is a source-build preview with separate application acceptance. It is not included in the existing packaged release.

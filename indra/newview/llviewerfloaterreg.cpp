@@ -39,6 +39,7 @@
 #include "llfloaterfinalverseai.h"
 #include "llfloaterfinalverseworkspace.h"
 #include "llfloaterfinalverseearth.h"
+#include "llfloaterfinalversestorm.h"
 #include "llfloaterfinalverserecipe.h"
 #include "llfloaterfinalverseexperience.h"
 #include "llfloateraddpaymentmethod.h"
@@ -336,6 +337,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("finalverse_workspace", "floater_finalverse_workspace.xml", &LLFloaterReg::build<LLFloaterFinalverseWorkspace>);
     LLFloaterReg::add("finalverse_conversation", "floater_finalverse_conversation.xml", &LLFloaterReg::build<LLFloaterFinalverseConversation>);
     LLFloaterReg::add("finalverse_ai", "floater_finalverse_ai.xml", &LLFloaterReg::build<LLFloaterFinalverseAI>);
+    LLFloaterReg::add("finalverse_storm", "floater_finalverse_storm.xml", &LLFloaterReg::build<LLFloaterFinalverseStorm>);
     LLFloaterReg::add("finalverse_earth", "floater_finalverse_earth.xml", &LLFloaterReg::build<LLFloaterFinalverseEarth>);
     LLFloaterReg::add("finalverse_recipe", "floater_finalverse_recipe.xml", &LLFloaterReg::build<LLFloaterFinalverseRecipe>);
     LLFloaterReg::add("360capture", "floater_360capture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater360Capture>);
