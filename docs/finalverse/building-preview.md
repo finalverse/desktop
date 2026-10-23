@@ -11,8 +11,8 @@ locally if Xcode asks for it. The pinned Python packages are in
 public archive URLs are in `autobuild.xml`.
 
 ```sh
-git clone https://github.com/finalverse/final_viewer.git
-cd final_viewer
+git clone https://github.com/finalverse/viewer.git
+cd viewer
 git checkout v0.4.0-preview.3
 python3.13 -m venv .venv
 .venv/bin/pip install -r docs/finalverse/toolchain-python.lock

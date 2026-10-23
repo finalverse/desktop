@@ -6,7 +6,7 @@ An AI-native persistent 3D world client, built incrementally on the mature
 open-source Second Life Viewer. Finalverse is the consumer experience;
 [MutSea](https://mutsea.com) is the authoritative spatial runtime behind it.
 
-**[Download the Mac developer preview](https://github.com/finalverse/final_viewer/releases/tag/v0.4.0-preview.3)** ·
+**[Download the Mac developer preview](https://github.com/finalverse/viewer/releases/tag/v0.4.0-preview.3)** ·
 **[Getting started](docs/finalverse/getting-started.md)** ·
 **[Native demos](docs/finalverse/demos.md)** ·
 **[Website](https://finalverse.com)**
@@ -15,13 +15,13 @@ open-source Second Life Viewer. Finalverse is the consumer experience;
 > ad hoc signed and **not notarized**. Create your own world account separately;
 > downloading alone does not register you. GA support is not offered.
 
-## Confluence continuity · v0.7 integration branch
+## Confluence continuity · source integration
 
-`codex/confluence-v07` adds explicit shared Earth sessions and original source
+The integrated Confluence source adds explicit shared Earth sessions and original source
 artifacts to the native Conversation window. CLI, Web and Viewer replay the same
 authorized session; chat grants cannot approve or edit a world. See the
 [integration and privacy guide](docs/finalverse/confluence-continuity.md).
-This R&D branch is not a new downloadable release; shared-session Lumi and the
+This source integration is not a new downloadable release; shared-session Lumi and the
 remaining acceptance gates are still open.
 
 ## Scene workspace · source on main
@@ -89,7 +89,7 @@ Updates are manual. [Release notes and limitations](docs/finalverse/releases/0.4
 - [Architecture and migration record](docs/finalverse/README.md)
 - [Hosted placement/Lumi acceptance](docs/finalverse/hosted-lumi-and-placement.md)
 - [MutSea server source](https://github.com/finalverse/mutsea-o)
-- [Issues](https://github.com/finalverse/final_viewer/issues)
+- [Issues](https://github.com/finalverse/viewer/issues)
 
 Keep fixes incremental, compatible and testable. Report the release tag,
 platform, reproduction steps and relevant evidence. Redact credentials, session

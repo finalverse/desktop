@@ -5,7 +5,7 @@ MutSea. This preview supports limited MutSea registration. Downloading the clien
 
 ## 1. Download from GitHub
 
-Open the [v0.4.0-preview.3 release](https://github.com/finalverse/final_viewer/releases/tag/v0.4.0-preview.3).
+Open the [v0.4.0-preview.3 release](https://github.com/finalverse/viewer/releases/tag/v0.4.0-preview.3).
 Choose `Finalverse-0.4.0-preview.3-mac-universal.dmg` and `SHA256SUMS.txt` from
 **Assets**. GitHub serves the installer; the world server does not host downloads.
 Source and dependency/build provenance are provided alongside the installer.
@@ -123,7 +123,7 @@ compensation, not unlimited restoration of arbitrary changes by other users.
 | Undo refused | Inspect History. Objects may have changed since the operation; do not delete unrelated objects. |
 
 Report reproducible issues through the
-[viewer issue tracker](https://github.com/finalverse/final_viewer/issues). Include
+[viewer issue tracker](https://github.com/finalverse/viewer/issues). Include
 the preview tag, Mac model/architecture, macOS version, steps and a relevant
 screenshot. Redact passwords, account email, capability URLs, session tokens,
 private chat and unrelated desktop content. Do not attach an entire profile.

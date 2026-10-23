@@ -13,6 +13,7 @@
 *.depend
 *.stamp
 *.rc
+*.idea
 
 *~
 
@@ -29,6 +30,7 @@ debian/files
 debian/secondlife-appearance-utility*
 debian/secondlife-viewer*
 indra/.distcc
+indra/.idea
 indra/out/*
 
 indra/packages/*
@@ -103,3 +105,5 @@ session-settings.xml
 /private/
 /profiles/
 .vscode
+CMakeFiles
+my_autobuild.xml
