@@ -2065,37 +2065,4 @@ namespace tut
         verify_autokill_on_helper_exit(get_test_name(), 2);
 #endif
     }
-    template<> template<>
-    void object::test<38>()
-    {
-        set_test_name("append while a pipe write is pending");
-        NamedTempFile release("release", "wait");
-        PythonProcessLauncher py(get_test_name(),
-                                 "import sys, time\n"
-                                 "deadline = time.monotonic() + 10\n"
-                                 "while open(sys.argv[1]).read() != 'go':\n"
-                                 "    if time.monotonic() > deadline: raise RuntimeError('release timed out')\n"
-                                 "    time.sleep(0.01)\n"
-                                 "expected = b'A' * (1 << 20) + b'B' * (2 << 20)\n"
-                                 "received = sys.stdin.buffer.read(len(expected))\n"
-                                 "print('valid' if received == expected else 'corrupt')\n");
-        py.mParams.args.add(release.getPath().string());
-        py.mParams.files.add(LLProcess::FileParam("pipe"));
-        py.mParams.files.add(LLProcess::FileParam("pipe"));
-        py.launch();
-        auto& input = py.mPy->getWritePipe(LLProcess::STDIN).get_ostream();
-        // The child cannot drain stdin yet, so this exceeds the OS pipe's
-        // capacity and leaves async_write pending when the streambuf grows.
-        input << std::string(1 << 20, 'A') << std::flush;
-        yield();
-        input << std::string(2 << 20, 'B') << std::flush;
-        {
-            std::ofstream ready(release.getPath().string());
-            ready << "go";
-        }
-        waitfor(*py.mPy);
-        ensure_equals("child exit", py.mPy->getStatus().mData, 0);
-        ensure_equals("all pending and appended bytes arrived unchanged",
-                      py.mPy->getReadPipe(LLProcess::STDOUT).read(), "valid" EOL);
-    }
 } // namespace tut

@@ -16,6 +16,9 @@
 // STL headers
 // std headers
 #include <functional>
+#include <chrono>
+#include <fstream>
+#include <thread>
 // external library headers
 // other Linden headers
 #include "../test/lltut.h"
@@ -656,5 +659,54 @@ namespace tut
     {
         set_test_name("very large message");
         test_or_split(PYTHON, reader_module, get_test_name(), BUFFERED_LENGTH);
+    }
+
+    template<> template<>
+    void object::test<11>()
+    {
+        set_test_name("append while a pipe write is pending");
+        // Keep this in the active suite: the inherited llprocess suite is disabled.
+        NamedTempFile release("release", "wait");
+        NamedTempFile script("py",
+                             "import sys, time\n"
+                             "deadline = time.monotonic() + 10\n"
+                             "while open(sys.argv[1]).read() != 'go':\n"
+                             "    if time.monotonic() > deadline: raise RuntimeError('release timed out')\n"
+                             "    time.sleep(0.01)\n"
+                             "expected = b'A' * (1 << 20) + b'B' * (2 << 20)\n"
+                             "received = sys.stdin.buffer.read(len(expected))\n"
+                             "print('valid' if received == expected else 'corrupt')\n");
+        LLProcess::Params params;
+        params.desc = get_test_name();
+        params.executable = PYTHON;
+        params.args.add(script.getPath().string());
+        params.args.add(release.getPath().string());
+        params.files.add(LLProcess::FileParam("pipe"));
+        params.files.add(LLProcess::FileParam("pipe"));
+        auto child = LLProcess::create(params);
+        ensure("child launched", bool(child));
+        auto& input = child->getWritePipe(LLProcess::STDIN).get_ostream();
+        // The gated child cannot drain stdin. Start a write larger than the OS
+        // pipe, then force the backing streambuf to grow while it is pending.
+        input << std::string(1 << 20, 'A') << std::flush;
+        LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        input << std::string(2 << 20, 'B') << std::flush;
+        {
+            std::ofstream ready(release.getPath().string());
+            ready << "go";
+        }
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);
+        while (child->isRunning() && std::chrono::steady_clock::now() < deadline)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        }
+        ensure("child completed", !child->isRunning());
+        LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        ensure_equals("child exit", child->getStatus().mData, 0);
+        auto& output = child->getReadPipe(LLProcess::STDOUT);
+        auto reply = output.read(output.size());
+        LLStringUtil::trim(reply);
+        ensure_equals("all pending and appended bytes arrived unchanged", reply, "valid");
     }
 } // namespace tut
