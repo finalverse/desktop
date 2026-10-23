@@ -158,7 +158,8 @@ std::string captureNativeScene()
                     geometricNormals[index] += normal;
                     if (remap[index] < 0)
                     {
-                        remap[index] = used.size();
+                        // The face was bounded to the 65,536-vertex ABI budget.
+                        remap[index] = static_cast<int>(used.size());
                         used.push_back(index);
                     }
                     out["indices"].append(remap[index]);
@@ -199,8 +200,8 @@ std::string captureNativeScene()
                 continue;
             const LLColor4 color = te ? te->getColor() : LLColor4::white;
             out["color"]         = vector(color.mV, 4);
-            vertices += used.size();
-            indices += out["indices"].size();
+            vertices += static_cast<int>(used.size());
+            indices += static_cast<int>(out["indices"].size());
             ++faces;
             item["faces"].append(out);
         }

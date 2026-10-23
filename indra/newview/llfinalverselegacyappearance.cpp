@@ -135,7 +135,10 @@ void llfinalverseUploadLegacyBake(LLViewerTexLayerSet* layer, S32 x, S32 y, S32 
     { LL_WARNS("Avatar") << "Client bake encoding failed" << LL_ENDL; return; }
     auto bytes = std::make_shared<std::vector<U8>>(image->getData(), image->getData() + image->getDataSize());
     LLUUID checksum;
-    LLMD5(bytes->data(), bytes->size()).raw_digest(checksum.mData);
+    LLMD5 digest;
+    digest.update(bytes->data(), bytes->size());
+    digest.finalize();
+    digest.raw_digest(checksum.mData);
     LLCoros::instance().launch("FinalverseLegacyBake", [capability, bytes, te, generation, session, region_id, checksum]()
     {
         LLCoreHttpUtil::HttpCoroutineAdapter adapter("FinalverseLegacyBake", LLCore::HttpRequest::DEFAULT_POLICY_ID);
