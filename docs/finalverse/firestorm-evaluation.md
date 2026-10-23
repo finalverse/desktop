@@ -33,6 +33,8 @@ entries for Havok or Kakadu alone do not establish that they are linked or
 distributed. Existing [packaging checks and distribution audit](licensing-audit.md)
 continue to govern actual artifacts, including voice/media exclusions and
 corresponding dependency source. This comparison grants no additional rights.
+Firestorm's own build guide also requires appropriate licenses before enabling
+Kakadu or Havok; choosing Firestorm does not supply those licenses.
 
 ## Alternative source and port boundary
 
@@ -59,5 +61,6 @@ migration or accepted Firestorm binary in this change.
 - [Pinned Firestorm README](https://github.com/FirestormViewer/phoenix-firestorm/blob/4ac201fdc56127de27de34567286885f4e75d194/README.md): derivation and release-branch guidance.
 - [Pinned inherited source notice](https://github.com/FirestormViewer/phoenix-firestorm/blob/4ac201fdc56127de27de34567286885f4e75d194/doc/LICENSE-source.txt) and [license](https://github.com/FirestormViewer/phoenix-firestorm/blob/4ac201fdc56127de27de34567286885f4e75d194/LICENSE).
 - [Pinned Firestorm dependency manifest](https://github.com/FirestormViewer/phoenix-firestorm/blob/4ac201fdc56127de27de34567286885f4e75d194/autobuild.xml).
+- [Pinned Firestorm macOS build guide](https://github.com/FirestormViewer/phoenix-firestorm/blob/4ac201fdc56127de27de34567286885f4e75d194/doc/building_macos.md): optional library licenses and build configurations.
 - [Linden Third Party Viewer policy](https://secondlife.com/corporate/third-party-viewers): service access and open-source use are explicitly distinguished.
 - Local [source notice](../../doc/LICENSE-source.txt), [license](../../LICENSE), [build configuration](../../autobuild.xml) and [CLA workflow](../../.github/workflows/cla.yaml).
