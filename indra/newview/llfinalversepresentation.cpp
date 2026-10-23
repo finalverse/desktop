@@ -41,7 +41,7 @@ std::string llfinalverseQuickAction(const std::string& text)
     static const std::map<std::string,std::string> actions{
         {"/world","world"}, {"/fps","first_person"}, {"/overview","overview"}, {"/bird","overview"},
         {"/create","create"}, {"/worlds","destinations"}, {"/map","map"}, {"/inventory","inventory"},
-        {"/friends","friends"}, {"/me","profile"}, {"/help","help"}};
+        {"/storm","finalstorm"}, {"/friends","friends"}, {"/me","profile"}, {"/help","help"}};
     const auto found = actions.find(command);
     return found == actions.end() ? std::string() : found->second;
 }
@@ -50,6 +50,7 @@ LLSD llfinalverseFindActions(const std::string& query)
 {
     struct Action { const char* id; const char* title; const char* keywords; };
     static const Action actions[] = {
+        {"finalstorm", "FinalStorm preview", "native renderer geometry viewport"},
         {"destinations", "World Library", "explore regions teleport samples confluence"},
         {"map", "World map", "travel regions teleport geography"},
         {"inventory", "Inventory", "assets objects items folders"},

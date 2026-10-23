@@ -18,7 +18,7 @@ namespace
 {
 bool actionAvailable(const std::string& name)
 {
-    if (name == "friends" || name == "nearby") return true;
+    if (name == "friends" || name == "nearby" || name == "finalstorm") return true;
     auto command = LLCommandManager::instance().getCommand(LLCommandId(name));
     if (!command || !LLUICtrl::CommitCallbackRegistry::getValue(command->executeFunctionName())) return false;
     auto enabled = LLUICtrl::EnableCallbackRegistry::getValue(command->isEnabledFunctionName());
@@ -28,6 +28,11 @@ bool actionAvailable(const std::string& name)
 
 void LLFloaterFinalverseExperience::executeCommand(const std::string& name)
 {
+    if (name == "finalstorm")
+    {
+        LLFloaterReg::showInstance("finalverse_storm");
+        return;
+    }
     if (name == "friends" || name == "nearby")
     {
         LLFloaterSidePanelContainer::showPanel("people","panel_people",LLSD().with("people_panel_tab_name",name == "friends" ? "friends_panel" : "nearby_panel"));
