@@ -1,8 +1,17 @@
 repos:
+  # The upstream hook only understands Linden's $LicenseInfo syntax. Preserve
+  # those notices while accepting explicit SPDX notices on Finalverse sources.
+  - repo: local
+    hooks:
+      - id: opensource-license
+        name: Code Has Opensource License
+        entry: python3 scripts/finalverse/check_source_license.py
+        language: system
+        types: [text]
+        files: \.(cpp|c|h|py|glsl)$
   - repo: https://github.com/secondlife/git-hooks.git
     rev: v1.0.2
     hooks:
-      - id: opensource-license
       - id: llsd
       - id: no-trigraphs
       - id: copyright
